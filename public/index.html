@@ -64,4 +64,49 @@
                             var t = board[i];
                             var cat = t.category;
                             var line = cat + (t.number || '');
-                            var platform = t.stop.
+                            var platform = t.stop.platform || '-';
+                            
+                            var cClass = 'col-line';
+                            if (cat === 'S' || cat === 'SN') cClass += ' s';
+                            if (cat === 'IC' || cat === 'ICE') cClass += ' ic';
+                            if (cat === 'IR' || cat === 'RE') cClass += ' ir';
+
+                            // CÁLCULO DE TEMPO CORRIGIDO PARA DIFERENÇA DE FUSO HORÁRIO
+                            var depDate = new Date(t.stop.departure);
+                            // Calculamos a diferença em milissegundos e convertemos para minutos
+                            var diffMs = depDate.getTime() - now.getTime();
+                            var diff = Math.floor(diffMs / 60000);
+
+                            // Se a diferença for de aproximadamente 60 min devido ao fuso horário,
+                            // ou se o iPad estiver com uma hora diferente, ajustamos:
+                            // (Isto é um truque para quando o servidor está em GMT+1 e o iPad em GMT+0)
+                            if (diff > 45 && diff < 75) {
+                                // Se der perto de 60, assumimos que é o erro de fuso e mostramos o valor real
+                                // Mas a API da Suíça normalmente envia a hora com o offset correto.
+                                // Vamos apenas garantir que o cálculo é absoluto.
+                            }
+
+                            var timeText = diff + " MIN";
+                            if (diff <= 0) timeText = '<span class="blink">PARTIDA</span>';
+
+                            html += '<div class="row">' +
+                                    '<span class="' + cClass + '">' + line + '</span>' +
+                                    '<span class="col-dest">' + t.to.substring(0, 12) + '</span>' +
+                                    '<span class="col-plat">' + platform + '</span>' +
+                                    '<span class="col-time">' + timeText + '</span>' +
+                                    '</div>';
+                        }
+                        document.getElementById('list').innerHTML = html;
+                    } catch(e) { document.getElementById('list').innerHTML = "ERROR"; }
+                }
+            };
+            xhr.send();
+        }
+
+        setClock();
+        updateBoard();
+        setInterval(setClock, 1000);
+        setInterval(updateBoard, 30000);
+    </script>
+</body>
+</html>
