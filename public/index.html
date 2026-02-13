@@ -2,79 +2,72 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
-        body { background: #000; color: #ff9900; font-family: 'VT323', monospace; margin: 0; padding: 15px; overflow: hidden; }
-        .header { font-size: 28px; color: #444; display: flex; justify-content: space-between; border-bottom: 2px solid #222; margin-bottom: 10px; }
-        .row { display: flex; justify-content: space-between; font-size: 48px; line-height: 1.1; margin-bottom: 8px; border-bottom: 1px solid #111; }
+        body { background: #000; color: #ff9900; font-family: 'VT323', monospace; margin: 0; padding: 20px; }
+        .header { font-size: 30px; color: #444; display: flex; justify-content: space-between; border-bottom: 2px solid #222; }
+        .row { display: flex; justify-content: space-between; font-size: 45px; margin-top: 15px; border-bottom: 1px solid #111; }
         .time { color: #00ff00; }
-        .line { color: #fff; min-width: 80px; }
+        .line { color: #fff; background: #d30130; padding: 0 5px; border-radius: 4px; }
     </style>
 </head>
 <body>
     <div class="header">
-        <span>AV. BONS AMIGOS</span>
+        <span>FRANKFURT GRIESHEIM</span>
         <span id="clock">00:00</span>
     </div>
-    <div id="list">A LIGAR À CARRIS...</div>
+    <div id="list">A LIGAR À DB...</div>
 
     <script>
         function setClock() {
             var now = new Date();
-            var h = ("0" + now.getHours()).slice(-2);
-            var m = ("0" + now.getMinutes()).slice(-2);
-            document.getElementById('clock').innerHTML = h + ":" + m;
+            document.getElementById('clock').innerHTML = ("0" + now.getHours()).slice(-2) + ":" + ("0" + now.getMinutes()).slice(-2);
         }
 
-        function getBuses() {
+        function getTrainData() {
             var xhr = new XMLHttpRequest();
-            // ESTA É A NOVA URL QUE SUBSTITUI A QUE DEU 404
-            var url = 'https://api.carrismetropolitana.pt/stops/172500/predictions';
+            // API pública para transportes em Frankfurt (Griesheim station ID: 8002046)
+            var url = 'https://v6.db.transport.rest/stops/8002046/departures?duration=60&results=6';
             
             xhr.open('GET', url, true);
             xhr.onreadystatechange = function() {
-                if (xhr.readyState == 4) {
-                    if (xhr.status == 200) {
-                        try {
-                            var data = JSON.parse(xhr.responseText);
-                            var html = '';
-                            
-                            if (!data || data.length === 0) {
-                                document.getElementById('list').innerHTML = '<div class="row">SEM AUTOCARROS</div>';
-                                return;
-                            }
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    var data = JSON.parse(xhr.responseText);
+                    var html = '';
+                    var departures = data.departures;
 
-                            // Ordenar por tempo de espera (os mais próximos primeiro)
-                            data.sort(function(a, b) { return a.wait_time - b.wait_time; });
-
-                            for (var i = 0; i < Math.min(data.length, 6); i++) {
-                                var wait = data[i].wait_time;
-                                var timeDisplay = (wait <= 0) ? "CHEGAR" : wait + "m";
-                                
-                                html += '<div class="row">' +
-                                        '<span class="line">' + data[i].line_id + '</span>' +
-                                        '<span style="flex-grow:1;margin-left:10px">' + data[i].headsign.substring(0,10) + '</span>' +
-                                        '<span class="time">' + timeDisplay + '</span>' +
-                                        '</div>';
-                            }
-                            document.getElementById('list').innerHTML = html;
-                        } catch (e) {
-                            document.getElementById('list').innerHTML = '<div class="row">ERRO DE DADOS</div>';
-                        }
-                    } else {
-                        // Se continuar a dar 404, ele avisa aqui
-                        document.getElementById('list').innerHTML = '<div class="row">CARRIS FORA (404)</div>';
+                    if (!departures || departures.length === 0) {
+                        document.getElementById('list').innerHTML = "SEM COMBOIOS AGORA";
+                        return;
                     }
+
+                    for (var i = 0; i < departures.length; i++) {
+                        var dep = departures[i];
+                        var line = dep.line.name;
+                        var direction = dep.direction.substring(0,12);
+                        
+                        // Cálculo de tempo simples para o iPad antigo
+                        var planned = new Date(dep.when || dep.plannedWhen);
+                        var now = new Date();
+                        var diff = Math.round((planned - now) / 60000);
+                        var timeText = diff <= 0 ? "JETZT" : diff + "m";
+
+                        html += '<div class="row">' +
+                                '<span class="line">' + line + '</span>' +
+                                '<span>' + direction.toUpperCase() + '</span>' +
+                                '<span class="time">' + timeText + '</span>' +
+                                '</div>';
+                    }
+                    document.getElementById('list').innerHTML = html;
                 }
             };
             xhr.send();
         }
 
         setInterval(setClock, 1000);
-        setInterval(getBuses, 30000);
+        setInterval(getTrainData, 30000);
         setClock();
-        getBuses();
+        getTrainData();
     </script>
 </body>
 </html>
