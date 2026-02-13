@@ -11,18 +11,18 @@
             background-size: 3px 3px;
         }
         .header { font-size: 26px; color: #444; border-bottom: 2px solid #222; height: 35px; margin-bottom: 15px; }
-        #clock { float: right; color: #ff9900; letter-spacing: 2px; }
+        #clock { float: right; color: #ff9900; }
         .row { clear: both; font-size: 34px; border-bottom: 1px solid #111; height: 50px; line-height: 50px; display: flex; align-items: center; }
         .col-line { width: 15%; font-weight: bold; color: #ffff00; }
         .col-dest { width: 55%; color: #ccc; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
         .col-stop { width: 10%; color: #444; font-size: 18px; text-align: center; font-weight: bold; }
-        .col-time { width: 20%; text-align: right; color: #ff9900; font-weight: bold; }
+        .col-time { width: 20%; text-align: right; color: #ff9900; }
         .live-icon { color: #50ff50; font-size: 16px; margin-left: 5px; }
     </style>
 </head>
 <body>
-    <div class="header"><span>INTERFACE CACÉM • HORÁRIO REAL</span><span id="clock">00:00:00</span></div>
-    <div id="list">A RECALCULAR FUSO HORÁRIO...</div>
+    <div class="header"><span>CACÉM • MODO NOTURNO</span><span id="clock">00:00:00</span></div>
+    <div id="list">A PROCURAR ÚLTIMOS SERVIÇOS...</div>
 
     <script>
         function setClock() {
@@ -30,20 +30,17 @@
             document.getElementById('clock').innerHTML = ("0" + now.getHours()).slice(-2) + ":" + ("0" + now.getMinutes()).slice(-2) + ":" + ("0" + now.getSeconds()).slice(-2);
         }
 
-        // Função para limpar as horas loucas da API (ex: 25:00 -> 01:00)
         function formatCMTime(timeStr) {
-            if (!timeStr) return "00:00";
+            if (!timeStr) return "??:??";
             let parts = timeStr.split(':');
             let hour = parseInt(parts[0]);
-            let mins = parts[1];
-            
             if (hour >= 24) hour -= 24;
-            
-            return ("0" + hour).slice(-2) + ":" + mins;
+            return ("0" + hour).slice(-2) + ":" + parts[1];
         }
 
         async function updateBoard() {
-            const stopIds = ['170459', '172500']; 
+            // Adicionei a 110543 para garantir que vemos movimento agora
+            const stopIds = ['170459', '172500', '110543']; 
             try {
                 const results = await Promise.all(stopIds.map(id => 
                     fetch(`https://api.carrismetropolitana.pt/stops/${id}/realtime`)
@@ -52,13 +49,17 @@
                 ));
                 
                 let all = [].concat(...results);
-                
-                // Ordenar pelo Unix para manter a sequência lógica
-                all.sort((a, b) => (a.scheduled_arrival_unix) - (b.scheduled_arrival_unix));
+                const nowUnix = Math.floor(Date.now() / 1000);
+
+                // Filtrar apenas o que é DEPOIS de agora (para ignorar o que já passou hoje)
+                // e limitar a mostrar as próximas horas
+                let upcoming = all.filter(d => (d.estimated_arrival_unix || d.scheduled_arrival_unix) > nowUnix - 300);
+
+                upcoming.sort((a, b) => (a.scheduled_arrival_unix) - (b.scheduled_arrival_unix));
 
                 let html = '';
-                all.slice(0, 11).forEach(d => {
-                    let rawTime = d.estimated_arrival || d.scheduled_arrival || "00:00";
+                upcoming.slice(0, 11).forEach(d => {
+                    let rawTime = d.estimated_arrival || d.scheduled_arrival;
                     let displayTime = formatCMTime(rawTime);
                     const isLive = d.estimated_arrival ? '<span class="live-icon">📡</span>' : '';
 
@@ -70,9 +71,9 @@
                     </div>`;
                 });
 
-                document.getElementById('list').innerHTML = html || '<div class="row">SEM MAIS SERVIÇO</div>';
+                document.getElementById('list').innerHTML = html || '<div class="row">FIM DE SERVIÇO HOJE</div>';
             } catch (e) {
-                document.getElementById('list').innerHTML = "ERRO NA LIGAÇÃO";
+                document.getElementById('list').innerHTML = "ERRO NA REDE";
             }
         }
 
