@@ -19,25 +19,31 @@
     <div id="list">A LIGAR...</div>
 
     <script>
-        function setClock() {
-            var now = new Date();
-            var h = ("0" + now.getHours()).slice(-2);
-            var m = ("0" + now.getMinutes()).slice(-2);
-            document.getElementById('clock').innerHTML = h + ":" + m;
-        }
+    function setClock() {
+        var now = new Date();
+        var h = ("0" + now.getHours()).slice(-2);
+        var m = ("0" + now.getMinutes()).slice(-2);
+        document.getElementById('clock').innerHTML = h + ":" + m;
+    }
 
-        function getBuses() {
-            var xhr = new XMLHttpRequest();
-            // Usamos o AllOrigins para garantir que o Mac e o iPad não bloqueiam a ligação
-            var proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent('https://api.carrismetropolitana.pt/stops/172500/estimations');
-            
-            xhr.open('GET', proxyUrl, true);
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState == 4 && xhr.status == 200) {
-                    var response = JSON.parse(xhr.responseText);
-                    var data = JSON.parse(response.contents);
+    function getBuses() {
+        var xhr = new XMLHttpRequest();
+        // Ligação DIRETA (sem proxies que possam falhar ou dar dados vazios)
+        var url = 'https://api.carrismetropolitana.pt/stops/172500/estimations';
+        
+        xhr.open('GET', url, true);
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState == 4) {
+                if (xhr.status == 200) {
+                    var data = JSON.parse(xhr.responseText);
                     var html = '';
                     
+                    if (!data || data.length === 0) {
+                        document.getElementById('list').innerHTML = '<div class="row">SEM ESTIMATIVAS</div>';
+                        return;
+                    }
+
+                    // Mostra os primeiros 5 autocarros
                     for (var i = 0; i < Math.min(data.length, 5); i++) {
                         html += '<div class="row">' +
                                 '<span>' + data[i].line_id + '</span>' +
@@ -45,16 +51,17 @@
                                 '<span class="time">' + data[i].wait_time + 'm</span>' +
                                 '</div>';
                     }
-                    document.getElementById('list').innerHTML = html || 'SEM SERVIÇO';
+                    document.getElementById('list').innerHTML = html;
+                } else {
+                    document.getElementById('list').innerHTML = '<div class="row">ERRO NA API</div>';
                 }
-            };
-            xhr.send();
-        }
+            }
+        };
+        xhr.send();
+    }
 
-        setInterval(setClock, 1000);
-        setInterval(getBuses, 30000);
-        setClock();
-        getBuses();
-    </script>
-</body>
-</html>
+    setInterval(setClock, 1000);
+    setInterval(getBuses, 30000);
+    setClock();
+    getBuses();
+</script>
