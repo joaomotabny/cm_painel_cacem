@@ -42,4 +42,96 @@
         /* Cores de Categoria com Glow */
         .ic { color: #ff0000; text-shadow: 0 0 8px #ff0000; }
         .s { color: #ffff00; text-shadow: 0 0 8px #ffff00; }
-        .ir { color: #
+        .ir { color: #ff6600; }
+
+        /* Animação de Piscar */
+        @keyframes blinker { 50% { opacity: 0; } }
+        .blink { animation: blinker 1s linear infinite; color: #ff0000; font-weight: bold; }
+
+        #clock { color: #fff; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <span>STATION: ZÜRICH HB</span>
+        <span id="clock">00:00</span>
+    </div>
+
+    <div class="row" style="font-size: 18px; color: #444; height: 30px; border-bottom: 2px solid #222;">
+        <span class="col-line">LINHA</span>
+        <span class="col-dest">DESTINO</span>
+        <span class="col-plat">PLAT</span>
+        <span class="col-time">TEMPO</span>
+    </div>
+
+    <div id="list">LADEN...</div>
+
+    <script>
+        function setClock() {
+            var now = new Date();
+            var h = ("0" + now.getHours()).slice(-2);
+            var m = ("0" + now.getMinutes()).slice(-2);
+            document.getElementById('clock').innerHTML = h + ":" + m;
+        }
+
+        function updateBoard() {
+            var xhr = new XMLHttpRequest();
+            // API Suíça direta
+            var url = 'https://transport.opendata.ch/v1/stationboard?station=Zurich,HB&limit=9';
+            
+            xhr.open('GET', url, true);
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    try {
+                        var data = JSON.parse(xhr.responseText);
+                        var html = '';
+                        var board = data.stationboard;
+                        
+                        for (var i = 0; i < board.length; i++) {
+                            var t = board[i];
+                            var cat = t.category;
+                            var line = cat + (t.number || '');
+                            var platform = t.stop.platform || '-';
+                            
+                            // Definir estilo por categoria
+                            var cClass = 'col-line';
+                            if (cat === 'S' || cat === 'SN') cClass += ' s';
+                            if (cat === 'IC' || cat === 'ICE') cClass += ' ic';
+                            if (cat === 'IR' || cat === 'RE') cClass += ' ir';
+
+                            // CORREÇÃO DE DATA PARA SAFARI ANTIGO (iOS 9/12)
+                            // O Safari precisa de "/" em vez de "-"
+                            var dateStr = t.stop.departure.replace(/-/g, "/").replace(/T/g, " ").split("+")[0];
+                            var depTime = new Date(dateStr);
+                            var now = new Date();
+                            var diff = Math.round((depTime - now) / 60000);
+
+                            var timeDisplay = diff + ' MIN';
+                            if (diff <= 0) {
+                                timeDisplay = '<span class="blink">PARTIDA</span>';
+                            }
+
+                            html += '<div class="row">' +
+                                    '<span class="' + cClass + '">' + line + '</span>' +
+                                    '<span class="col-dest">' + t.to.toUpperCase().substring(0, 14) + '</span>' +
+                                    '<span class="col-plat">' + platform + '</span>' +
+                                    '<span class="col-time">' + timeDisplay + '</span>' +
+                                    '</div>';
+                        }
+                        document.getElementById('list').innerHTML = html;
+                    } catch(e) {
+                        document.getElementById('list').innerHTML = "ERRO PROCESSAMENTO";
+                    }
+                }
+            };
+            xhr.send();
+        }
+
+        // Iniciar e definir intervalos
+        setInterval(setClock, 1000);
+        setInterval(updateBoard, 30000);
+        setClock(); 
+        updateBoard();
+    </script>
+</body>
+</html>
