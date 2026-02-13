@@ -4,76 +4,113 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
-        body { background: #000; color: #ff9900; font-family: 'VT323', monospace; margin: 0; padding: 20px; overflow: hidden; }
-        .header { font-size: 35px; color: #444; display: flex; justify-content: space-between; border-bottom: 2px solid #222; margin-bottom: 10px; }
-        .row { display: flex; justify-content: space-between; font-size: 50px; line-height: 1.2; margin-top: 15px; border-bottom: 1px solid #111; }
-        .time { color: #00ff00; }
-        .line { color: #fff; background: #d30130; padding: 0 8px; border-radius: 4px; min-width: 60px; text-align: center; }
+        body { 
+            background: #000; 
+            color: #ff9900; 
+            font-family: 'Courier New', Courier, monospace; 
+            margin: 0; 
+            padding: 15px; 
+            font-weight: bold; 
+            overflow: hidden; 
+        }
+        .header { 
+            font-size: 24px; 
+            color: #444; 
+            display: flex; 
+            justify-content: space-between; 
+            border-bottom: 1px solid #222; 
+            padding-bottom: 5px; 
+        }
+        .row { 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            font-size: 42px; 
+            height: 65px; 
+            border-bottom: 1px solid #111; 
+        }
+        .cp-line { 
+            background: #005596; /* Azul CP */
+            color: #fff; 
+            padding: 2px 10px; 
+            border-radius: 4px; 
+            font-size: 28px; 
+            min-width: 60px; 
+            text-align: center; 
+        }
+        .dest { 
+            flex-grow: 1; 
+            margin-left: 15px; 
+            white-space: nowrap; 
+            overflow: hidden; 
+            text-transform: uppercase; 
+        }
+        .time { 
+            color: #00ff00; 
+            min-width: 95px; 
+            text-align: right; 
+        }
     </style>
 </head>
 <body>
     <div class="header">
-        <span>F-GRIESHEIM</span>
+        <span>AGUALVA-CACÉM</span>
         <span id="clock">00:00</span>
     </div>
-    <div id="list">SEARCHING DB...</div>
+    <div id="list">A PROCURAR...</div>
 
     <script>
         function setClock() {
             var now = new Date();
-            var h = ("0" + now.getHours()).slice(-2);
-            var m = ("0" + now.getMinutes()).slice(-2);
-            document.getElementById('clock').innerHTML = h + ":" + m;
+            document.getElementById('clock').innerHTML = ("0" + now.getHours()).slice(-2) + ":" + ("0" + now.getMinutes()).slice(-2);
         }
 
-        function getTrainData() {
+        function getTrains() {
             var xhr = new XMLHttpRequest();
-            // API da Deutsche Bahn (Griesheim station ID: 8002046)
-            var url = 'https://v6.db.transport.rest/stops/8002046/departures?duration=60&results=6';
+            // ID da Estação Agualva-Cacém no sistema de transportes: 8251006
+            var url = 'https://v6.db.transport.rest/stops/8251006/departures?duration=60&results=15';
             
-            xhr.open('GET', url, true);
             xhr.onreadystatechange = function() {
                 if (xhr.readyState == 4 && xhr.status == 200) {
                     try {
                         var data = JSON.parse(xhr.responseText);
+                        var deps = data.departures;
                         var html = '';
-                        var departures = data.departures;
+                        var count = 0;
 
-                        if (!departures || departures.length === 0) {
-                            document.getElementById('list').innerHTML = '<div class="row">KEINE ZÜGE</div>';
-                            return;
-                        }
+                        for (var i = 0; i < deps.length; i++) {
+                            // Filtramos para ignorar autocarros, queremos comboios (Urbano, Regional, etc)
+                            if (deps[i].line.product === 'bus') continue;
+                            if (count >= 7) break;
 
-                        for (var i = 0; i < Math.min(departures.length, 5); i++) {
-                            var dep = departures[i];
-                            var line = dep.line.name;
-                            var direction = (dep.direction || "FRANKFURT").substring(0,10).toUpperCase();
+                            var planned = new Date(deps[i].when || deps[i].plannedWhen);
+                            var diff = Math.round((planned - new Date()) / 60000);
+                            var t = diff <= 0 ? "AGORA" : diff + "min";
                             
-                            var planned = new Date(dep.when || dep.plannedWhen);
-                            var now = new Date();
-                            var diff = Math.round((planned - now) / 60000);
-                            var timeText = diff <= 0 ? "JETZT" : diff + "m";
+                            var lineName = deps[i].line.name;
+                            if(lineName.length > 4) lineName = "CP";
 
                             html += '<div class="row">' +
-                                    '<span class="line">' + line + '</span>' +
-                                    '<span style="flex-grow:1; margin-left:15px">' + direction + '</span>' +
-                                    '<span class="time">' + timeText + '</span>' +
+                                    '<div class="cp-line">' + lineName + '</div>' +
+                                    '<div class="dest">' + deps[i].direction.substring(0,12) + '</div>' +
+                                    '<div class="time">' + t + '</div>' +
                                     '</div>';
+                            count++;
                         }
-                        document.getElementById('list').innerHTML = html;
-                    } catch(e) {
-                        document.getElementById('list').innerHTML = '<div class="row">DATA ERROR</div>';
+                        document.getElementById('list').innerHTML = html || "SEM COMBOIOS";
+                    } catch(e) { 
+                        document.getElementById('list').innerHTML = "ERRO DE DADOS";
                     }
                 }
             };
+            xhr.open('GET', url, true);
             xhr.send();
         }
 
         setInterval(setClock, 1000);
-        setInterval(getTrainData, 30000);
-        setClock();
-        getTrainData();
+        setInterval(getTrains, 30000);
+        setClock(); 
+        getTrains();
     </script>
 </body>
 </html>
