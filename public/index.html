@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Av Bons Amigos (Largo)</title>
+
+<style>
+body{
+    background:#000;
+    color:#ffcc33;
+    font-family: monospace;
+    margin:0;
+    padding:30px;
+}
+
+.header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:30px;
+}
+
+.stop{
+    font-size:32px;
+    color:white;
+}
+
+.clock{
+    font-size:28px;
+}
+
+.row{
+    display:flex;
+    justify-content:space-between;
+    font-size:46px;
+    padding:14px 0;
+    border-bottom:1px solid #222;
+}
+
+.line{
+    color:white;
+    width:120px;
+}
+
+.dest{
+    flex:1;
+}
+
+.time{
+    width:140px;
+    text-align:right;
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+    <div class="stop">AV BONS AMIGOS (LARGO)</div>
+    <div class="clock" id="clock"></div>
+</div>
+
+<div id="board"></div>
+
+<script>
+
+const STOP_ID = "172500";
+
+function updateClock(){
+    const now = new Date();
+    document.getElementById("clock").innerText =
+        now.toLocaleTimeString("pt-PT",{hour:"2-digit",minute:"2-digit"});
+}
+
+async function load() {
+    try {
+        const res = await fetch(`/api/buses?stop=${STOP_ID}`);
+        const data = await res.json();
+
+        const board = document.getElementById("board");
+        board.innerHTML = "";
+
+        if(!data || data.length === 0){
+            board.innerHTML = "<div class='row'>Sem partidas previstas</div>";
+            return;
+        }
+
+        data.slice(0,6).forEach(bus=>{
+
+            const arrival = new Date(bus.expectedArrival);
+            const minutes = Math.max(
+                0,
+                Math.round((arrival - new Date())/60000)
+            );
+
+            board.innerHTML += `
+                <div class="row">
+                    <div class="line">${bus.line}</div>
+                    <div class="dest">${bus.destination}</div>
+                    <div class="time">${minutes} min</div>
+                </div>
+            `;
+        });
+
+    } catch(e){
+        document.getElementById("board").innerHTML =
+            "<div class='row'>Erro a carregar dados</div>";
+    }
+}
+
+updateClock();
+load();
+
+setInterval(updateClock,1000);
+setInterval(load,15000);
+
+</script>
+</body>
+</html>
