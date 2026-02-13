@@ -17,14 +17,20 @@
         .col-dest { float: left; width: 52%; color: #bbb; overflow: hidden; white-space: nowrap; }
         .col-plat { float: left; width: 10%; color: #ff9900; text-align: center; }
         .col-time { float: left; width: 20%; text-align: right; }
-        .ice { color: #ff3333; } .s { color: #50ff50; } .re { color: #ff8000; }
+        
+        /* Cores CP: AP/Longo Curso (Verde/Azul), Urbanos (Amarelo) */
+        .ap { color: #00ffff; text-shadow: 0 0 5px #00ffff; } /* Alfa Pendular */
+        .ic { color: #ff3333; } /* Intercidades */
+        .u { color: #ffff00; } /* Urbanos */
+        .r { color: #ff8000; } /* Regional */
+
         @keyframes blinker { 50% { opacity: 0; } }
         .blink { animation: blinker 0.8s linear infinite; color: #ff3333; font-weight: bold; }
     </style>
 </head>
 <body>
-    <div class="header"><span>DB FRANKFURT MAIN</span><span id="clock">00:00</span></div>
-    <div id="list">A CARREGAR...</div>
+    <div class="header"><span>CP LISBOA ORIENTE</span><span id="clock">00:00</span></div>
+    <div id="list">A PROCURAR COMBOIOS...</div>
 
     <script>
         function setClock() {
@@ -33,57 +39,53 @@
         }
 
         function updateBoard() {
-            // Usando um proxy diferente: Cors-anywhere via demo ou AllOrigins com parâmetro de cache
-            var target = 'https://v6.db.transport.rest/stops/8000105/departures?duration=60&results=10';
-            var url = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(target) + '&cb=' + Math.random();
-            
             var xhr = new XMLHttpRequest();
-            xhr.open('GET', url, true);
+            // API do projeto Transparente para a estação do Oriente (ID: 94-31000)
+            xhr.open('GET', 'https://api.transparente.org.pt/v1/stations/9431000/departures', true);
             xhr.onreadystatechange = function() {
-                if (xhr.readyState == 4) {
-                    if (xhr.status == 200) {
-                        try {
-                            var data = JSON.parse(xhr.responseText);
-                            var html = '';
-                            var now = new Date();
-                            var nowTotalMin = (now.getHours() * 60) + now.getMinutes();
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    try {
+                        var data = JSON.parse(xhr.responseText);
+                        var html = '';
+                        var now = new Date();
+                        var nowTotalMin = (now.getHours() * 60) + now.getMinutes();
 
-                            for (var i = 0; i < data.departures.length; i++) {
-                                var d = data.departures[i];
-                                var timePart = (d.when || d.plannedWhen).split("T")[1];
-                                var hour = parseInt(timePart.split(":")[0], 10);
-                                var min = parseInt(timePart.split(":")[1], 10);
-                                
-                                // Diferença com ajuste de fuso (Alemanha está 1h à frente de Portugal)
-                                var diff = ((hour * 60) + min) - nowTotalMin - 60;
-                                
-                                // Se o iPad estiver em PT e os dados na DE, este ajuste garante os minutos certos
-                                if (diff < -1000) diff += 1440; 
-                                if (diff > 1000) diff -= 1440;
+                        // A API de PT costuma devolver os próximos 10-15 comboios
+                        var departures = data.departures || data; 
 
-                                var timeText = diff + " MIN";
-                                if (diff <= 0) timeText = '<span class="blink">PARTIDA</span>';
+                        for (var i = 0; i < Math.min(departures.length, 10); i++) {
+                            var d = departures[i];
+                            
+                            // Em Portugal, o fuso horário é o mesmo do iPad! (0 min de diferença)
+                            var timePart = d.planned_departure_time || d.time; 
+                            var hour = parseInt(timePart.split(":")[0], 10);
+                            var min = parseInt(timePart.split(":")[1], 10);
+                            
+                            var diff = ((hour * 60) + min) - nowTotalMin;
 
-                                var line = d.line.name;
-                                var cClass = 'col-line';
-                                if (line.indexOf('S') === 0) cClass += ' s';
-                                else if (line.indexOf('ICE') === 0 || line.indexOf('IC') === 0) cClass += ' ice';
-                                else cClass += ' re';
+                            // Se o comboio for logo após a meia-noite
+                            if (diff < -1000) diff += 1440;
 
-                                html += '<div class="row">' +
-                                        '<span class="' + cClass + '">' + line + '</span>' +
-                                        '<span class="col-dest">' + d.direction.substring(0, 14) + '</span>' +
-                                        '<span class="col-plat">' + (d.platform || '-') + '</span>' +
-                                        '<span class="col-time">' + timeText + '</span>' +
-                                        '</div>';
-                            }
-                            document.getElementById('list').innerHTML = html;
-                        } catch(e) { 
-                            document.getElementById('list').innerHTML = "ERRO NA LEITURA"; 
+                            var timeText = diff + " MIN";
+                            if (diff <= 0) timeText = '<span class="blink">PARTIDA</span>';
+                            if (diff > 120) timeText = timePart; // Se faltar muito tempo, mostra a hora
+
+                            var service = d.service || d.train_type || "U";
+                            var cClass = 'col-line';
+                            if (service.indexOf('Alfa') !== -1 || service === 'AP') cClass += ' ap';
+                            else if (service === 'IC') cClass += ' ic';
+                            else if (service === 'U' || service.indexOf('Urb') !== -1) cClass += ' u';
+                            else cClass += ' r';
+
+                            html += '<div class="row">' +
+                                    '<span class="' + cClass + '">' + service + (d.train_number || '') + '</span>' +
+                                    '<span class="col-dest">' + d.destination.substring(0, 14) + '</span>' +
+                                    '<span class="col-plat">' + (d.platform || '-') + '</span>' +
+                                    '<span class="col-time">' + timeText + '</span>' +
+                                    '</div>';
                         }
-                    } else {
-                        document.getElementById('list').innerHTML = "DB INDISPONÍVEL";
-                    }
+                        document.getElementById('list').innerHTML = html;
+                    } catch(e) { document.getElementById('list').innerHTML = "SEM DADOS CP"; }
                 }
             };
             xhr.send();
@@ -91,7 +93,7 @@
 
         setClock(); updateBoard();
         setInterval(setClock, 1000);
-        setInterval(updateBoard, 30000);
+        setInterval(updateBoard, 40000);
     </script>
 </body>
 </html>
