@@ -23,7 +23,7 @@
         function getBuses() {
             var xhr = new XMLHttpRequest();
             // Usamos o 'cors-anywhere' via heroku para "limpar" o acesso
-            var url = 'https://api.allorigins.win/get?url=' + encodeURIComponent('https://api.carrismetropolitana.pt/stops/172500/estimations');
+            var url = 'https://api.allorigins.win/get?url=' + encodeURIComponent('https://api.carrismetropolitana.pt/stops/060150/estimations');
             
             xhr.open('GET', url, true);
             xhr.onreadystatechange = function() {
