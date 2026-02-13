@@ -14,16 +14,17 @@
         #clock { float: right; color: #eee; }
         .row { clear: both; font-size: 30px; border-bottom: 1px solid #111; height: 45px; line-height: 45px; }
         .col-line { float: left; width: 20%; font-weight: bold; color: #ffff00; text-shadow: 0 0 5px #ffff00; }
-        .col-dest { float: left; width: 60%; color: #bbb; overflow: hidden; white-space: nowrap; }
-        .col-time { float: left; width: 20%; text-align: right; color: #ff9900; }
+        .col-dest { float: left; width: 55%; color: #bbb; overflow: hidden; white-space: nowrap; }
+        .col-time { float: left; width: 25%; text-align: right; color: #ff9900; }
         
         @keyframes blinker { 50% { opacity: 0; } }
         .blink { animation: blinker 0.8s linear infinite; color: #ff3333; }
+        .schedule { color: #888; font-size: 24px; } /* Estilo para horário planeado */
     </style>
 </head>
 <body>
     <div class="header"><span>C. METROPOLITANA - CACÉM (1211)</span><span id="clock">00:00</span></div>
-    <div id="list">À PROCURA DA 1211...</div>
+    <div id="list">A VERIFICAR HORÁRIOS...</div>
 
     <script>
         function setClock() {
@@ -32,45 +33,53 @@
         }
 
         async function updateBoard() {
-            // ID: 110543 (Lgo da República - Estação Agualva-Cacém)
             const stopId = '110543'; 
-            const url = `https://api.carrismetropolitana.pt/stops/${stopId}/realtime`;
+            // Vamos pedir o Tempo Real E o Planeado para garantir dados
+            const urlReal = `https://api.carrismetropolitana.pt/stops/${stopId}/realtime`;
 
             try {
-                const response = await fetch(url);
+                const response = await fetch(urlReal);
                 const departures = await response.json();
                 
                 let html = '';
                 const now = new Date();
 
-                // Filtrar especificamente para a linha 1211
-                const filtered = departures.filter(d => d.line_id === '1211');
+                // Filtrar para a 1211
+                let filtered = departures.filter(d => d.line_id === '1211');
                 
-                filtered.sort((a, b) => a.scheduled_arrival_unix - b.scheduled_arrival_unix);
+                // Ordenar por tempo
+                filtered.sort((a, b) => (a.scheduled_arrival_unix || 0) - (b.scheduled_arrival_unix || 0));
 
                 if (filtered.length === 0) {
-                    html = '<div class="row" style="color:#666; font-size: 20px;">SEM PASSAGENS DA 1211 PREVISTAS AGORA</div>';
+                    html = '<div class="row" style="color:#666; font-size: 22px;">SEM SERVIÇO DE MOMENTO</div>';
+                } else {
+                    filtered.slice(0, 10).forEach(d => {
+                        const unix = d.estimated_arrival_unix || d.scheduled_arrival_unix;
+                        const arrivalTime = new Date(unix * 1000);
+                        const diffMs = arrivalTime - now;
+                        let diffMin = Math.floor(diffMs / 60000);
+
+                        let timeText = diffMin + " MIN";
+                        let isEstimated = d.estimated_arrival_unix ? "" : " (SCHED)";
+
+                        if (diffMin <= 0) {
+                            timeText = '<span class="blink">A CHEGAR</span>';
+                        } else if (diffMin > 45) {
+                            // Se faltar muito tempo, mostra a hora exata
+                            timeText = ("0" + arrivalTime.getHours()).slice(-2) + ":" + ("0" + arrivalTime.getMinutes()).slice(-2);
+                        }
+
+                        html += `<div class="row">
+                            <span class="col-line">${d.line_id}</span>
+                            <span class="col-dest">${d.headsign.substring(0, 18)}</span>
+                            <span class="col-time ${!d.estimated_arrival_unix ? 'schedule' : ''}">${timeText}</span>
+                        </div>`;
+                    });
                 }
-
-                filtered.slice(0, 10).forEach(d => {
-                    const arrivalTime = new Date(d.scheduled_arrival_unix * 1000);
-                    const diffMs = arrivalTime - now;
-                    let diffMin = Math.floor(diffMs / 60000);
-
-                    let timeText = diffMin + " MIN";
-                    if (diffMin <= 0) timeText = '<span class="blink">A CHEGAR</span>';
-                    if (diffMin > 60) timeText = arrivalTime.getHours() + ":" + ("0" + arrivalTime.getMinutes()).slice(-2);
-
-                    html += `<div class="row">
-                        <span class="col-line">${d.line_id}</span>
-                        <span class="col-dest">${d.headsign.substring(0, 20)}</span>
-                        <span class="col-time">${timeText}</span>
-                    </div>`;
-                });
 
                 document.getElementById('list').innerHTML = html;
             } catch (e) {
-                document.getElementById('list').innerHTML = "ERRO NA LIGAÇÃO C.M.";
+                document.getElementById('list').innerHTML = "ERRO NA LIGAÇÃO";
             }
         }
 
