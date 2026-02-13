@@ -53,4 +53,44 @@
                 const now = new Date();
 
                 // Ordenação cronológica rigorosa
-                allDepartures.sort((a, b) => (a.estimated_arrival_unix || a
+                allDepartures.sort((a, b) => (a.estimated_arrival_unix || a.scheduled_arrival_unix) - (b.estimated_arrival_unix || b.scheduled_arrival_unix));
+
+                if (allDepartures.length === 0) {
+                    html = '<div class="row" style="color:#444">SEM PASSAGENS NESTE MOMENTO</div>';
+                } else {
+                    allDepartures.slice(0, 12).forEach(d => {
+                        const unix = d.estimated_arrival_unix || d.scheduled_arrival_unix;
+                        const arrivalTime = new Date(unix * 1000);
+                        const diffMs = arrivalTime - now;
+                        let diffMin = Math.floor(diffMs / 60000);
+
+                        let timeText = diffMin + " MIN";
+                        let isLive = d.estimated_arrival_unix ? '<span class="live">📡</span>' : '  ';
+
+                        if (diffMin <= 0) {
+                            timeText = '<span class="blink">A CHEGAR</span>';
+                        } else if (diffMin > 59) {
+                            timeText = ("0" + arrivalTime.getHours()).slice(-2) + ":" + ("0" + arrivalTime.getMinutes()).slice(-2);
+                        }
+
+                        html += `<div class="row">
+                            <span class="col-line">${d.line_id}</span>
+                            <span class="col-dest">${d.headsign}</span>
+                            <span class="col-stop">${d.stopLabel}</span>
+                            <span class="col-time">${isLive}${timeText}</span>
+                        </div>`;
+                    });
+                }
+
+                document.getElementById('list').innerHTML = html;
+            } catch (e) {
+                document.getElementById('list').innerHTML = "ERRO: FALHA NA REDE CM";
+            }
+        }
+
+        setClock(); updateBoard();
+        setInterval(setClock, 1000);
+        setInterval(updateBoard, 20000);
+    </script>
+</body>
+</html>
