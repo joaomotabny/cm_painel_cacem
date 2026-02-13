@@ -13,16 +13,17 @@
         .header { font-size: 24px; color: #333; border-bottom: 2px solid #222; height: 35px; }
         #clock { float: right; color: #eee; }
         .row { clear: both; font-size: 30px; border-bottom: 1px solid #111; height: 45px; line-height: 45px; }
-        .col-line { float: left; width: 15%; font-weight: bold; color: #ffff00; }
-        .col-dest { float: left; width: 65%; color: #bbb; overflow: hidden; white-space: nowrap; }
+        .col-line { float: left; width: 20%; font-weight: bold; color: #ffff00; text-shadow: 0 0 5px #ffff00; }
+        .col-dest { float: left; width: 60%; color: #bbb; overflow: hidden; white-space: nowrap; }
         .col-time { float: left; width: 20%; text-align: right; color: #ff9900; }
+        
         @keyframes blinker { 50% { opacity: 0; } }
         .blink { animation: blinker 0.8s linear infinite; color: #ff3333; }
     </style>
 </head>
 <body>
-    <div class="header"><span>CARRIS METROPOLITANA - ORIENTE</span><span id="clock">00:00</span></div>
-    <div id="list">A LIGAR À C. METROPOLITANA...</div>
+    <div class="header"><span>C. METROPOLITANA - CACÉM (1211)</span><span id="clock">00:00</span></div>
+    <div id="list">À PROCURA DA 1211...</div>
 
     <script>
         function setClock() {
@@ -31,8 +32,9 @@
         }
 
         async function updateBoard() {
-            // ID da paragem Oriente (Interface): 080242
-            const url = 'https://api.carrismetropolitana.pt/stops/080242/realtime';
+            // ID: 110543 (Lgo da República - Estação Agualva-Cacém)
+            const stopId = '110543'; 
+            const url = `https://api.carrismetropolitana.pt/stops/${stopId}/realtime`;
 
             try {
                 const response = await fetch(url);
@@ -41,26 +43,32 @@
                 let html = '';
                 const now = new Date();
 
-                // Ordenar por tempo de chegada
-                departures.sort((a, b) => a.scheduled_arrival_unix - b.scheduled_arrival_unix);
+                // Filtrar especificamente para a linha 1211
+                const filtered = departures.filter(d => d.line_id === '1211');
+                
+                filtered.sort((a, b) => a.scheduled_arrival_unix - b.scheduled_arrival_unix);
 
-                departures.slice(0, 12).forEach(d => {
+                if (filtered.length === 0) {
+                    html = '<div class="row" style="color:#666; font-size: 20px;">SEM PASSAGENS DA 1211 PREVISTAS AGORA</div>';
+                }
+
+                filtered.slice(0, 10).forEach(d => {
                     const arrivalTime = new Date(d.scheduled_arrival_unix * 1000);
                     const diffMs = arrivalTime - now;
                     let diffMin = Math.floor(diffMs / 60000);
 
                     let timeText = diffMin + " MIN";
-                    if (diffMin <= 0) timeText = '<span class="blink">AGORA</span>';
+                    if (diffMin <= 0) timeText = '<span class="blink">A CHEGAR</span>';
                     if (diffMin > 60) timeText = arrivalTime.getHours() + ":" + ("0" + arrivalTime.getMinutes()).slice(-2);
 
                     html += `<div class="row">
                         <span class="col-line">${d.line_id}</span>
-                        <span class="col-dest">${d.headsign.substring(0, 18)}</span>
+                        <span class="col-dest">${d.headsign.substring(0, 20)}</span>
                         <span class="col-time">${timeText}</span>
                     </div>`;
                 });
 
-                document.getElementById('list').innerHTML = html || "SEM AUTOCARROS PREVISTOS";
+                document.getElementById('list').innerHTML = html;
             } catch (e) {
                 document.getElementById('list').innerHTML = "ERRO NA LIGAÇÃO C.M.";
             }
