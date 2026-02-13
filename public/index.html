@@ -4,17 +4,57 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        body { background: #000; color: #ff9900; font-family: 'Courier New', Courier, monospace; margin: 0; padding: 15px; font-weight: bold; overflow: hidden; }
-        .header { font-size: 24px; color: #444; display: flex; justify-content: space-between; border-bottom: 1px solid #222; padding-bottom: 5px; }
-        .row { display: flex; align-items: center; justify-content: space-between; font-size: 40px; height: 65px; border-bottom: 1px solid #111; }
-        .bus-line { background: #ffcc00; color: #000; padding: 2px 8px; border-radius: 4px; font-size: 28px; min-width: 60px; text-align: center; }
-        .dest { flex-grow: 1; margin-left: 15px; white-space: nowrap; overflow: hidden; text-transform: uppercase; }
-        .time { color: #00ff00; min-width: 95px; text-align: right; }
+        body { 
+            background: #000; 
+            color: #ff9900; 
+            font-family: 'Courier New', Courier, monospace; 
+            margin: 0; 
+            padding: 15px; 
+            font-weight: bold; 
+            overflow: hidden; 
+        }
+        .header { 
+            font-size: 24px; 
+            color: #444; 
+            display: flex; 
+            justify-content: space-between; 
+            border-bottom: 1px solid #222; 
+            padding-bottom: 5px; 
+        }
+        .row { 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            font-size: 42px; 
+            height: 65px; 
+            border-bottom: 1px solid #111; 
+        }
+        .bus-line { 
+            background: #ffcc00; /* Amarelo Carris */
+            color: #000; 
+            padding: 2px 8px; 
+            border-radius: 4px; 
+            font-size: 28px; 
+            min-width: 65px; 
+            text-align: center; 
+        }
+        .dest { 
+            flex-grow: 1; 
+            margin-left: 15px; 
+            white-space: nowrap; 
+            overflow: hidden; 
+            text-transform: uppercase; 
+        }
+        .time { 
+            color: #00ff00; 
+            min-width: 95px; 
+            text-align: right; 
+        }
     </style>
 </head>
 <body>
     <div class="header">
-        <span>LISBOA - STA. APOLÓNIA</span>
+        <span>IGREJA BENFICA (10904)</span>
         <span id="clock">00:00</span>
     </div>
     <div id="list">A LIGAR À CARRIS...</div>
@@ -27,8 +67,8 @@
 
         function getBuses() {
             var xhr = new XMLHttpRequest();
-            // ID 01202: Santa Apolónia
-            var url = 'https://api.carrismetropolitana.pt/stops/01202/realtime';
+            // URL para a paragem específica 10904
+            var url = 'https://api.carrismetropolitana.pt/stops/10904/realtime';
             
             xhr.onreadystatechange = function() {
                 if (xhr.readyState == 4) {
@@ -38,7 +78,7 @@
                             var html = '';
                             
                             if (!data || data.length === 0) {
-                                document.getElementById('list').innerHTML = "SEM AUTOCARROS AGORA";
+                                document.getElementById('list').innerHTML = "SEM PASSAGENS";
                                 return;
                             }
 
@@ -56,9 +96,9 @@
                                         '</div>';
                             }
                             document.getElementById('list').innerHTML = html;
-                        } catch(e) { document.getElementById('list').innerHTML = "ERRO DE DADOS"; }
+                        } catch(e) { document.getElementById('list').innerHTML = "ERRO PROCESSAMENTO"; }
                     } else {
-                        document.getElementById('list').innerHTML = "ERRO " + xhr.status;
+                        document.getElementById('list').innerHTML = "ERRO REDE " + xhr.status;
                     }
                 }
             };
