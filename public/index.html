@@ -77,3 +77,26 @@
                         } else {
                             // Mostra os minutos restantes
                             timeText = diffMin + " MIN";
+                        }
+
+                        html += `<div class="row">
+                            <span class="col-line">${d.line_id}</span>
+                            <span class="col-dest">${d.headsign}</span>
+                            <span class="col-stop">${d.stopLabel}</span>
+                            <span class="col-time">${isLive}${timeText}</span>
+                        </div>`;
+                    });
+                }
+
+                document.getElementById('list').innerHTML = html;
+            } catch (e) {
+                document.getElementById('list').innerHTML = "ERRO NA REDE";
+            }
+        }
+
+        setClock(); updateBoard();
+        setInterval(setClock, 1000);
+        setInterval(updateBoard, 20000);
+    </script>
+</body>
+</html>
