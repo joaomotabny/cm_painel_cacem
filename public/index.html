@@ -3,19 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css?family=VT323" rel="stylesheet">
     <style>
         body { 
             background: #000; 
             color: #ff9900; 
-            font-family: 'VT323', monospace; 
+            /* Usamos Courier que já existe no iPad mini 2 */
+            font-family: 'Courier New', Courier, monospace; 
             margin: 0; 
             padding: 10px; 
             overflow: hidden;
+            font-weight: bold;
         }
 
         .header { 
-            font-size: 24px; 
+            font-size: 20px; 
             color: #444; 
             display: flex; 
             justify-content: space-between; 
@@ -27,7 +28,7 @@
             display: flex; 
             align-items: center; 
             justify-content: space-between; 
-            font-size: 48px; 
+            font-size: 40px; 
             height: 60px; 
             border-bottom: 1px solid #111;
         }
@@ -35,16 +36,16 @@
         .s-line { 
             background: #008754; 
             color: #fff; 
-            padding: 0 10px; 
-            border-radius: 5px; 
-            font-size: 32px; 
-            min-width: 55px; 
+            padding: 2px 8px; 
+            border-radius: 4px; 
+            font-size: 28px; 
+            min-width: 50px; 
             text-align: center;
         }
 
         .dest { 
             flex-grow: 1; 
-            margin-left: 15px;
+            margin-left: 10px;
             white-space: nowrap; 
             overflow: hidden; 
             text-transform: uppercase;
@@ -52,12 +53,11 @@
 
         .time { 
             color: #00ff00; 
-            min-width: 90px; 
+            min-width: 85px; 
             text-align: right; 
         }
 
-        .now { animation: blink 1s steps(2, start) infinite; }
-        @keyframes blink { to { visibility: hidden; } }
+        .now { color: #00ff00; }
     </style>
 </head>
 <body>
@@ -77,52 +77,19 @@
 
         function getTrains() {
             var xhr = new XMLHttpRequest();
-            // Link direto da DB
             var url = 'https://v6.db.transport.rest/stops/8002046/departures?duration=60&results=20';
             
             xhr.onreadystatechange = function() {
-                if (xhr.readyState == 4) {
-                    if (xhr.status == 200) {
-                        try {
-                            var data = JSON.parse(xhr.responseText);
-                            var departures = data.departures;
-                            var html = '';
-                            var count = 0;
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    try {
+                        var data = JSON.parse(xhr.responseText);
+                        var deps = data.departures;
+                        var html = '';
+                        var count = 0;
 
-                            for (var i = 0; i < departures.length; i++) {
-                                var d = departures[i];
-                                // Filtro S-Bahn (Apenas S1, S2, etc)
-                                if (d.line.name.indexOf('S') !== 0) continue;
-                                if (count >= 6) break;
+                        for (var i = 0; i < deps.length; i++) {
+                            if (deps[i].line.name.indexOf('S') !== 0) continue;
+                            if (count >= 7) break;
 
-                                var planned = new Date(d.when || d.plannedWhen);
-                                var diff = Math.round((planned - new Date()) / 60000);
-                                var timeStr = diff <= 0 ? '<span class="now">JETZT</span>' : diff + "m";
-                                
-                                html += '<div class="row">' +
-                                        '<div class="s-line">' + d.line.name + '</div>' +
-                                        '<div class="dest">' + d.direction.substring(0,12) + '</div>' +
-                                        '<div class="time">' + timeStr + '</div>' +
-                                        '</div>';
-                                count++;
-                            }
-                            document.getElementById('list').innerHTML = html || '<div class="row">KEINE S-BAHN</div>';
-                        } catch(e) {
-                            document.getElementById('list').innerHTML = "DATA ERROR";
-                        }
-                    } else {
-                        document.getElementById('list').innerHTML = "OFFLINE (" + xhr.status + ")";
-                    }
-                }
-            };
-            xhr.open('GET', url, true);
-            xhr.send();
-        }
-
-        setInterval(setClock, 1000);
-        setInterval(getTrains, 30000);
-        setClock(); 
-        getTrains();
-    </script>
-</body>
-</html>
+                            var planned = new Date(deps[i].when || deps[i].plannedWhen);
+                            var diff = Math.round((planned - new Date()) / 60000);
