@@ -2,62 +2,22 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>METRO AMADORA ESTE</title>
     <style>
-        body { 
-            background: #000; 
-            color: #ff9900; 
-            font-family: 'Courier New', Courier, monospace; 
-            margin: 0; 
-            padding: 15px; 
-            font-weight: bold; 
-            overflow: hidden; 
-        }
-        .header { 
-            font-size: 24px; 
-            color: #444; 
-            display: flex; 
-            justify-content: space-between; 
-            border-bottom: 1px solid #222; 
-            padding-bottom: 5px; 
-        }
-        .row { 
-            display: flex; 
-            align-items: center; 
-            justify-content: space-between; 
-            font-size: 42px; 
-            height: 65px; 
-            border-bottom: 1px solid #111; 
-        }
-        .bus-line { 
-            background: #ffcc00; /* Amarelo Carris */
-            color: #000; 
-            padding: 2px 8px; 
-            border-radius: 4px; 
-            font-size: 28px; 
-            min-width: 65px; 
-            text-align: center; 
-        }
-        .dest { 
-            flex-grow: 1; 
-            margin-left: 15px; 
-            white-space: nowrap; 
-            overflow: hidden; 
-            text-transform: uppercase; 
-        }
-        .time { 
-            color: #00ff00; 
-            min-width: 95px; 
-            text-align: right; 
-        }
+        @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+        body { background: #000; color: #00a0e2; font-family: 'VT323', monospace; margin: 0; padding: 20px; }
+        .header { font-size: 30px; color: #444; display: flex; justify-content: space-between; border-bottom: 2px solid #00a0e2; }
+        .row { display: flex; justify-content: space-between; font-size: 55px; margin-top: 20px; border-bottom: 1px solid #111; }
+        .dest { color: #fff; }
+        .time { color: #00ff00; }
     </style>
 </head>
 <body>
     <div class="header">
-        <span>IGREJA BENFICA (10904)</span>
+        <span>AMADORA ESTE</span>
         <span id="clock">00:00</span>
     </div>
-    <div id="list">A LIGAR À CARRIS...</div>
+    <div id="list">A LIGAR AO METRO...</div>
 
     <script>
         function setClock() {
@@ -65,50 +25,47 @@
             document.getElementById('clock').innerHTML = ("0" + now.getHours()).slice(-2) + ":" + ("0" + now.getMinutes()).slice(-2);
         }
 
-        function getBuses() {
+        function getMetro() {
             var xhr = new XMLHttpRequest();
-            // URL para a paragem específica 10904
-            var url = 'https://api.carrismetropolitana.pt/stops/10904/realtime';
+            // Proxy para evitar bloqueios no iPad e Mac
+            var proxy = 'https://api.allorigins.win/get?url=';
+            // API pública do Metro para a estação Amadora Este (AS)
+            var target = 'https://api.metrolisboa.pt/informacao/estimativas/v1/estacao/AS';
             
+            xhr.open('GET', proxy + encodeURIComponent(target), true);
             xhr.onreadystatechange = function() {
-                if (xhr.readyState == 4) {
-                    if (xhr.status == 200) {
-                        try {
-                            var data = JSON.parse(xhr.responseText);
-                            var html = '';
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    try {
+                        var response = JSON.parse(xhr.responseText);
+                        var data = JSON.parse(response.contents);
+                        var html = '';
+                        
+                        // O Metro envia os dados no campo "resposta"
+                        var comboios = data.resposta;
+                        
+                        for (var i = 0; i < Math.min(comboios.length, 3); i++) {
+                            var tempo = comboios[i].tempoChegada;
+                            var min = Math.floor(tempo / 60);
+                            var tText = (min <= 0) ? "À CHEGADA" : min + " min";
                             
-                            if (!data || data.length === 0) {
-                                document.getElementById('list').innerHTML = "SEM PASSAGENS";
-                                return;
-                            }
-
-                            // Ordenar por tempo de espera
-                            data.sort(function(a, b) { return a.wait_time - b.wait_time; });
-
-                            for (var i = 0; i < Math.min(data.length, 7); i++) {
-                                var wait = data[i].wait_time || 0;
-                                var t = wait <= 0 ? "AGORA" : wait + "min";
-                                
-                                html += '<div class="row">' +
-                                        '<div class="bus-line">' + data[i].line_id + '</div>' +
-                                        '<div class="dest">' + (data[i].headsign || "CARRIS").substring(0,10) + '</div>' +
-                                        '<div class="time">' + t + '</div>' +
-                                        '</div>';
-                            }
-                            document.getElementById('list').innerHTML = html;
-                        } catch(e) { document.getElementById('list').innerHTML = "ERRO PROCESSAMENTO"; }
-                    } else {
-                        document.getElementById('list').innerHTML = "ERRO REDE " + xhr.status;
+                            html += '<div class="row">' +
+                                    '<span class="dest">REBOLEIRA</span>' + 
+                                    '<span class="time">' + tText + '</span>' +
+                                    '</div>';
+                        }
+                        document.getElementById('list').innerHTML = html || "SEM COMBOIOS";
+                    } catch(e) {
+                        document.getElementById('list').innerHTML = "ERRO DE DADOS";
                     }
                 }
             };
-            xhr.open('GET', url, true);
             xhr.send();
         }
 
         setInterval(setClock, 1000);
-        setInterval(getBuses, 30000);
-        setClock(); getBuses();
+        setInterval(getMetro, 30000);
+        setClock();
+        getMetro();
     </script>
 </body>
 </html>
