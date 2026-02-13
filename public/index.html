@@ -1,46 +1,60 @@
-<script>
-    async function update() {
-        const list = document.getElementById('list');
-        try {
-            // Adicionamos um cabeçalho para o iPad mini não ser bloqueado
-            const r = await fetch('https://api.carrismetropolitana.pt/stops/172500/estimations', {
-                method: 'GET',
-                mode: 'cors'
-            });
-            
-            if (!r.ok) throw new Error('Carris em baixo');
-            
-            const data = await r.json();
-            list.innerHTML = '';
-            
-            if (!data || data.length === 0) {
-                list.innerHTML = '<div class="row"><span>SEM AUTOCARROS</span></div>';
-                return;
-            }
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>PAINEL LED</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+        body { background: #000; color: #ff9900; font-family: 'VT323', monospace; margin: 0; padding: 20px; }
+        .header { font-size: 30px; color: #444; display: flex; justify-content: space-between; border-bottom: 2px solid #222; }
+        .row { display: flex; justify-content: space-between; font-size: 50px; margin-top: 15px; border-bottom: 1px solid #111; }
+        .time { color: #00ff00; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <span>AV. BONS AMIGOS</span>
+        <span id="clock">00:00</span>
+    </div>
+    <div id="list">A LIGAR...</div>
 
-            // Ordenamos por tempo de espera para garantir que os próximos aparecem primeiro
-            data.sort((a, b) => a.wait_time - b.wait_time);
-
-            data.slice(0, 5).forEach(bus => {
-                list.innerHTML += `
-                    <div class="row">
-                        <span class="line">${bus.line_id}</span>
-                        <span style="flex-grow:1; margin-left:15px">${bus.headsign.substring(0,10)}</span>
-                        <span class="time">${bus.wait_time}m</span>
-                    </div>`;
-            });
-        } catch (e) {
-            // Se falhar, tentamos mostrar o que correu mal
-            list.innerHTML = '<div class="row" style="font-size:30px">ERRO DE DADOS: ' + e.message + '</div>';
+    <script>
+        function setClock() {
+            var now = new Date();
+            var h = ("0" + now.getHours()).slice(-2);
+            var m = ("0" + now.getMinutes()).slice(-2);
+            document.getElementById('clock').innerHTML = h + ":" + m;
         }
-    }
 
-    // Relógio (que já disseste que funciona!)
-    setInterval(() => {
-        const now = new Date();
-        document.getElementById('clock').innerText = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
-    }, 1000);
+        function getBuses() {
+            var xhr = new XMLHttpRequest();
+            // Usamos o AllOrigins para garantir que o Mac e o iPad não bloqueiam a ligação
+            var proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent('https://api.carrismetropolitana.pt/stops/172500/estimations');
+            
+            xhr.open('GET', proxyUrl, true);
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    var response = JSON.parse(xhr.responseText);
+                    var data = JSON.parse(response.contents);
+                    var html = '';
+                    
+                    for (var i = 0; i < Math.min(data.length, 5); i++) {
+                        html += '<div class="row">' +
+                                '<span>' + data[i].line_id + '</span>' +
+                                '<span>' + data[i].headsign.substring(0,10) + '</span>' +
+                                '<span class="time">' + data[i].wait_time + 'm</span>' +
+                                '</div>';
+                    }
+                    document.getElementById('list').innerHTML = html || 'SEM SERVIÇO';
+                }
+            };
+            xhr.send();
+        }
 
-    update();
-    setInterval(update, 30000); // Atualiza a cada 30 segundos
-</script>
+        setInterval(setClock, 1000);
+        setInterval(getBuses, 30000);
+        setClock();
+        getBuses();
+    </script>
+</body>
+</html>
