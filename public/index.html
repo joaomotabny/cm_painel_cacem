@@ -1,76 +1,57 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
-        body { background: #000; color: #ff9900; font-family: 'VT323', monospace; margin: 0; padding: 15px; }
-        .header { font-size: 25px; color: #444; display: flex; justify-content: space-between; border-bottom: 2px solid #333; margin-bottom: 10px; }
-        .row { display: flex; align-items: center; justify-content: space-between; font-size: 35px; margin-bottom: 12px; border-bottom: 1px solid #111; padding-bottom: 5px; }
-        
-        /* Estilos de Cores e Glow */
-        .type-box { padding: 2px 8px; border-radius: 4px; font-weight: bold; margin-right: 15px; min-width: 60px; text-align: center; font-size: 25px; color: #fff; }
-        .S-Bahn { background: #008d3f; box-shadow: 0 0 10px #008d3f; } /* Verde */
-        .ICE { background: #ff0000; box-shadow: 0 0 10px #ff0000; }   /* Vermelho */
-        .RE, .RB { background: #db0011; box-shadow: 0 0 10px #db0011; } /* Regional DB */
-        
-        .dest { flex-grow: 1; color: #eee; text-shadow: 0 0 5px #eee; }
-        .time { color: #00ff00; text-shadow: 0 0 8px #00ff00; margin-left: 10px; }
-    </style>
-</head>
-<body>
-    <div class="header"><span>FRANKFURT (MAIN) HBF</span><span id="clock">00:00</span></div>
-    <div id="list">A LIGAR À DEUTSCHE BAHN...</div>
+<script>
+    function setClock() {
+        var now = new Date();
+        document.getElementById('clock').innerHTML = ("0" + now.getHours()).slice(-2) + ":" + ("0" + now.getMinutes()).slice(-2);
+    }
 
-    <script>
-        function setClock() {
-            var now = new Date();
-            document.getElementById('clock').innerHTML = ("0" + now.getHours()).slice(-2) + ":" + ("0" + now.getMinutes()).slice(-2);
-        }
-
-        function getDB() {
-            var xhr = new XMLHttpRequest();
-            // Usamos a API aberta do Deutsche Bahn via Proxy
-            var target = 'https://v6.db.transport.rest/stops/8000105/departures?duration=60&results=10';
-            var url = 'https://api.allorigins.win/get?url=' + encodeURIComponent(target);
-            
-            xhr.open('GET', url, true);
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState == 4 && xhr.status == 200) {
-                    var resp = JSON.parse(xhr.responseText);
-                    var data = JSON.parse(resp.contents);
-                    var html = '';
-                    
-                    var deps = data.departures;
-                    for (var i = 0; i < Math.min(deps.length, 8); i++) {
-                        var d = deps[i];
-                        var type = d.line.productName; // ICE, S, RB, etc
-                        var name = d.line.name;
+    function getDB() {
+        var xhr = new XMLHttpRequest();
+        // Ligação DIRETA - muito mais rápida e estável para o iPad
+        var url = 'https://v6.db.transport.rest/stops/8000105/departures?duration=60&results=10';
+        
+        xhr.open('GET', url, true);
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState == 4) {
+                if (xhr.status == 200) {
+                    try {
+                        var data = JSON.parse(xhr.responseText);
+                        var html = '';
+                        var deps = data.departures;
                         
-                        // Determinar a classe de cor
-                        var colorClass = (type === 'suburban') ? 'S-Bahn' : (type === 'express') ? 'ICE' : 'RE';
-                        var label = (type === 'suburban') ? name : type;
+                        for (var i = 0; i < Math.min(deps.length, 8); i++) {
+                            var d = deps[i];
+                            var line = d.line;
+                            var type = line.productName; 
+                            
+                            // Cores alemãs com efeito Glow
+                            var color = "#db0011"; // Padrão DB (Vermelho)
+                            if (type === 'suburban') color = "#008d3f"; // S-Bahn (Verde)
+                            if (line.name.indexOf('ICE') > -1) color = "#ff0000"; // ICE
 
-                        // Calcular tempo restante
-                        var depTime = new Date(d.when || d.plannedWhen);
-                        var diff = Math.round((depTime - new Date()) / 60000);
-                        var tText = (diff <= 0) ? "JETZT" : diff + " min";
+                            var label = (type === 'suburban') ? line.name : type;
+                            var depTime = new Date(d.when || d.plannedWhen);
+                            var diff = Math.round((depTime - new Date()) / 60000);
+                            var tText = (diff <= 0) ? "JETZT" : diff + " min";
 
-                        html += '<div class="row">' +
-                                '<span class="type-box ' + colorClass + '">' + label + '</span>' +
-                                '<span class="dest">' + d.direction.substring(0,15).toUpperCase() + '</span>' +
-                                '<span class="time">' + tText + '</span>' +
-                                '</div>';
+                            html += '<div class="row">' +
+                                    '<span class="type-box" style="background:'+color+'; box-shadow: 0 0 10px '+color+'">' + label + '</span>' +
+                                    '<span class="dest">' + d.direction.substring(0,12).toUpperCase() + '</span>' +
+                                    '<span class="time">' + tText + '</span>' +
+                                    '</div>';
+                        }
+                        document.getElementById('list').innerHTML = html;
+                    } catch(e) {
+                        document.getElementById('list').innerHTML = "ERRO NA LEITURA";
                     }
-                    document.getElementById('list').innerHTML = html || "KEINE ZÜGE";
+                } else {
+                    document.getElementById('list').innerHTML = "SEM RESPOSTA DA DB";
                 }
-            };
-            xhr.send();
-        }
+            }
+        };
+        xhr.send();
+    }
 
-        setInterval(setClock, 1000);
-        setInterval(getDB, 30000);
-        setClock(); getDB();
-    </script>
-</body>
-</html>
+    setInterval(setClock, 1000);
+    setInterval(getDB, 30000);
+    setClock(); getDB();
+</script>
