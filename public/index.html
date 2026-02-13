@@ -17,20 +17,29 @@
         .col-dest { width: 55%; color: #ccc; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
         .col-stop { width: 10%; color: #444; font-size: 18px; text-align: center; font-weight: bold; }
         .col-time { width: 20%; text-align: right; color: #ff9900; font-weight: bold; }
-        
         .live-icon { color: #50ff50; font-size: 16px; margin-left: 5px; }
-        @keyframes blinker { 50% { opacity: 0; } }
-        .blink { animation: blinker 0.8s linear infinite; color: #ff3333; }
     </style>
 </head>
 <body>
-    <div class="header"><span>INTERFACE CACÉM • HORA REAL</span><span id="clock">00:00:00</span></div>
-    <div id="list">A SINCRONIZAR HORÁRIOS...</div>
+    <div class="header"><span>INTERFACE CACÉM • HORÁRIO REAL</span><span id="clock">00:00:00</span></div>
+    <div id="list">A RECALCULAR FUSO HORÁRIO...</div>
 
     <script>
         function setClock() {
             var now = new Date();
             document.getElementById('clock').innerHTML = ("0" + now.getHours()).slice(-2) + ":" + ("0" + now.getMinutes()).slice(-2) + ":" + ("0" + now.getSeconds()).slice(-2);
+        }
+
+        // Função para limpar as horas loucas da API (ex: 25:00 -> 01:00)
+        function formatCMTime(timeStr) {
+            if (!timeStr) return "00:00";
+            let parts = timeStr.split(':');
+            let hour = parseInt(parts[0]);
+            let mins = parts[1];
+            
+            if (hour >= 24) hour -= 24;
+            
+            return ("0" + hour).slice(-2) + ":" + mins;
         }
 
         async function updateBoard() {
@@ -43,39 +52,27 @@
                 ));
                 
                 let all = [].concat(...results);
-                let html = '';
                 
-                // Ordenar por ordem de chegada usando o carimbo de tempo bruto
+                // Ordenar pelo Unix para manter a sequência lógica
                 all.sort((a, b) => (a.scheduled_arrival_unix) - (b.scheduled_arrival_unix));
 
-                if (all.length === 0) {
-                    html = '<div class="row" style="color:#444">SEM PASSAGENS PREVISTAS</div>';
-                } else {
-                    all.slice(0, 11).forEach(d => {
-                        // USAR A HORA FORMATADA QUE VEM DA API (Ex: "21:30:00")
-                        // Cortamos os segundos para ficar apenas HH:MM
-                        let rawTime = d.scheduled_arrival || "00:00";
-                        let displayTime = rawTime.substring(0, 5);
-                        
-                        // Se houver estimativa real, usamos a hora estimada
-                        if (d.estimated_arrival) {
-                            displayTime = d.estimated_arrival.substring(0, 5);
-                        }
+                let html = '';
+                all.slice(0, 11).forEach(d => {
+                    let rawTime = d.estimated_arrival || d.scheduled_arrival || "00:00";
+                    let displayTime = formatCMTime(rawTime);
+                    const isLive = d.estimated_arrival ? '<span class="live-icon">📡</span>' : '';
 
-                        const isLive = d.estimated_arrival ? '<span class="live-icon">📡</span>' : '';
+                    html += `<div class="row">
+                        <span class="col-line">${d.line_id}</span>
+                        <span class="col-dest">${d.headsign}</span>
+                        <span class="col-stop">${d.stopLabel}</span>
+                        <span class="col-time">${displayTime}${isLive}</span>
+                    </div>`;
+                });
 
-                        html += `<div class="row">
-                            <span class="col-line">${d.line_id}</span>
-                            <span class="col-dest">${d.headsign}</span>
-                            <span class="col-stop">${d.stopLabel}</span>
-                            <span class="col-time">${displayTime}${isLive}</span>
-                        </div>`;
-                    });
-                }
-
-                document.getElementById('list').innerHTML = html;
+                document.getElementById('list').innerHTML = html || '<div class="row">SEM MAIS SERVIÇO</div>';
             } catch (e) {
-                document.getElementById('list').innerHTML = "ERRO NA ATUALIZAÇÃO";
+                document.getElementById('list').innerHTML = "ERRO NA LIGAÇÃO";
             }
         }
 
