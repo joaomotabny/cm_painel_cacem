@@ -85,4 +85,36 @@
 
                             // Tratamento de data para Safari Antigo
                             var dStr = t.stop.departure.replace(/-/g, "/").replace("T", " ").split("+")[0];
-                            var diff = Math.round((new Date(dStr) -
+                            var diff = Math.round((new Date(dStr) - new Date()) / 60000);
+                            
+                            var timeText = diff + " MIN";
+                            if (diff <= 0) {
+                                timeText = '<span class="blink">PARTIDA</span>';
+                            }
+
+                            html += '<div class="row">' +
+                                    '<span class="' + cClass + '">' + line + '</span>' +
+                                    '<span class="col-dest">' + t.to.substring(0, 12) + '</span>' +
+                                    '<span class="col-plat">' + platform + '</span>' +
+                                    '<span class="col-time">' + timeText + '</span>' +
+                                    '</div>';
+                        }
+                        document.getElementById('list').innerHTML = html;
+                    } catch(e) { 
+                        document.getElementById('list').innerHTML = "ERRO JSON"; 
+                    }
+                }
+            };
+            xhr.send();
+        }
+
+        // Executar imediatamente
+        setClock();
+        updateBoard();
+        
+        // Agendar atualizações
+        setInterval(setClock, 1000);
+        setInterval(updateBoard, 30000);
+    </script>
+</body>
+</html>
