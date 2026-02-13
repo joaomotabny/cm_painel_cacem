@@ -2,51 +2,57 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>ZURICH HB</title>
+    <title>ZURICH HB LED</title>
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
     <style>
         body { 
             background-color: #000; 
             color: #fff; 
-            font-family: "Courier New", Courier, monospace; 
+            font-family: 'VT323', monospace; 
             margin: 0; 
             padding: 15px; 
             text-transform: uppercase;
+            /* Efeito de scanline/pontos para parecer LED real */
+            background-image: linear-gradient(0deg, transparent 50%, rgba(0,0,0,0.5) 50%), linear-gradient(90deg, rgba(255,255,255,0.05) 50%, transparent 50%);
+            background-size: 3px 3px;
         }
         
         .header { 
-            font-size: 20px; 
-            color: #444; 
+            font-size: 24px; 
+            color: #333; 
             border-bottom: 2px solid #222; 
-            height: 30px;
-            margin-bottom: 10px;
+            height: 35px;
+            letter-spacing: 2px;
         }
         
-        #clock { float: right; color: #fff; }
+        #clock { float: right; color: #eee; }
         
         .row { 
             clear: both; 
-            font-size: 32px; 
+            font-size: 38px; 
             border-bottom: 1px solid #111; 
-            height: 50px; 
-            line-height: 50px;
-            letter-spacing: 1px;
+            height: 55px; 
+            line-height: 55px;
+            letter-spacing: 2px;
         }
         
         .col-line { float: left; width: 20%; font-weight: bold; }
-        .col-dest { float: left; width: 50%; color: #ccc; overflow: hidden; }
+        .col-dest { float: left; width: 50%; color: #bbb; overflow: hidden; white-space: nowrap; }
         .col-plat { float: left; width: 10%; color: #ff9900; text-align: center; }
         .col-time { float: left; width: 20%; text-align: right; }
         
-        .ic { color: #ff3333; }
-        .s { color: #ffff00; }
+        /* Cores LED saturadas */
+        .ic { color: #ff0000; text-shadow: 0 0 5px #ff0000; }
+        .s { color: #ffff00; text-shadow: 0 0 5px #ffff00; }
+        .ir { color: #ff8000; }
         
         @keyframes blinker { 50% { opacity: 0; } }
-        .blink { animation: blinker 1s linear infinite; color: #ff3333; font-weight: bold; }
+        .blink { animation: blinker 0.8s linear infinite; color: #ff0000; font-weight: bold; }
     </style>
 </head>
 <body>
     <div class="header">
-        <span>ZURICH HB</span>
+        <span>ZURICH HB STATION</span>
         <span id="clock">00:00</span>
     </div>
     <div id="list">LADEN...</div>
@@ -54,10 +60,8 @@
     <script>
         function setClock() {
             var now = new Date();
-            var h = now.getHours();
-            var m = now.getMinutes();
-            if (h < 10) h = "0" + h;
-            if (m < 10) m = "0" + m;
+            var h = ("0" + now.getHours()).slice(-2);
+            var m = ("0" + now.getMinutes()).slice(-2);
             document.getElementById('clock').innerHTML = h + ":" + m;
         }
 
@@ -82,15 +86,13 @@
                             var cClass = 'col-line';
                             if (cat === 'S' || cat === 'SN') cClass += ' s';
                             if (cat === 'IC' || cat === 'ICE') cClass += ' ic';
+                            if (cat === 'IR' || cat === 'RE') cClass += ' ir';
 
-                            // Tratamento de data para Safari Antigo
                             var dStr = t.stop.departure.replace(/-/g, "/").replace("T", " ").split("+")[0];
                             var diff = Math.round((new Date(dStr) - new Date()) / 60000);
                             
                             var timeText = diff + " MIN";
-                            if (diff <= 0) {
-                                timeText = '<span class="blink">PARTIDA</span>';
-                            }
+                            if (diff <= 0) timeText = '<span class="blink">PARTIDA</span>';
 
                             html += '<div class="row">' +
                                     '<span class="' + cClass + '">' + line + '</span>' +
@@ -100,19 +102,14 @@
                                     '</div>';
                         }
                         document.getElementById('list').innerHTML = html;
-                    } catch(e) { 
-                        document.getElementById('list').innerHTML = "ERRO JSON"; 
-                    }
+                    } catch(e) { document.getElementById('list').innerHTML = "ERROR"; }
                 }
             };
             xhr.send();
         }
 
-        // Executar imediatamente
         setClock();
         updateBoard();
-        
-        // Agendar atualizações
         setInterval(setClock, 1000);
         setInterval(updateBoard, 30000);
     </script>
