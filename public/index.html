@@ -6,19 +6,18 @@
     <style>
         body { background: #000; color: #ff9900; font-family: 'Courier New', Courier, monospace; margin: 0; padding: 15px; font-weight: bold; overflow: hidden; }
         .header { font-size: 24px; color: #444; display: flex; justify-content: space-between; border-bottom: 1px solid #222; padding-bottom: 5px; }
-        .row { display: flex; align-items: center; justify-content: space-between; font-size: 36px; height: 55px; border-bottom: 1px solid #111; }
-        .cp-box { background: #d30130; color: #fff; padding: 2px 8px; border-radius: 4px; font-size: 22px; min-width: 50px; text-align: center; }
-        .dest { flex-grow: 1; margin-left: 12px; white-space: nowrap; overflow: hidden; text-transform: uppercase; }
-        .time { color: #00ff00; min-width: 90px; text-align: right; }
-        .status { font-size: 18px; color: #666; }
+        .row { display: flex; align-items: center; justify-content: space-between; font-size: 40px; height: 65px; border-bottom: 1px solid #111; }
+        .bus-line { background: #ffcc00; color: #000; padding: 2px 8px; border-radius: 4px; font-size: 28px; min-width: 60px; text-align: center; }
+        .dest { flex-grow: 1; margin-left: 15px; white-space: nowrap; overflow: hidden; text-transform: uppercase; }
+        .time { color: #00ff00; min-width: 95px; text-align: right; }
     </style>
 </head>
 <body>
     <div class="header">
-        <span>AGUALVA-CACÉM</span>
+        <span>LISBOA - STA. APOLÓNIA</span>
         <span id="clock">00:00</span>
     </div>
-    <div id="list">A LIGAR ÀS INFRAESTRUTURAS...</div>
+    <div id="list">A LIGAR À CARRIS...</div>
 
     <script>
         function setClock() {
@@ -26,42 +25,40 @@
             document.getElementById('clock').innerHTML = ("0" + now.getHours()).slice(-2) + ":" + ("0" + now.getMinutes()).slice(-2);
         }
 
-        function getTrains() {
+        function getBuses() {
             var xhr = new XMLHttpRequest();
-            // Usamos a API que alimenta os dados em tempo real da CP/IP para o Cacém
-            var url = 'https://v6.db.transport.rest/stops/8270550/departures?duration=60&results=15';
+            // ID 01202: Santa Apolónia
+            var url = 'https://api.carrismetropolitana.pt/stops/01202/realtime';
             
             xhr.onreadystatechange = function() {
                 if (xhr.readyState == 4) {
                     if (xhr.status == 200) {
                         try {
                             var data = JSON.parse(xhr.responseText);
-                            var deps = data.departures;
                             var html = '';
-                            var count = 0;
+                            
+                            if (!data || data.length === 0) {
+                                document.getElementById('list').innerHTML = "SEM AUTOCARROS AGORA";
+                                return;
+                            }
 
-                            for (var i = 0; i < deps.length; i++) {
-                                // Filtramos para comboios suburbanos (Sintra/Oriente)
-                                if (deps[i].line.product === 'bus') continue;
-                                if (count >= 7) break;
+                            // Ordenar por tempo de espera
+                            data.sort(function(a, b) { return a.wait_time - b.wait_time; });
 
-                                var planned = new Date(deps[i].when || deps[i].plannedWhen);
-                                var diff = Math.round((planned - new Date()) / 60000);
-                                
-                                // Se estiver muito próximo ou atrasado
-                                var t = diff <= 0 ? "AGORA" : diff + "min";
+                            for (var i = 0; i < Math.min(data.length, 7); i++) {
+                                var wait = data[i].wait_time || 0;
+                                var t = wait <= 0 ? "AGORA" : wait + "min";
                                 
                                 html += '<div class="row">' +
-                                        '<div class="cp-box">CP</div>' +
-                                        '<div class="dest">' + deps[i].direction.substring(0,12) + '</div>' +
+                                        '<div class="bus-line">' + data[i].line_id + '</div>' +
+                                        '<div class="dest">' + (data[i].headsign || "CARRIS").substring(0,10) + '</div>' +
                                         '<div class="time">' + t + '</div>' +
                                         '</div>';
-                                count++;
                             }
-                            document.getElementById('list').innerHTML = html || "SEM COMBOIOS AGORA";
-                        } catch(e) { document.getElementById('list').innerHTML = "ERRO DE LEITURA"; }
+                            document.getElementById('list').innerHTML = html;
+                        } catch(e) { document.getElementById('list').innerHTML = "ERRO DE DADOS"; }
                     } else {
-                        document.getElementById('list').innerHTML = "SEM RESPOSTA (IP)";
+                        document.getElementById('list').innerHTML = "ERRO " + xhr.status;
                     }
                 }
             };
@@ -70,8 +67,8 @@
         }
 
         setInterval(setClock, 1000);
-        setInterval(getTrains, 30000);
-        setClock(); getTrains();
+        setInterval(getBuses, 30000);
+        setClock(); getBuses();
     </script>
 </body>
 </html>
