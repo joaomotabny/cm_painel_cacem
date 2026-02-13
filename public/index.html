@@ -10,21 +10,22 @@
             background-image: linear-gradient(0deg, transparent 50%, rgba(0,0,0,0.5) 50%), linear-gradient(90deg, rgba(255,255,255,0.05) 50%, transparent 50%);
             background-size: 3px 3px;
         }
-        .header { font-size: 26px; color: #444; border-bottom: 2px solid #222; height: 35px; margin-bottom: 10px; }
-        #clock { float: right; color: #ff9900; }
-        .row { clear: both; font-size: 32px; border-bottom: 1px solid #111; height: 48px; line-height: 48px; display: flex; }
+        .header { font-size: 26px; color: #444; border-bottom: 2px solid #222; height: 35px; margin-bottom: 15px; }
+        #clock { float: right; color: #ff9900; letter-spacing: 2px; }
+        .row { clear: both; font-size: 34px; border-bottom: 1px solid #111; height: 50px; line-height: 50px; display: flex; align-items: center; }
         .col-line { width: 15%; font-weight: bold; color: #ffff00; }
-        .col-dest { width: 52%; color: #ccc; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-        .col-stop { width: 13%; color: #555; font-size: 20px; text-align: center; font-weight: bold; }
-        .col-time { width: 20%; text-align: right; color: #ff9900; }
+        .col-dest { width: 55%; color: #ccc; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+        .col-stop { width: 10%; color: #444; font-size: 18px; text-align: center; font-weight: bold; }
+        .col-time { width: 20%; text-align: right; color: #ff9900; font-weight: bold; }
         
+        .live-icon { color: #50ff50; font-size: 16px; margin-left: 5px; vertical-align: middle; }
         @keyframes blinker { 50% { opacity: 0; } }
-        .blink { animation: blinker 0.8s linear infinite; color: #ff3333; font-weight: bold; }
+        .blink { animation: blinker 0.8s linear infinite; color: #ff3333; }
     </style>
 </head>
 <body>
-    <div class="header"><span>INTERFACE CACÉM • P7+P8</span><span id="clock">00:00:00</span></div>
-    <div id="list">A SINCRONIZAR RELÓGIOS...</div>
+    <div class="header"><span>INTERFACE CACÉM • HORÁRIOS</span><span id="clock">00:00:00</span></div>
+    <div id="list">A CARREGAR HORÁRIOS...</div>
 
     <script>
         function setClock() {
@@ -45,48 +46,47 @@
                 let html = '';
                 const nowUnix = Math.floor(Date.now() / 1000);
 
+                // Ordenar por hora de chegada
                 all.sort((a, b) => (a.estimated_arrival_unix || a.scheduled_arrival_unix) - (b.estimated_arrival_unix || b.scheduled_arrival_unix));
 
-                all.slice(0, 12).forEach(d => {
-                    const arrivalUnix = d.estimated_arrival_unix || d.scheduled_arrival_unix;
-                    
-                    // CÁLCULO DE DIFERENÇA COM TOLERÂNCIA
-                    // Adicionamos 30 segundos de "folga" para compensar atrasos de rede
-                    const diffSeconds = arrivalUnix - nowUnix;
-                    const diffMinutes = Math.floor(diffSeconds / 60);
-
-                    let timeText = "";
-                    const isLive = d.estimated_arrival_unix ? '📡' : '';
-
-                    if (diffSeconds < 20) { 
-                        // Se faltar menos de 20 segundos, está mesmo a chegar
-                        timeText = '<span class="blink">A CHEGAR</span>';
-                    } else if (diffMinutes >= 60) {
-                        // Se faltar mais de uma hora, mostra a hora (HH:MM)
+                if (all.length === 0) {
+                    html = '<div class="row" style="color:#444">SEM PASSAGENS PREVISTAS</div>';
+                } else {
+                    all.slice(0, 11).forEach(d => {
+                        const arrivalUnix = d.estimated_arrival_unix || d.scheduled_arrival_unix;
                         const dt = new Date(arrivalUnix * 1000);
-                        timeText = ("0" + dt.getHours()).slice(-2) + ":" + ("0" + dt.getMinutes()).slice(-2);
-                    } else {
-                        // Força a exibição dos minutos (mesmo que seja 1 min)
-                        timeText = (diffMinutes < 1 ? 1 : diffMinutes) + " MIN";
-                    }
+                        
+                        // Formatar a hora de chegada (HH:MM)
+                        const arrivalTimeStr = ("0" + dt.getHours()).slice(-2) + ":" + ("0" + dt.getMinutes()).slice(-2);
+                        
+                        // Manter o piscar se faltar menos de 1 minuto
+                        const diffSecs = arrivalUnix - nowUnix;
+                        let timeDisplay = arrivalTimeStr;
+                        
+                        if (diffSecs < 30) {
+                            timeDisplay = '<span class="blink">' + arrivalTimeStr + '</span>';
+                        }
 
-                    html += `<div class="row">
-                        <span class="col-line">${d.line_id}</span>
-                        <span class="col-dest">${d.headsign}</span>
-                        <span class="col-stop">${d.stopLabel}</span>
-                        <span class="col-time">${isLive} ${timeText}</span>
-                    </div>`;
-                });
+                        const isLive = d.estimated_arrival_unix ? '<span class="live-icon">📡</span>' : '';
 
-                document.getElementById('list').innerHTML = html || "SEM PASSAGENS";
+                        html += `<div class="row">
+                            <span class="col-line">${d.line_id}</span>
+                            <span class="col-dest">${d.headsign}</span>
+                            <span class="col-stop">${d.stopLabel}</span>
+                            <span class="col-time">${timeDisplay}${isLive}</span>
+                        </div>`;
+                    });
+                }
+
+                document.getElementById('list').innerHTML = html;
             } catch (e) {
-                document.getElementById('list').innerHTML = "ERRO DE LIGAÇÃO";
+                document.getElementById('list').innerHTML = "ERRO NA ATUALIZAÇÃO";
             }
         }
 
         setClock(); updateBoard();
         setInterval(setClock, 1000);
-        setInterval(updateBoard, 20000);
+        setInterval(updateBoard, 30000); // 30 segundos é suficiente para horários fixos
     </script>
 </body>
 </html>
