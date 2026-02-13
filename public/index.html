@@ -2,28 +2,46 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>ZURICH HB BOARD</title>
+    <title>SWISS RAIL BOARD</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
-        body { background: #000; color: #fff; font-family: 'VT323', monospace; margin: 0; padding: 20px; overflow: hidden; }
-        .header { font-size: 28px; color: #ccc; border-bottom: 2px solid #444; margin-bottom: 10px; display: flex; justify-content: space-between; }
-        .row { display: flex; justify-content: space-between; font-size: 40px; border-bottom: 1px solid #222; margin-top: 12px; align-items: center; }
         
-        /* Cores Suíças */
-        .ic { color: #ff0000; text-shadow: 0 0 5px red; } /* InterCity (Vermelho) */
-        .ir { color: #ff9900; text-shadow: 0 0 5px orange; } /* InterRegio (Laranja) */
-        .s { color: #ffff00; text-shadow: 0 0 5px yellow; } /* S-Bahn (Amarelo) */
+        body { background: #000; color: #fff; font-family: 'VT323', monospace; margin: 0; padding: 15px; overflow: hidden; text-transform: uppercase; }
         
-        .time { color: #fff; }
-        .dest { font-size: 35px; color: #ddd; }
+        .header { font-size: 22px; color: #555; border-bottom: 2px solid #333; display: flex; justify-content: space-between; padding-bottom: 5px; }
+        
+        .row { display: flex; font-size: 38px; border-bottom: 1px solid #111; height: 55px; align-items: center; }
+        
+        /* Colunas */
+        .col-line { width: 20%; font-weight: bold; }
+        .col-dest { width: 50%; color: #ddd; overflow: hidden; white-space: nowrap; }
+        .col-plat { width: 15%; color: #ff9900; text-align: center; }
+        .col-time { width: 15%; text-align: right; }
+
+        /* Cores de Categoria */
+        .ic { color: #ff0000; text-shadow: 0 0 8px #ff0000; }
+        .s { color: #ffff00; text-shadow: 0 0 8px #ffff00; }
+        .ir { color: #ff6600; }
+
+        /* Animação de Piscar */
+        @keyframes blinker { 50% { opacity: 0; } }
+        .blink { animation: blinker 1s linear infinite; color: #ff0000; font-weight: bold; }
+
+        #clock { color: #fff; }
     </style>
 </head>
 <body>
     <div class="header">
-        <span>ZÜRICH HB</span>
+        <span>STATION: ZÜRICH HB</span>
         <span id="clock">00:00</span>
     </div>
-    <div id="list">CONNECTING SWITZERLAND...</div>
+    <div class="row" style="font-size: 20px; color: #444; height: 30px; border-bottom: 2px solid #222;">
+        <span class="col-line">LINHA</span>
+        <span class="col-dest">DESTINO</span>
+        <span class="col-plat">PLAT</span>
+        <span class="col-time">TEMPO</span>
+    </div>
+    <div id="list">LADEN...</div>
 
     <script>
         function setClock() {
@@ -31,60 +49,51 @@
             document.getElementById('clock').innerHTML = ("0" + now.getHours()).slice(-2) + ":" + ("0" + now.getMinutes()).slice(-2);
         }
 
-        function getSwiss() {
+        function updateBoard() {
             var xhr = new XMLHttpRequest();
-            // Ligação DIRETA sem proxy!
-            var url = 'https://transport.opendata.ch/v1/stationboard?station=Zurich,HB&limit=8';
+            var url = 'https://transport.opendata.ch/v1/stationboard?station=Zurich,HB&limit=9';
             
             xhr.open('GET', url, true);
             xhr.onreadystatechange = function() {
-                if (xhr.readyState == 4) {
-                    if (xhr.status == 200) {
-                        try {
-                            var data = JSON.parse(xhr.responseText);
-                            var board = data.stationboard;
-                            var html = '';
-                            
-                            for (var i = 0; i < board.length; i++) {
-                                var train = board[i];
-                                var cat = train.category; // IC, IR, S, etc.
-                                var line = cat + (train.number || '');
-                                var dest = train.to;
-                                
-                                // Estilo baseado no tipo
-                                var styleClass = 'time';
-                                if (cat === 'IC' || cat === 'ICE') styleClass = 'ic';
-                                if (cat === 'IR' || cat === 'RE') styleClass = 'ir';
-                                if (cat === 'S' || cat === 'SN') styleClass = 's';
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    var data = JSON.parse(xhr.responseText);
+                    var html = '';
+                    
+                    for (var i = 0; i < data.stationboard.length; i++) {
+                        var t = data.stationboard[i];
+                        var cat = t.category;
+                        var line = cat + (t.number || '');
+                        var platform = t.stop.platform || '-';
+                        
+                        // Classe de cor
+                        var cClass = 'col-line';
+                        if (cat === 'S' || cat === 'SN') cClass += ' s';
+                        if (cat === 'IC' || cat === 'ICE') cClass += ' ic';
+                        if (cat === 'IR' || cat === 'RE') cClass += ' ir';
 
-                                // Calcular tempo
-                                var depTime = new Date(train.stop.departure);
-                                var now = new Date();
-                                var diff = Math.round((depTime - now) / 60000);
-                                var timeStr = (diff <= 0) ? "NOW" : diff + "'";
-
-                                html += '<div class="row">' +
-                                        '<span class="' + styleClass + '">' + line + '</span>' +
-                                        '<span class="dest">' + dest.substring(0,12) + '</span>' +
-                                        '<span class="time">' + timeStr + '</span>' +
-                                        '</div>';
-                            }
-                            document.getElementById('list').innerHTML = html;
-                        } catch(e) {
-                            document.getElementById('list').innerHTML = "ERRO DADOS: " + e.message;
+                        // Cálculo de tempo
+                        var diff = Math.round((new Date(t.stop.departure) - new Date()) / 60000);
+                        var timeDisplay = diff + ' MIN';
+                        if (diff <= 0) {
+                            timeDisplay = '<span class="blink">PARTIDA</span>';
                         }
-                    } else {
-                        document.getElementById('list').innerHTML = "ERRO REDE: " + xhr.status;
+
+                        html += '<div class="row">' +
+                                '<span class="' + cClass + '">' + line + '</span>' +
+                                '<span class="col-dest">' + t.to.toUpperCase().substring(0, 14) + '</span>' +
+                                '<span class="col-plat">' + platform + '</span>' +
+                                '<span class="col-time">' + timeDisplay + '</span>' +
+                                '</div>';
                     }
+                    document.getElementById('list').innerHTML = html;
                 }
             };
             xhr.send();
         }
 
         setInterval(setClock, 1000);
-        setInterval(getSwiss, 30000); // Atualiza a cada 30s
-        setClock(); 
-        getSwiss();
+        setInterval(updateBoard, 30000);
+        setClock(); updateBoard();
     </script>
 </body>
 </html>
