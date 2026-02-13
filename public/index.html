@@ -2,78 +2,44 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>SWISS RAIL BOARD</title>
+    <title>SWISS RAIL BOARD PRO</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
         
-        body { background: #000; color: #fff; font-family: 'VT323', monospace; margin: 0; padding: 15px; overflow: hidden; text-transform: uppercase; }
+        body { 
+            background: #000; 
+            color: #fff; 
+            font-family: 'VT323', monospace; 
+            margin: 0; 
+            padding: 15px; 
+            overflow: hidden; 
+            text-transform: uppercase; 
+        }
         
-        .header { font-size: 22px; color: #555; border-bottom: 2px solid #333; display: flex; justify-content: space-between; padding-bottom: 5px; }
+        .header { 
+            font-size: 22px; 
+            color: #555; 
+            border-bottom: 2px solid #333; 
+            display: flex; 
+            justify-content: space-between; 
+            padding-bottom: 5px; 
+        }
         
-        .row { display: flex; font-size: 38px; border-bottom: 1px solid #111; height: 55px; align-items: center; }
+        .row { 
+            display: flex; 
+            font-size: 38px; 
+            border-bottom: 1px solid #111; 
+            height: 55px; 
+            align-items: center; 
+        }
         
         /* Colunas */
-        .col-line { width: 20%; font-weight: bold; }
-        .col-dest { width: 50%; color: #ddd; overflow: hidden; white-space: nowrap; }
-        .col-plat { width: 15%; color: #ff9900; text-align: center; }
-        .col-time { width: 15%; text-align: right; }
+        .col-line { width: 22%; font-weight: bold; }
+        .col-dest { width: 48%; color: #ddd; overflow: hidden; white-space: nowrap; }
+        .col-plat { width: 10%; color: #ff9900; text-align: center; }
+        .col-time { width: 20%; text-align: right; }
 
-        /* Cores de Categoria */
+        /* Cores de Categoria com Glow */
         .ic { color: #ff0000; text-shadow: 0 0 8px #ff0000; }
         .s { color: #ffff00; text-shadow: 0 0 8px #ffff00; }
-        .ir { color: #ff6600; }
-
-        /* Animação de Piscar */
-        @keyframes blinker { 50% { opacity: 0; } }
-        .blink { animation: blinker 1s linear infinite; color: #ff0000; font-weight: bold; }
-
-        #clock { color: #fff; }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <span>STATION: ZÜRICH HB</span>
-        <span id="clock">00:00</span>
-    </div>
-    <div class="row" style="font-size: 20px; color: #444; height: 30px; border-bottom: 2px solid #222;">
-        <span class="col-line">LINHA</span>
-        <span class="col-dest">DESTINO</span>
-        <span class="col-plat">PLAT</span>
-        <span class="col-time">TEMPO</span>
-    </div>
-    <div id="list">LADEN...</div>
-
-    <script>
-for (var i = 0; i < data.stationboard.length; i++) {
-                        var t = data.stationboard[i];
-                        var cat = t.category;
-                        var line = cat + (t.number || '');
-                        var platform = t.stop.platform || '-';
-                        
-                        var cClass = 'col-line';
-                        if (cat === 'S' || cat === 'SN') cClass += ' s';
-                        if (cat === 'IC' || cat === 'ICE') cClass += ' ic';
-                        if (cat === 'IR' || cat === 'RE') cClass += ' ir';
-
-                        // CORREÇÃO PARA IPAD ANTIGO:
-                        // Transformamos "2024-05-20T10:00:00+0200" em algo que o Safari aceite
-                        var dateStr = t.stop.departure.replace(/-/g, "/").replace(/T/g, " ").split("+")[0];
-                        var depTime = new Date(dateStr);
-                        var now = new Date();
-                        var diff = Math.round((depTime - now) / 60000);
-
-                        var timeDisplay = diff + ' MIN';
-                        if (diff <= 0) {
-                            timeDisplay = '<span class="blink">PARTIDA</span>';
-                        }
-
-                        html += '<div class="row">' +
-                                '<span class="' + cClass + '">' + line + '</span>' +
-                                '<span class="col-dest">' + t.to.toUpperCase().substring(0, 14) + '</span>' +
-                                '<span class="col-plat">' + platform + '</span>' +
-                                '<span class="col-time">' + timeDisplay + '</span>' +
-                                '</div>';
-                    }
-    </script>
-</body>
-</html>
+        .ir { color: #
