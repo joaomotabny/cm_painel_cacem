@@ -18,14 +18,14 @@
         .col-stop { width: 10%; color: #444; font-size: 18px; text-align: center; font-weight: bold; }
         .col-time { width: 20%; text-align: right; color: #ff9900; font-weight: bold; }
         
-        .live-icon { color: #50ff50; font-size: 16px; margin-left: 5px; vertical-align: middle; }
+        .live-icon { color: #50ff50; font-size: 16px; margin-left: 5px; }
         @keyframes blinker { 50% { opacity: 0; } }
         .blink { animation: blinker 0.8s linear infinite; color: #ff3333; }
     </style>
 </head>
 <body>
-    <div class="header"><span>INTERFACE CACÉM • HORÁRIOS</span><span id="clock">00:00:00</span></div>
-    <div id="list">A CARREGAR HORÁRIOS...</div>
+    <div class="header"><span>INTERFACE CACÉM • HORA REAL</span><span id="clock">00:00:00</span></div>
+    <div id="list">A SINCRONIZAR HORÁRIOS...</div>
 
     <script>
         function setClock() {
@@ -44,36 +44,31 @@
                 
                 let all = [].concat(...results);
                 let html = '';
-                const nowUnix = Math.floor(Date.now() / 1000);
-
-                // Ordenar por hora de chegada
-                all.sort((a, b) => (a.estimated_arrival_unix || a.scheduled_arrival_unix) - (b.estimated_arrival_unix || b.scheduled_arrival_unix));
+                
+                // Ordenar por ordem de chegada usando o carimbo de tempo bruto
+                all.sort((a, b) => (a.scheduled_arrival_unix) - (b.scheduled_arrival_unix));
 
                 if (all.length === 0) {
                     html = '<div class="row" style="color:#444">SEM PASSAGENS PREVISTAS</div>';
                 } else {
                     all.slice(0, 11).forEach(d => {
-                        const arrivalUnix = d.estimated_arrival_unix || d.scheduled_arrival_unix;
-                        const dt = new Date(arrivalUnix * 1000);
+                        // USAR A HORA FORMATADA QUE VEM DA API (Ex: "21:30:00")
+                        // Cortamos os segundos para ficar apenas HH:MM
+                        let rawTime = d.scheduled_arrival || "00:00";
+                        let displayTime = rawTime.substring(0, 5);
                         
-                        // Formatar a hora de chegada (HH:MM)
-                        const arrivalTimeStr = ("0" + dt.getHours()).slice(-2) + ":" + ("0" + dt.getMinutes()).slice(-2);
-                        
-                        // Manter o piscar se faltar menos de 1 minuto
-                        const diffSecs = arrivalUnix - nowUnix;
-                        let timeDisplay = arrivalTimeStr;
-                        
-                        if (diffSecs < 30) {
-                            timeDisplay = '<span class="blink">' + arrivalTimeStr + '</span>';
+                        // Se houver estimativa real, usamos a hora estimada
+                        if (d.estimated_arrival) {
+                            displayTime = d.estimated_arrival.substring(0, 5);
                         }
 
-                        const isLive = d.estimated_arrival_unix ? '<span class="live-icon">📡</span>' : '';
+                        const isLive = d.estimated_arrival ? '<span class="live-icon">📡</span>' : '';
 
                         html += `<div class="row">
                             <span class="col-line">${d.line_id}</span>
                             <span class="col-dest">${d.headsign}</span>
                             <span class="col-stop">${d.stopLabel}</span>
-                            <span class="col-time">${timeDisplay}${isLive}</span>
+                            <span class="col-time">${displayTime}${isLive}</span>
                         </div>`;
                     });
                 }
@@ -86,7 +81,7 @@
 
         setClock(); updateBoard();
         setInterval(setClock, 1000);
-        setInterval(updateBoard, 30000); // 30 segundos é suficiente para horários fixos
+        setInterval(updateBoard, 30000);
     </script>
 </body>
 </html>
