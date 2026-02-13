@@ -21,36 +21,40 @@
 
         function getData() {
             var xhr = new XMLHttpRequest();
-            // Usamos o corsproxy.io que é mais direto
-            var target = 'https://v6.db.transport.rest/stops/8002126/departures?duration=60&results=5';
-            var url = 'https://corsproxy.io/?' + encodeURIComponent(target);
+            // Frankfurt-Griesheim
+            var target = 'https://v6.db.transport.rest/stops/8002126/departures?duration=60&results=10';
+            // Usamos o AllOrigins novamente mas de forma mais simples
+            var url = 'https://api.allorigins.win/get?url=' + encodeURIComponent(target);
             
             xhr.open('GET', url, true);
             xhr.onreadystatechange = function() {
-                if (xhr.readyState == 4 && xhr.status == 200) {
-                    try {
-                        var data = JSON.parse(xhr.responseText);
-                        var html = '';
-                        for (var i = 0; i < data.departures.length; i++) {
-                            var d = data.departures[i];
-                            var depTime = new Date(d.when || d.plannedWhen);
-                            var diff = Math.round((depTime - new Date()) / 60000);
+                if (xhr.readyState == 4) {
+                    if (xhr.status == 200) {
+                        try {
+                            var response = JSON.parse(xhr.responseText);
+                            var data = JSON.parse(response.contents);
+                            var html = '';
                             
-                            html += '<div class="row">' +
-                                    '<span>' + d.line.name + ' ' + d.direction.substring(0,8) + '</span>' +
-                                    '<span class="time">' + (diff <= 0 ? "0" : diff) + 'm</span>' +
-                                    '</div>';
+                            var deps = data.departures;
+                            for (var i = 0; i < Math.min(deps.length, 6); i++) {
+                                var d = deps[i];
+                                var depTime = new Date(d.when || d.plannedWhen);
+                                var diff = Math.round((depTime - new Date()) / 60000);
+                                var tText = (diff <= 0) ? "0" : diff;
+
+                                html += '<div class="row">' +
+                                        '<span>' + d.line.name + ' ' + d.direction.substring(0,10).toUpperCase() + '</span>' +
+                                        '<span class="time">' + tText + 'm</span>' +
+                                        '</div>';
+                            }
+                            document.getElementById('list').innerHTML = html || "SEM COMBOIOS";
+                        } catch(e) { 
+                            document.getElementById('list').innerHTML = "ERRO NOS DADOS"; 
                         }
-                        document.getElementById('list').innerHTML = html;
-                    } catch(e) { document.getElementById('list').innerHTML = "ERRO JSON"; }
+                    } else {
+                        document.getElementById('list').innerHTML = "ERRO LIGAÇÃO: " + xhr.status;
+                    }
                 }
             };
             xhr.send();
         }
-
-        setInterval(setClock, 1000);
-        setInterval(getData, 30000);
-        setClock(); getData();
-    </script>
-</body>
-</html>
