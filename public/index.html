@@ -13,18 +13,19 @@
         .header { font-size: 26px; color: #444; border-bottom: 2px solid #222; height: 35px; margin-bottom: 10px; }
         #clock { float: right; color: #ff9900; }
         .row { clear: both; font-size: 32px; border-bottom: 1px solid #111; height: 48px; line-height: 48px; display: flex; }
-        .col-line { width: 15%; font-weight: bold; color: #ffff00; text-shadow: 0 0 8px rgba(255,255,0,0.5); }
-        .col-dest { width: 60%; color: #ccc; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-        .col-time { width: 25%; text-align: right; color: #ff9900; }
+        .col-line { width: 15%; font-weight: bold; color: #ffff00; }
+        .col-dest { width: 52%; color: #ccc; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+        .col-stop { width: 13%; color: #555; font-size: 20px; text-align: center; font-weight: bold; }
+        .col-time { width: 20%; text-align: right; color: #ff9900; }
         
         @keyframes blinker { 50% { opacity: 0; } }
         .blink { animation: blinker 0.8s linear infinite; color: #ff3333; font-weight: bold; }
-        .live { color: #50ff50; margin-right: 5px; font-size: 20px; } /* Indicador de GPS */
+        .live { color: #50ff50; margin-right: 5px; font-size: 18px; }
     </style>
 </head>
 <body>
-    <div class="header"><span>C. METROPOLITANA • CACÉM SUL (172621)</span><span id="clock">00:00</span></div>
-    <div id="list">A CARREGAR SISTEMA...</div>
+    <div class="header"><span>C. METROPOLITANA • INTERFACE CACÉM</span><span id="clock">00:00:00</span></div>
+    <div id="list">A SINCRONIZAR PLATAFORMAS...</div>
 
     <script>
         function setClock() {
@@ -32,56 +33,24 @@
             document.getElementById('clock').innerHTML = ("0" + now.getHours()).slice(-2) + ":" + ("0" + now.getMinutes()).slice(-2) + ":" + ("0" + now.getSeconds()).slice(-2);
         }
 
-        async function updateBoard() {
-            const stopId = '172621'; 
-            const url = `https://api.carrismetropolitana.pt/stops/${stopId}/realtime`;
-
+        async function getStopData(id) {
             try {
-                const response = await fetch(url);
-                if (!response.ok) throw new Error();
-                const departures = await response.json();
+                const response = await fetch(`https://api.carrismetropolitana.pt/stops/${id}/realtime`);
+                const data = await response.json();
+                // Mapeia o ID para um nome curto (Ex: 170459 -> P459)
+                return data.map(item => ({...item, stopLabel: 'P' + id.slice(-3)}));
+            } catch (e) { return []; }
+        }
+
+        async function updateBoard() {
+            const stopIds = ['170459', '172621']; 
+            
+            try {
+                const results = await Promise.all(stopIds.map(id => getStopData(id)));
+                let allDepartures = [].concat(...results);
                 
                 let html = '';
                 const now = new Date();
 
-                // Ordenar por ordem de chegada
-                departures.sort((a, b) => (a.estimated_arrival_unix || a.scheduled_arrival_unix) - (b.estimated_arrival_unix || b.scheduled_arrival_unix));
-
-                if (departures.length === 0) {
-                    html = '<div class="row" style="color:#444">SEM PASSAGENS PREVISTAS NESTA HORA</div>';
-                } else {
-                    departures.slice(0, 12).forEach(d => {
-                        const unix = d.estimated_arrival_unix || d.scheduled_arrival_unix;
-                        const arrivalTime = new Date(unix * 1000);
-                        const diffMs = arrivalTime - now;
-                        let diffMin = Math.floor(diffMs / 60000);
-
-                        let timeText = diffMin + " MIN";
-                        let isLive = d.estimated_arrival_unix ? '<span class="live">📡</span>' : '  ';
-
-                        if (diffMin <= 0) {
-                            timeText = '<span class="blink">A CHEGAR</span>';
-                        } else if (diffMin > 59) {
-                            timeText = ("0" + arrivalTime.getHours()).slice(-2) + ":" + ("0" + arrivalTime.getMinutes()).slice(-2);
-                        }
-
-                        html += `<div class="row">
-                            <span class="col-line">${d.line_id}</span>
-                            <span class="col-dest">${d.headsign}</span>
-                            <span class="col-time">${isLive}${timeText}</span>
-                        </div>`;
-                    });
-                }
-
-                document.getElementById('list').innerHTML = html;
-            } catch (e) {
-                document.getElementById('list').innerHTML = "ERRO: FALHA NA REDE CARRIS";
-            }
-        }
-
-        setClock(); updateBoard();
-        setInterval(setClock, 1000);
-        setInterval(updateBoard, 20000); // Atualiza mais rápido (20s) no Mac
-    </script>
-</body>
-</html>
+                // Ordenação cronológica rigorosa
+                allDepartures.sort((a, b) => (a.estimated_arrival_unix || a
