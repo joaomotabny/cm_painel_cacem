@@ -24,8 +24,8 @@
     </style>
 </head>
 <body>
-    <div class="header"><span>C. METROPOLITANA • INTERFACE CACÉM</span><span id="clock">00:00:00</span></div>
-    <div id="list">A SINCRONIZAR PLATAFORMAS...</div>
+    <div class="header"><span>INTERFACE CACÉM • P7+P8</span><span id="clock">00:00:00</span></div>
+    <div id="list">A SINCRONIZAR...</div>
 
     <script>
         function setClock() {
@@ -37,13 +37,12 @@
             try {
                 const response = await fetch(`https://api.carrismetropolitana.pt/stops/${id}/realtime`);
                 const data = await response.json();
-                // Mapeia o ID para um nome curto (Ex: 170459 -> P459)
                 return data.map(item => ({...item, stopLabel: 'P' + id.slice(-3)}));
             } catch (e) { return []; }
         }
 
         async function updateBoard() {
-            const stopIds = ['170459', '172621']; 
+            const stopIds = ['170459', '172500']; 
             
             try {
                 const results = await Promise.all(stopIds.map(id => getStopData(id)));
@@ -52,45 +51,29 @@
                 let html = '';
                 const now = new Date();
 
-                // Ordenação cronológica rigorosa
+                // Ordenação cronológica
                 allDepartures.sort((a, b) => (a.estimated_arrival_unix || a.scheduled_arrival_unix) - (b.estimated_arrival_unix || b.scheduled_arrival_unix));
 
                 if (allDepartures.length === 0) {
-                    html = '<div class="row" style="color:#444">SEM PASSAGENS NESTE MOMENTO</div>';
+                    html = '<div class="row" style="color:#444">SEM PASSAGENS PREVISTAS</div>';
                 } else {
                     allDepartures.slice(0, 12).forEach(d => {
                         const unix = d.estimated_arrival_unix || d.scheduled_arrival_unix;
                         const arrivalTime = new Date(unix * 1000);
-                        const diffMs = arrivalTime - now;
-                        let diffMin = Math.floor(diffMs / 60000);
+                        
+                        // Diferença em segundos para maior precisão
+                        const diffSecs = Math.floor((arrivalTime - now) / 1000);
+                        const diffMin = Math.ceil(diffSecs / 60);
 
-                        let timeText = diffMin + " MIN";
+                        let timeText = "";
                         let isLive = d.estimated_arrival_unix ? '<span class="live">📡</span>' : '  ';
 
-                        if (diffMin <= 0) {
+                        if (diffSecs < 30) { 
+                            // Menos de 30 segundos para chegar ou valor negativo
                             timeText = '<span class="blink">A CHEGAR</span>';
                         } else if (diffMin > 59) {
+                            // Mais de uma hora, mostra a hora certa
                             timeText = ("0" + arrivalTime.getHours()).slice(-2) + ":" + ("0" + arrivalTime.getMinutes()).slice(-2);
-                        }
-
-                        html += `<div class="row">
-                            <span class="col-line">${d.line_id}</span>
-                            <span class="col-dest">${d.headsign}</span>
-                            <span class="col-stop">${d.stopLabel}</span>
-                            <span class="col-time">${isLive}${timeText}</span>
-                        </div>`;
-                    });
-                }
-
-                document.getElementById('list').innerHTML = html;
-            } catch (e) {
-                document.getElementById('list').innerHTML = "ERRO: FALHA NA REDE CM";
-            }
-        }
-
-        setClock(); updateBoard();
-        setInterval(setClock, 1000);
-        setInterval(updateBoard, 20000);
-    </script>
-</body>
-</html>
+                        } else {
+                            // Mostra os minutos restantes
+                            timeText = diffMin + " MIN";
