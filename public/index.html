@@ -2,108 +2,93 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>ZURICH HB LED</title>
     <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
     <style>
         body { 
-            background-color: #000; 
-            color: #fff; 
-            font-family: 'VT323', monospace; 
-            margin: 0; 
-            padding: 15px; 
-            text-transform: uppercase;
+            background-color: #000; color: #fff; font-family: 'VT323', monospace; 
+            margin: 0; padding: 15px; text-transform: uppercase;
             background-image: linear-gradient(0deg, transparent 50%, rgba(0,0,0,0.5) 50%), linear-gradient(90deg, rgba(255,255,255,0.05) 50%, transparent 50%);
-            background-size: 3px 3px;
-            overflow: hidden;
+            background-size: 3px 3px; overflow: hidden;
         }
-        .header { font-size: 24px; color: #333; border-bottom: 2px solid #222; height: 35px; letter-spacing: 2px; }
+        .header { font-size: 24px; color: #333; border-bottom: 2px solid #222; height: 35px; }
         #clock { float: right; color: #eee; }
-        .row { clear: both; font-size: 38px; border-bottom: 1px solid #111; height: 55px; line-height: 55px; letter-spacing: 2px; }
-        .col-line { float: left; width: 20%; font-weight: bold; }
-        .col-dest { float: left; width: 50%; color: #bbb; overflow: hidden; white-space: nowrap; }
+        .row { clear: both; font-size: 34px; border-bottom: 1px solid #111; height: 52px; line-height: 52px; }
+        .col-line { float: left; width: 18%; font-weight: bold; }
+        .col-dest { float: left; width: 52%; color: #bbb; overflow: hidden; white-space: nowrap; }
         .col-plat { float: left; width: 10%; color: #ff9900; text-align: center; }
         .col-time { float: left; width: 20%; text-align: right; }
-        .ic { color: #ff0000; text-shadow: 0 0 5px #ff0000; }
-        .s { color: #ffff00; text-shadow: 0 0 5px #ffff00; }
-        .ir { color: #ff8000; }
+        
+        /* Cores DB: ICE/IC são Vermelhos, S-Bahn é Verde/Amarelo */
+        .ice { color: #ff0000; text-shadow: 0 0 5px #ff0000; }
+        .s { color: #50ff50; } 
+        .re { color: #ff8000; }
+
         @keyframes blinker { 50% { opacity: 0; } }
         .blink { animation: blinker 0.8s linear infinite; color: #ff0000; font-weight: bold; }
     </style>
 </head>
 <body>
-    <div class="header">
-        <span>ZÜRICH HB</span>
-        <span id="clock">00:00</span>
-    </div>
+    <div class="header"><span>FRANKFURT HBF</span><span id="clock">00:00</span></div>
     <div id="list">LADEN...</div>
 
     <script>
         function setClock() {
             var now = new Date();
-            var h = ("0" + now.getHours()).slice(-2);
-            var m = ("0" + now.getMinutes()).slice(-2);
-            document.getElementById('clock').innerHTML = h + ":" + m;
+            document.getElementById('clock').innerHTML = ("0" + now.getHours()).slice(-2) + ":" + ("0" + now.getMinutes()).slice(-2);
         }
 
         function updateBoard() {
             var xhr = new XMLHttpRequest();
-            var url = 'https://transport.opendata.ch/v1/stationboard?station=Zurich,HB&limit=10';
+            // Frankfurt Hbf ID: 8000105
+            var target = 'https://v6.db.transport.rest/stops/8000105/departures?duration=60&results=10';
+            var url = 'https://api.allorigins.win/get?url=' + encodeURIComponent(target);
             
             xhr.open('GET', url, true);
             xhr.onreadystatechange = function() {
                 if (xhr.readyState == 4 && xhr.status == 200) {
-                    try {
-                        var data = JSON.parse(xhr.responseText);
-                        var html = '';
-                        var board = data.stationboard;
-                        var now = new Date();
+                    var resp = JSON.parse(xhr.responseText);
+                    var data = JSON.parse(resp.contents);
+                    var html = '';
+                    var now = new Date();
+                    var nowTotalMin = (now.getHours() * 60) + now.getMinutes();
 
-                        for (var i = 0; i < board.length; i++) {
-                            var t = board[i];
-                            var cat = t.category;
-                            var line = cat + (t.number || '');
-                            
-                            // 1. LIMPEZA DA DATA PARA O SAFARI DO IPAD
-                            // Transforma "2024-05-20T10:00:00+0200" em "2024/05/20 10:00:00"
-                            var rawDate = t.stop.departure; 
-                            var cleanDate = rawDate.replace(/-/g, "/").replace("T", " ").split("+")[0].split(".")[0];
-                            
-                            var depDate = new Date(cleanDate);
-                            
-                            // 2. CÁLCULO MANUAL DOS MINUTOS
-                            var diffMs = depDate.getTime() - now.getTime();
-                            var diff = Math.floor(diffMs / 60000);
+                    for (var i = 0; i < data.departures.length; i++) {
+                        var d = data.departures[i];
+                        
+                        // CÁLCULO MANUAL (Mesmo sistema da Suíça)
+                        var timePart = (d.when || d.plannedWhen).split("T")[1]; 
+                        var hour = parseInt(timePart.split(":")[0], 10);
+                        var min = parseInt(timePart.split(":")[1], 10);
+                        var depTotalMin = (hour * 60) + min;
+                        
+                        var diff = depTotalMin - nowTotalMin;
+                        diff = diff - 60; // Ajuste Fuso Alemanha vs Portugal
 
-                            // Ajuste de fuso horário manual (Suíça está 1h à frente de Portugal)
-                            // Se o resultado der entre 40 e 80 minutos, subtraímos 60
-                            if (diff >= 45) { diff = diff - 60; }
+                        if (diff < -1000) diff += 1440; 
 
-                            var timeText = diff + " MIN";
-                            if (diff <= 0) {
-                                timeText = '<span class="blink">PARTIDA</span>';
-                            }
+                        var timeText = diff + " MIN";
+                        if (diff <= 0) timeText = '<span class="blink">PARTIDA</span>';
 
-                            var cClass = 'col-line';
-                            if (cat === 'S' || cat === 'SN') cClass += ' s';
-                            if (cat === 'IC' || cat === 'ICE') cClass += ' ic';
-                            if (cat === 'IR' || cat === 'RE') cClass += ' ir';
+                        var lineName = d.line.name;
+                        var cClass = 'col-line';
+                        if (lineName.indexOf('S') === 0) cClass += ' s';
+                        if (lineName.indexOf('ICE') === 0 || lineName.indexOf('IC') === 0) cClass += ' ice';
+                        if (lineName.indexOf('RE') === 0 || lineName.indexOf('RB') === 0) cClass += ' re';
 
-                            html += '<div class="row">' +
-                                    '<span class="' + cClass + '">' + line + '</span>' +
-                                    '<span class="col-dest">' + t.to.substring(0, 12) + '</span>' +
-                                    '<span class="col-plat">' + (t.stop.platform || '-') + '</span>' +
-                                    '<span class="col-time">' + timeText + '</span>' +
-                                    '</div>';
-                        }
-                        document.getElementById('list').innerHTML = html;
-                    } catch(e) { document.getElementById('list').innerHTML = "ERRO"; }
+                        html += '<div class="row">' +
+                                '<span class="' + cClass + '">' + lineName + '</span>' +
+                                '<span class="col-dest">' + d.direction.substring(0, 14) + '</span>' +
+                                '<span class="col-plat">' + (d.platform || '-') + '</span>' +
+                                '<span class="col-time">' + timeText + '</span>' +
+                                '</div>';
+                    }
+                    document.getElementById('list').innerHTML = html;
                 }
             };
             xhr.send();
         }
 
-        setClock();
-        updateBoard();
+        setClock(); updateBoard();
         setInterval(setClock, 1000);
         setInterval(updateBoard, 30000);
     </script>
