@@ -2,12 +2,14 @@
 <html>
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
-        body { background: #000; color: #ff9900; font-family: 'VT323', monospace; margin: 0; padding: 20px; }
-        .header { font-size: 30px; color: #444; display: flex; justify-content: space-between; border-bottom: 2px solid #222; }
-        .row { display: flex; justify-content: space-between; font-size: 50px; margin-top: 15px; border-bottom: 1px solid #111; }
+        body { background: #000; color: #ff9900; font-family: 'VT323', monospace; margin: 0; padding: 15px; overflow: hidden; }
+        .header { font-size: 28px; color: #444; display: flex; justify-content: space-between; border-bottom: 2px solid #222; margin-bottom: 10px; }
+        .row { display: flex; justify-content: space-between; font-size: 48px; line-height: 1.1; margin-bottom: 8px; border-bottom: 1px solid #111; }
         .time { color: #00ff00; }
+        .line { color: #fff; min-width: 80px; }
     </style>
 </head>
 <body>
@@ -27,36 +29,42 @@
 
         function getBuses() {
             var xhr = new XMLHttpRequest();
-            // ENDEREÇO ATUALIZADO: /predictions em vez de /estimations
+            // ESTA É A NOVA URL QUE SUBSTITUI A QUE DEU 404
             var url = 'https://api.carrismetropolitana.pt/stops/172500/predictions';
             
             xhr.open('GET', url, true);
             xhr.onreadystatechange = function() {
                 if (xhr.readyState == 4) {
                     if (xhr.status == 200) {
-                        var data = JSON.parse(xhr.responseText);
-                        var html = '';
-                        
-                        if (!data || data.length === 0) {
-                            document.getElementById('list').innerHTML = '<div class="row">SEM AUTOCARROS AGORA</div>';
-                            return;
-                        }
-
-                        for (var i = 0; i < Math.min(data.length, 6); i++) {
-                            // A nova API usa campos ligeiramente diferentes, vamos garantir que lê bem
-                            var line = data[i].line_id || data[i].route_id;
-                            var destination = data[i].headsign || "AUTOCARRO";
-                            var wait = data[i].wait_time || 0;
+                        try {
+                            var data = JSON.parse(xhr.responseText);
+                            var html = '';
                             
-                            html += '<div class="row">' +
-                                    '<span>' + line + '</span> ' +
-                                    '<span>' + destination.substring(0,12) + '</span> ' +
-                                    '<span class="time">' + (wait <= 0 ? "A CHEGAR" : wait + "m") + '</span>' +
-                                    '</div>';
+                            if (!data || data.length === 0) {
+                                document.getElementById('list').innerHTML = '<div class="row">SEM AUTOCARROS</div>';
+                                return;
+                            }
+
+                            // Ordenar por tempo de espera (os mais próximos primeiro)
+                            data.sort(function(a, b) { return a.wait_time - b.wait_time; });
+
+                            for (var i = 0; i < Math.min(data.length, 6); i++) {
+                                var wait = data[i].wait_time;
+                                var timeDisplay = (wait <= 0) ? "CHEGAR" : wait + "m";
+                                
+                                html += '<div class="row">' +
+                                        '<span class="line">' + data[i].line_id + '</span>' +
+                                        '<span style="flex-grow:1;margin-left:10px">' + data[i].headsign.substring(0,10) + '</span>' +
+                                        '<span class="time">' + timeDisplay + '</span>' +
+                                        '</div>';
+                            }
+                            document.getElementById('list').innerHTML = html;
+                        } catch (e) {
+                            document.getElementById('list').innerHTML = '<div class="row">ERRO DE DADOS</div>';
                         }
-                        document.getElementById('list').innerHTML = html;
                     } else {
-                        document.getElementById('list').innerHTML = '<div class="row">ERRO NA CARRIS ('+xhr.status+')</div>';
+                        // Se continuar a dar 404, ele avisa aqui
+                        document.getElementById('list').innerHTML = '<div class="row">CARRIS FORA (404)</div>';
                     }
                 }
             };
