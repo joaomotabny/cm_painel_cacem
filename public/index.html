@@ -1,59 +1,57 @@
-<script>
-    function setClock() {
-        var now = new Date();
-        document.getElementById('clock').innerHTML = ("0" + now.getHours()).slice(-2) + ":" + ("0" + now.getMinutes()).slice(-2);
-    }
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+        body { background: #000; color: #ff9900; font-family: 'VT323', monospace; margin: 0; padding: 15px; overflow: hidden; }
+        .header { font-size: 25px; color: #444; display: flex; justify-content: space-between; border-bottom: 2px solid #333; }
+        .row { display: flex; justify-content: space-between; font-size: 48px; margin-top: 10px; border-bottom: 1px solid #111; }
+        .time { color: #00ff00; }
+    </style>
+</head>
+<body>
+    <div class="header"><span>AV. BONS AMIGOS</span><span id="clock">00:00</span></div>
+    <div id="list">A CARREGAR...</div>
 
-    function getMetro() {
-        var xhr = new XMLHttpRequest();
-        // Proxy AllOrigins para evitar o bloqueio de segurança (CORS)
-        var proxy = 'https://api.allorigins.win/get?url=';
-        // URL da API do Metro para Amadora Este
-        var target = 'https://api.metrolisboa.pt/informacao/estimativas/v1/estacao/AS';
-        
-        xhr.open('GET', proxy + encodeURIComponent(target), true);
-        
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState == 4) {
-                if (xhr.status == 200) {
-                    try {
-                        var response = JSON.parse(xhr.responseText);
-                        var data = JSON.parse(response.contents);
-                        
-                        // O Metro de Lisboa devolve uma lista chamada 'resposta'
-                        if (data && data.resposta) {
-                            var comboios = data.resposta;
-                            var html = '';
-                            
-                            for (var i = 0; i < comboios.length; i++) {
-                                // Filtramos apenas o que interessa (ex: destino Reboleira ou S. Apolónia)
-                                var destino = comboios[i].destino;
-                                var tempo = comboios[i].tempoChegada;
-                                var min = Math.floor(tempo / 60);
-                                var tText = (min <= 0) ? "À CHEGADA" : min + " min";
-                                
-                                html += '<div class="row">' +
-                                        '<span class="dest">' + destino + '</span>' + 
-                                        '<span class="time">' + tText + '</span>' +
-                                        '</div>';
-                            }
-                            document.getElementById('list').innerHTML = html || "SEM COMBOIOS PREVISTOS";
-                        } else {
-                            document.getElementById('list').innerHTML = "DADOS VAZIOS DO METRO";
+    <script>
+        function setClock() {
+            var now = new Date();
+            document.getElementById('clock').innerHTML = ("0" + now.getHours()).slice(-2) + ":" + ("0" + now.getMinutes()).slice(-2);
+        }
+
+        function getBuses() {
+            var xhr = new XMLHttpRequest();
+            // Usamos o 'cors-anywhere' via heroku para "limpar" o acesso
+            var url = 'https://api.allorigins.win/get?url=' + encodeURIComponent('https://api.carrismetropolitana.pt/stops/172500/estimations');
+            
+            xhr.open('GET', url, true);
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    var resp = JSON.parse(xhr.responseText);
+                    var data = JSON.parse(resp.contents);
+                    var html = '';
+                    
+                    if (data && data.length > 0) {
+                        for (var i = 0; i < Math.min(data.length, 5); i++) {
+                            html += '<div class="row">' +
+                                    '<span>' + data[i].line_id + '</span>' +
+                                    '<span style="font-size:30px">' + data[i].headsign.substring(0,10) + '</span>' +
+                                    '<span class="time">' + data[i].wait_time + 'm</span>' +
+                                    '</div>';
                         }
-                    } catch(e) {
-                        document.getElementById('list').innerHTML = "ERRO AO LER RESPOSTA";
+                        document.getElementById('list').innerHTML = html;
+                    } else {
+                        document.getElementById('list').innerHTML = '<div class="row">SEM AUTOCARROS</div>';
                     }
-                } else {
-                    document.getElementById('list').innerHTML = "ERRO DE LIGAÇÃO: " + xhr.status;
                 }
-            }
-        };
-        xhr.send();
-    }
+            };
+            xhr.send();
+        }
 
-    setInterval(setClock, 1000);
-    setInterval(getMetro, 30000);
-    setClock();
-    getMetro();
-</script>
+        setInterval(setClock, 1000);
+        setInterval(getBuses, 30000);
+        setClock(); getBuses();
+    </script>
+</body>
+</html>
