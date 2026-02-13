@@ -2,21 +2,23 @@
 <html>
 <head>
     <meta charset="UTF-8">
+    <title>MAINZ HBF PANEL</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
-        body { background: #000; color: #fff; font-family: 'VT323', monospace; margin: 0; padding: 20px; }
-        .header { font-size: 25px; color: #444; display: flex; justify-content: space-between; border-bottom: 2px solid #333; }
-        .row { display: flex; justify-content: space-between; font-size: 40px; margin-top: 15px; border-bottom: 1px solid #111; align-items: center; }
-        .type { padding: 2px 10px; border-radius: 4px; color: #fff; font-weight: bold; margin-right: 10px; font-size: 30px; }
-        .time { color: #00ff00; text-shadow: 0 0 10px #00ff00; }
+        body { background: #000; color: #fff; font-family: 'VT323', monospace; margin: 0; padding: 20px; overflow: hidden; }
+        .header { font-size: 25px; color: #444; display: flex; justify-content: space-between; border-bottom: 2px solid #333; margin-bottom: 10px; }
+        .row { display: flex; justify-content: space-between; font-size: 38px; margin-top: 12px; border-bottom: 1px solid #111; align-items: center; padding-bottom: 5px; }
+        .type-tag { padding: 2px 8px; border-radius: 4px; color: #fff; font-weight: bold; margin-right: 12px; font-size: 28px; }
+        .time { color: #00ff00; text-shadow: 0 0 10px #00ff00; font-weight: bold; }
+        .dest { color: #eee; text-transform: uppercase; }
     </style>
 </head>
 <body>
     <div class="header">
-        <span>FRANKFURT (MAIN) HBF</span>
+        <span>MAINZ HAUPTBAHNHOF</span>
         <span id="clock">00:00</span>
     </div>
-    <div id="list">LADEN...</div>
+    <div id="list">Warten auf Daten...</div>
 
     <script>
         function setClock() {
@@ -24,9 +26,10 @@
             document.getElementById('clock').innerHTML = ("0" + now.getHours()).slice(-2) + ":" + ("0" + now.getMinutes()).slice(-2);
         }
 
-        function getTrain() {
+        function getMainz() {
             var xhr = new XMLHttpRequest();
-            var target = 'https://v6.db.transport.rest/stops/8000105/departures?duration=60&results=10';
+            // ID de Mainz Hbf: 8000240
+            var target = 'https://v6.db.transport.rest/stops/8000240/departures?duration=60&results=8';
             var url = 'https://corsproxy.io/?' + encodeURIComponent(target);
             
             xhr.open('GET', url, true);
@@ -34,34 +37,41 @@
                 if (xhr.readyState == 4 && xhr.status == 200) {
                     try {
                         var data = JSON.parse(xhr.responseText);
-                        var deps = data.departures;
+                        var departures = data.departures;
                         var html = '';
-                        for (var i = 0; i < Math.min(deps.length, 6); i++) {
-                            var t = deps[i];
-                            var name = t.line.name;
-                            var bgColor = (t.line.productName === 'suburban') ? "#008d3f" : "#db0011";
-                            if (name.indexOf('ICE') > -1) bgColor = "#ff0000";
+                        
+                        for (var i = 0; i < Math.min(departures.length, 7); i++) {
+                            var train = departures[i];
+                            var name = train.line.name;
+                            
+                            // Lógica de cores alemãs
+                            var color = "#db0011"; // Regional
+                            if (train.line.productName === 'suburban') color = "#008d3f"; // S-Bahn
+                            if (name.indexOf('ICE') > -1 || name.indexOf('IC') > -1) color = "#ff0000"; // Express
 
-                            var depTime = new Date(t.when || t.plannedWhen);
+                            var depTime = new Date(train.when || train.plannedWhen);
                             var diff = Math.round((depTime - new Date()) / 60000);
                             var tText = (diff <= 0) ? "JETZT" : diff + " min";
 
                             html += '<div class="row">' +
-                                    '<span><span class="type" style="background:'+bgColor+'; box-shadow: 0 0 10px '+bgColor+'">' + name + '</span>' +
-                                    '<span>' + t.direction.substring(0,12).toUpperCase() + '</span></span>' +
+                                    '<span><span class="type-tag" style="background:'+color+'; box-shadow: 0 0 8px '+color+'">' + name + '</span>' +
+                                    '<span class="dest">' + train.direction.substring(0,12) + '</span></span>' +
                                     '<span class="time">' + tText + '</span>' +
                                     '</div>';
                         }
-                        document.getElementById('list').innerHTML = html;
-                    } catch(e) { document.getElementById('list').innerHTML = "DATENFEHLER"; }
+                        document.getElementById('list').innerHTML = html || "Keine Züge";
+                    } catch(e) {
+                        document.getElementById('list').innerHTML = "DATENFEHLER";
+                    }
                 }
             };
             xhr.send();
         }
 
         setInterval(setClock, 1000);
-        setInterval(getTrain, 30000);
-        setClock(); getTrain();
+        setInterval(getMainz, 30000);
+        setClock(); 
+        getMainz();
     </script>
 </body>
 </html>
