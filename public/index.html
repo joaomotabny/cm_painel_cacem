@@ -12,21 +12,17 @@
         }
         .header { font-size: 24px; color: #333; border-bottom: 2px solid #222; height: 35px; }
         #clock { float: right; color: #eee; }
-        .row { clear: both; font-size: 34px; border-bottom: 1px solid #111; height: 52px; line-height: 52px; }
-        .col-line { float: left; width: 18%; font-weight: bold; }
-        .col-dest { float: left; width: 52%; color: #bbb; overflow: hidden; white-space: nowrap; }
-        .col-plat { float: left; width: 10%; color: #ff9900; text-align: center; }
-        .col-time { float: left; width: 20%; text-align: right; }
-        .ap { color: #00ffff; text-shadow: 0 0 5px #00ffff; } 
-        .ic { color: #ff3333; } 
-        .u { color: #ffff00; }
+        .row { clear: both; font-size: 30px; border-bottom: 1px solid #111; height: 45px; line-height: 45px; }
+        .col-line { float: left; width: 15%; font-weight: bold; color: #ffff00; }
+        .col-dest { float: left; width: 65%; color: #bbb; overflow: hidden; white-space: nowrap; }
+        .col-time { float: left; width: 20%; text-align: right; color: #ff9900; }
         @keyframes blinker { 50% { opacity: 0; } }
-        .blink { animation: blinker 0.8s linear infinite; color: #ff3333; font-weight: bold; }
+        .blink { animation: blinker 0.8s linear infinite; color: #ff3333; }
     </style>
 </head>
 <body>
-    <div class="header"><span>CP LISBOA ORIENTE</span><span id="clock">00:00</span></div>
-    <div id="list">A CARREGAR...</div>
+    <div class="header"><span>CARRIS METROPOLITANA - ORIENTE</span><span id="clock">00:00</span></div>
+    <div id="list">A LIGAR À C. METROPOLITANA...</div>
 
     <script>
         function setClock() {
@@ -35,45 +31,38 @@
         }
 
         async function updateBoard() {
-            // Usamos o AllOrigins mas no modo que o Mac prefere (Fetch)
-            const target = 'https://servicos.infraestruturasdeportugal.pt/PandaServices/api/PARTIDASETXER/Oriente';
-            const url = `https://api.allorigins.win/get?url=${encodeURIComponent(target)}&_=${new Date().getTime()}`;
+            // ID da paragem Oriente (Interface): 080242
+            const url = 'https://api.carrismetropolitana.pt/stops/080242/realtime';
 
             try {
                 const response = await fetch(url);
-                const json = await response.json();
-                const data = JSON.parse(json.contents);
-                const comboios = data.Nodes || [];
+                const departures = await response.json();
                 
                 let html = '';
                 const now = new Date();
-                const nowTotalMin = (now.getHours() * 60) + now.getMinutes();
 
-                comboios.slice(0, 10).forEach(c => {
-                    const [hour, min] = c.Hora.split(':').map(Number);
-                    let diff = (hour * 60 + min) - nowTotalMin;
-                    
-                    if (diff < -1000) diff += 1440;
+                // Ordenar por tempo de chegada
+                departures.sort((a, b) => a.scheduled_arrival_unix - b.scheduled_arrival_unix);
 
-                    let timeText = diff + " MIN";
-                    if (diff <= 0) timeText = '<span class="blink">PARTIDA</span>';
+                departures.slice(0, 12).forEach(d => {
+                    const arrivalTime = new Date(d.scheduled_arrival_unix * 1000);
+                    const diffMs = arrivalTime - now;
+                    let diffMin = Math.floor(diffMs / 60000);
 
-                    let service = c.Servico;
-                    let cClass = 'col-line';
-                    if (service === 'Alfa' || service === 'AP') cClass += ' ap';
-                    else if (service === 'IC') cClass += ' ic';
-                    else if (service === 'Urb' || service === 'Subu') { service = 'URB'; cClass += ' u'; }
+                    let timeText = diffMin + " MIN";
+                    if (diffMin <= 0) timeText = '<span class="blink">AGORA</span>';
+                    if (diffMin > 60) timeText = arrivalTime.getHours() + ":" + ("0" + arrivalTime.getMinutes()).slice(-2);
 
                     html += `<div class="row">
-                        <span class="${cClass}">${service}</span>
-                        <span class="col-dest">${c.Destino.substring(0, 14)}</span>
-                        <span class="col-plat">${c.Linha || '-'}</span>
+                        <span class="col-line">${d.line_id}</span>
+                        <span class="col-dest">${d.headsign.substring(0, 18)}</span>
                         <span class="col-time">${timeText}</span>
                     </div>`;
                 });
-                document.getElementById('list').innerHTML = html || "SEM COMBOIOS AGORA";
+
+                document.getElementById('list').innerHTML = html || "SEM AUTOCARROS PREVISTOS";
             } catch (e) {
-                document.getElementById('list').innerHTML = "ERRO NA LIGAÇÃO";
+                document.getElementById('list').innerHTML = "ERRO NA LIGAÇÃO C.M.";
             }
         }
 
