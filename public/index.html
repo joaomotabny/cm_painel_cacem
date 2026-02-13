@@ -1,41 +1,63 @@
-<script>
-    function setClock() {
-        var now = new Date();
-        document.getElementById('clock').innerHTML = ("0" + now.getHours()).slice(-2) + ":" + ("0" + now.getMinutes()).slice(-2);
-    }
+https://cmpainelcacem.vercel.app<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>FRANKFURT HBF</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+        body { background: #000; color: #fff; font-family: 'VT323', monospace; margin: 0; padding: 20px; }
+        .header { font-size: 25px; color: #444; display: flex; justify-content: space-between; border-bottom: 2px solid #333; }
+        .row { display: flex; justify-content: space-between; font-size: 40px; margin-top: 15px; border-bottom: 1px solid #111; align-items: center; }
+        .type { padding: 0 10px; border-radius: 4px; color: #fff; font-weight: bold; margin-right: 10px; }
+        .time { color: #00ff00; text-shadow: 0 0 5px #00ff00; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <span>FRANKFURT (MAIN) HBF</span>
+        <span id="clock">00:00</span>
+    </div>
+    <div id="list">LADEN...</div>
 
-    function getDB() {
-        var xhr = new XMLHttpRequest();
-        // Ligação DIRETA - muito mais rápida e estável para o iPad
-        var url = 'https://v6.db.transport.rest/stops/8000105/departures?duration=60&results=10';
-        
-        xhr.open('GET', url, true);
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState == 4) {
-                if (xhr.status == 200) {
+    <script>
+        function setClock() {
+            var now = new Date();
+            var h = ("0" + now.getHours()).slice(-2);
+            var m = ("0" + now.getMinutes()).slice(-2);
+            document.getElementById('clock').innerHTML = h + ":" + m;
+        }
+
+        function getTrain() {
+            var xhr = new XMLHttpRequest();
+            // Link direto para Frankfurt Hauptbahnhof
+            var url = 'https://v6.db.transport.rest/stops/8000105/departures?duration=60&results=10';
+            
+            xhr.open('GET', url, true);
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4 && xhr.status == 200) {
                     try {
                         var data = JSON.parse(xhr.responseText);
+                        var departures = data.departures;
                         var html = '';
-                        var deps = data.departures;
                         
-                        for (var i = 0; i < Math.min(deps.length, 8); i++) {
-                            var d = deps[i];
-                            var line = d.line;
-                            var type = line.productName; 
+                        for (var i = 0; i < Math.min(departures.length, 6); i++) {
+                            var train = departures[i];
+                            var name = train.line.name;
+                            var dest = train.direction.substring(0, 12).toUpperCase();
                             
-                            // Cores alemãs com efeito Glow
-                            var color = "#db0011"; // Padrão DB (Vermelho)
-                            if (type === 'suburban') color = "#008d3f"; // S-Bahn (Verde)
-                            if (line.name.indexOf('ICE') > -1) color = "#ff0000"; // ICE
+                            // Definir cor por tipo de comboio
+                            var bgColor = "#db0011"; // Geral (RE/RB)
+                            if (train.line.productName === 'suburban') bgColor = "#008d3f"; // S-Bahn
+                            if (name.indexOf('ICE') > -1) bgColor = "#ff0000"; // ICE
 
-                            var label = (type === 'suburban') ? line.name : type;
-                            var depTime = new Date(d.when || d.plannedWhen);
+                            // Calcular minutos
+                            var depTime = new Date(train.when || train.plannedWhen);
                             var diff = Math.round((depTime - new Date()) / 60000);
                             var tText = (diff <= 0) ? "JETZT" : diff + " min";
 
                             html += '<div class="row">' +
-                                    '<span class="type-box" style="background:'+color+'; box-shadow: 0 0 10px '+color+'">' + label + '</span>' +
-                                    '<span class="dest">' + d.direction.substring(0,12).toUpperCase() + '</span>' +
+                                    '<span><span class="type" style="background:'+bgColor+'">' + name + '</span>' +
+                                    '<span>' + dest + '</span></span>' +
                                     '<span class="time">' + tText + '</span>' +
                                     '</div>';
                         }
@@ -43,15 +65,15 @@
                     } catch(e) {
                         document.getElementById('list').innerHTML = "ERRO NA LEITURA";
                     }
-                } else {
-                    document.getElementById('list').innerHTML = "SEM RESPOSTA DA DB";
                 }
-            }
-        };
-        xhr.send();
-    }
+            };
+            xhr.send();
+        }
 
-    setInterval(setClock, 1000);
-    setInterval(getDB, 30000);
-    setClock(); getDB();
-</script>
+        setInterval(setClock, 1000);
+        setInterval(getTrain, 30000);
+        setClock();
+        getTrain();
+    </script>
+</body>
+</html>
