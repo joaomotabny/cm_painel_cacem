@@ -1,71 +1,59 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>METRO AMADORA ESTE</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
-        body { background: #000; color: #00a0e2; font-family: 'VT323', monospace; margin: 0; padding: 20px; }
-        .header { font-size: 30px; color: #444; display: flex; justify-content: space-between; border-bottom: 2px solid #00a0e2; }
-        .row { display: flex; justify-content: space-between; font-size: 55px; margin-top: 20px; border-bottom: 1px solid #111; }
-        .dest { color: #fff; }
-        .time { color: #00ff00; }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <span>AMADORA ESTE</span>
-        <span id="clock">00:00</span>
-    </div>
-    <div id="list">A LIGAR AO METRO...</div>
+<script>
+    function setClock() {
+        var now = new Date();
+        document.getElementById('clock').innerHTML = ("0" + now.getHours()).slice(-2) + ":" + ("0" + now.getMinutes()).slice(-2);
+    }
 
-    <script>
-        function setClock() {
-            var now = new Date();
-            document.getElementById('clock').innerHTML = ("0" + now.getHours()).slice(-2) + ":" + ("0" + now.getMinutes()).slice(-2);
-        }
-
-        function getMetro() {
-            var xhr = new XMLHttpRequest();
-            // Proxy para evitar bloqueios no iPad e Mac
-            var proxy = 'https://api.allorigins.win/get?url=';
-            // API pública do Metro para a estação Amadora Este (AS)
-            var target = 'https://api.metrolisboa.pt/informacao/estimativas/v1/estacao/AS';
-            
-            xhr.open('GET', proxy + encodeURIComponent(target), true);
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState == 4 && xhr.status == 200) {
+    function getMetro() {
+        var xhr = new XMLHttpRequest();
+        // Proxy AllOrigins para evitar o bloqueio de segurança (CORS)
+        var proxy = 'https://api.allorigins.win/get?url=';
+        // URL da API do Metro para Amadora Este
+        var target = 'https://api.metrolisboa.pt/informacao/estimativas/v1/estacao/AS';
+        
+        xhr.open('GET', proxy + encodeURIComponent(target), true);
+        
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState == 4) {
+                if (xhr.status == 200) {
                     try {
                         var response = JSON.parse(xhr.responseText);
                         var data = JSON.parse(response.contents);
-                        var html = '';
                         
-                        // O Metro envia os dados no campo "resposta"
-                        var comboios = data.resposta;
-                        
-                        for (var i = 0; i < Math.min(comboios.length, 3); i++) {
-                            var tempo = comboios[i].tempoChegada;
-                            var min = Math.floor(tempo / 60);
-                            var tText = (min <= 0) ? "À CHEGADA" : min + " min";
+                        // O Metro de Lisboa devolve uma lista chamada 'resposta'
+                        if (data && data.resposta) {
+                            var comboios = data.resposta;
+                            var html = '';
                             
-                            html += '<div class="row">' +
-                                    '<span class="dest">REBOLEIRA</span>' + 
-                                    '<span class="time">' + tText + '</span>' +
-                                    '</div>';
+                            for (var i = 0; i < comboios.length; i++) {
+                                // Filtramos apenas o que interessa (ex: destino Reboleira ou S. Apolónia)
+                                var destino = comboios[i].destino;
+                                var tempo = comboios[i].tempoChegada;
+                                var min = Math.floor(tempo / 60);
+                                var tText = (min <= 0) ? "À CHEGADA" : min + " min";
+                                
+                                html += '<div class="row">' +
+                                        '<span class="dest">' + destino + '</span>' + 
+                                        '<span class="time">' + tText + '</span>' +
+                                        '</div>';
+                            }
+                            document.getElementById('list').innerHTML = html || "SEM COMBOIOS PREVISTOS";
+                        } else {
+                            document.getElementById('list').innerHTML = "DADOS VAZIOS DO METRO";
                         }
-                        document.getElementById('list').innerHTML = html || "SEM COMBOIOS";
                     } catch(e) {
-                        document.getElementById('list').innerHTML = "ERRO DE DADOS";
+                        document.getElementById('list').innerHTML = "ERRO AO LER RESPOSTA";
                     }
+                } else {
+                    document.getElementById('list').innerHTML = "ERRO DE LIGAÇÃO: " + xhr.status;
                 }
-            };
-            xhr.send();
-        }
+            }
+        };
+        xhr.send();
+    }
 
-        setInterval(setClock, 1000);
-        setInterval(getMetro, 30000);
-        setClock();
-        getMetro();
-    </script>
-</body>
-</html>
+    setInterval(setClock, 1000);
+    setInterval(getMetro, 30000);
+    setClock();
+    getMetro();
+</script>
