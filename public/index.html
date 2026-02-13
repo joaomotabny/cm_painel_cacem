@@ -2,34 +2,27 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>GRIESHEIM PANEL</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
-        body { background: #000; color: #fff; font-family: 'VT323', monospace; margin: 0; padding: 20px; overflow: hidden; }
-        .header { font-size: 25px; color: #444; display: flex; justify-content: space-between; border-bottom: 2px solid #333; margin-bottom: 10px; }
-        .row { display: flex; justify-content: space-between; font-size: 42px; margin-top: 15px; border-bottom: 1px solid #111; align-items: center; }
-        .type { padding: 2px 10px; border-radius: 4px; color: #fff; font-weight: bold; margin-right: 12px; font-size: 32px; }
-        .time { color: #00ff00; text-shadow: 0 0 10px #00ff00; }
-        .dest { color: #eee; text-transform: uppercase; }
+        body { background: black; color: #ff9900; font-family: monospace; padding: 20px; }
+        .row { font-size: 35px; border-bottom: 1px solid #333; margin-bottom: 10px; display: flex; justify-content: space-between; }
+        .time { color: #00ff00; }
+        #clock { font-size: 20px; color: #666; text-align: right; }
     </style>
 </head>
 <body>
-    <div class="header">
-        <span>GRIESHEIM STATION</span>
-        <span id="clock">00:00</span>
-    </div>
-    <div id="list">LADEN...</div>
+    <div id="clock">00:00</div>
+    <div id="list">A CARREGAR GRIESHEIM...</div>
 
     <script>
         function setClock() {
             var now = new Date();
-            document.getElementById('clock').innerHTML = ("0" + now.getHours()).slice( -2) + ":" + ("0" + now.getMinutes()).slice(-2);
+            document.getElementById('clock').innerHTML = now.getHours() + ":" + now.getMinutes();
         }
 
-        function getGriesheim() {
+        function getData() {
             var xhr = new XMLHttpRequest();
-            // ID Frankfurt-Griesheim: 8002126
-            var target = 'https://v6.db.transport.rest/stops/8002126/departures?duration=60&results=10';
+            // Usamos o corsproxy.io que é mais direto
+            var target = 'https://v6.db.transport.rest/stops/8002126/departures?duration=60&results=5';
             var url = 'https://corsproxy.io/?' + encodeURIComponent(target);
             
             xhr.open('GET', url, true);
@@ -37,39 +30,27 @@
                 if (xhr.readyState == 4 && xhr.status == 200) {
                     try {
                         var data = JSON.parse(xhr.responseText);
-                        var departures = data.departures;
                         var html = '';
-                        
-                        for (var i = 0; i < Math.min(departures.length, 6); i++) {
-                            var t = departures[i];
-                            var name = t.line.name;
-                            
-                            // Cores: S-Bahn (Verde), Regional (Vermelho)
-                            var color = (t.line.productName === 'suburban') ? "#008d3f" : "#db0011";
-                            
-                            var depTime = new Date(t.when || t.plannedWhen);
+                        for (var i = 0; i < data.departures.length; i++) {
+                            var d = data.departures[i];
+                            var depTime = new Date(d.when || d.plannedWhen);
                             var diff = Math.round((depTime - new Date()) / 60000);
-                            var tText = (diff <= 0) ? "JETZT" : diff + " min";
-
+                            
                             html += '<div class="row">' +
-                                    '<span><span class="type" style="background:'+color+'; box-shadow: 0 0 10px '+color+'">' + name + '</span>' +
-                                    '<span class="dest">' + t.direction.substring(0,10) + '</span></span>' +
-                                    '<span class="time">' + tText + '</span>' +
+                                    '<span>' + d.line.name + ' ' + d.direction.substring(0,8) + '</span>' +
+                                    '<span class="time">' + (diff <= 0 ? "0" : diff) + 'm</span>' +
                                     '</div>';
                         }
-                        document.getElementById('list').innerHTML = html || "KEINE ZÜGE";
-                    } catch(e) {
-                        document.getElementById('list').innerHTML = "DATENFEHLER";
-                    }
+                        document.getElementById('list').innerHTML = html;
+                    } catch(e) { document.getElementById('list').innerHTML = "ERRO JSON"; }
                 }
             };
             xhr.send();
         }
 
         setInterval(setClock, 1000);
-        setInterval(getGriesheim, 30000);
-        setClock(); 
-        getGriesheim();
+        setInterval(getData, 30000);
+        setClock(); getData();
     </script>
 </body>
 </html>
