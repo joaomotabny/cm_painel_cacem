@@ -17,14 +17,14 @@
         .col-dest { float: left; width: 52%; color: #bbb; overflow: hidden; white-space: nowrap; }
         .col-plat { float: left; width: 10%; color: #ff9900; text-align: center; }
         .col-time { float: left; width: 20%; text-align: right; }
-        .ice { color: #ff0000; } .s { color: #50ff50; } .re { color: #ff8000; }
+        .ice { color: #ff3333; } .s { color: #50ff50; } .re { color: #ff8000; }
         @keyframes blinker { 50% { opacity: 0; } }
-        .blink { animation: blinker 0.8s linear infinite; color: #ff0000; font-weight: bold; }
+        .blink { animation: blinker 0.8s linear infinite; color: #ff3333; font-weight: bold; }
     </style>
 </head>
 <body>
-    <div class="header"><span>DB FRANKFURT HBF</span><span id="clock">00:00</span></div>
-    <div id="list">LADEN...</div>
+    <div class="header"><span>DB FRANKFURT MAIN</span><span id="clock">00:00</span></div>
+    <div id="list">A CARREGAR...</div>
 
     <script>
         function setClock() {
@@ -33,13 +33,12 @@
         }
 
         function updateBoard() {
-            var targetUrl = 'https://v6.db.transport.rest/stops/8000105/departures?duration=60&results=10';
-            // Usando uma versão simplificada do AllOrigins
-            var url = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(targetUrl);
+            // Usando um proxy diferente: Cors-anywhere via demo ou AllOrigins com parâmetro de cache
+            var target = 'https://v6.db.transport.rest/stops/8000105/departures?duration=60&results=10';
+            var url = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(target) + '&cb=' + Math.random();
             
             var xhr = new XMLHttpRequest();
             xhr.open('GET', url, true);
-            
             xhr.onreadystatechange = function() {
                 if (xhr.readyState == 4) {
                     if (xhr.status == 200) {
@@ -51,44 +50,46 @@
 
                             for (var i = 0; i < data.departures.length; i++) {
                                 var d = data.departures[i];
-                                var timeStr = (d.when || d.plannedWhen);
-                                var timePart = timeStr.split("T")[1];
+                                var timePart = (d.when || d.plannedWhen).split("T")[1];
                                 var hour = parseInt(timePart.split(":")[0], 10);
                                 var min = parseInt(timePart.split(":")[1], 10);
                                 
+                                // Diferença com ajuste de fuso (Alemanha está 1h à frente de Portugal)
                                 var diff = ((hour * 60) + min) - nowTotalMin - 60;
-                                if (diff < -1000) diff += 1440;
+                                
+                                // Se o iPad estiver em PT e os dados na DE, este ajuste garante os minutos certos
+                                if (diff < -1000) diff += 1440; 
+                                if (diff > 1000) diff -= 1440;
 
                                 var timeText = diff + " MIN";
                                 if (diff <= 0) timeText = '<span class="blink">PARTIDA</span>';
 
-                                var lineName = d.line.name;
+                                var line = d.line.name;
                                 var cClass = 'col-line';
-                                if (lineName.indexOf('S') === 0) cClass += ' s';
-                                else if (lineName.indexOf('ICE') === 0 || lineName.indexOf('IC') === 0) cClass += ' ice';
+                                if (line.indexOf('S') === 0) cClass += ' s';
+                                else if (line.indexOf('ICE') === 0 || line.indexOf('IC') === 0) cClass += ' ice';
                                 else cClass += ' re';
 
                                 html += '<div class="row">' +
-                                        '<span class="' + cClass + '">' + lineName + '</span>' +
+                                        '<span class="' + cClass + '">' + line + '</span>' +
                                         '<span class="col-dest">' + d.direction.substring(0, 14) + '</span>' +
                                         '<span class="col-plat">' + (d.platform || '-') + '</span>' +
                                         '<span class="col-time">' + timeText + '</span>' +
                                         '</div>';
                             }
                             document.getElementById('list').innerHTML = html;
-                        } catch(e) {
-                            document.getElementById('list').innerHTML = "ERRO NO PARSE";
+                        } catch(e) { 
+                            document.getElementById('list').innerHTML = "ERRO NA LEITURA"; 
                         }
                     } else {
-                        document.getElementById('list').innerHTML = "SERVIDOR OCUPADO";
+                        document.getElementById('list').innerHTML = "DB INDISPONÍVEL";
                     }
                 }
             };
             xhr.send();
         }
 
-        setClock();
-        updateBoard();
+        setClock(); updateBoard();
         setInterval(setClock, 1000);
         setInterval(updateBoard, 30000);
     </script>
