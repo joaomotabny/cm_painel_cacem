@@ -14,6 +14,7 @@
             text-transform: uppercase;
             background-image: linear-gradient(0deg, transparent 50%, rgba(0,0,0,0.5) 50%), linear-gradient(90deg, rgba(255,255,255,0.05) 50%, transparent 50%);
             background-size: 3px 3px;
+            overflow: hidden;
         }
         .header { font-size: 24px; color: #333; border-bottom: 2px solid #222; height: 35px; letter-spacing: 2px; }
         #clock { float: right; color: #eee; }
@@ -31,7 +32,7 @@
 </head>
 <body>
     <div class="header">
-        <span>ZURICH HB STATION</span>
+        <span>ZÜRICH HB</span>
         <span id="clock">00:00</span>
     </div>
     <div id="list">LADEN...</div>
@@ -46,7 +47,6 @@
 
         function updateBoard() {
             var xhr = new XMLHttpRequest();
-            // Pedimos os comboios a partir do momento atual
             var url = 'https://transport.opendata.ch/v1/stationboard?station=Zurich,HB&limit=10';
             
             xhr.open('GET', url, true);
@@ -56,48 +56,47 @@
                         var data = JSON.parse(xhr.responseText);
                         var html = '';
                         var board = data.stationboard;
-                        
-                        // Obter a hora atual do servidor ou do sistema de forma neutra
                         var now = new Date();
 
                         for (var i = 0; i < board.length; i++) {
                             var t = board[i];
                             var cat = t.category;
                             var line = cat + (t.number || '');
-                            var platform = t.stop.platform || '-';
                             
+                            // 1. LIMPEZA DA DATA PARA O SAFARI DO IPAD
+                            // Transforma "2024-05-20T10:00:00+0200" em "2024/05/20 10:00:00"
+                            var rawDate = t.stop.departure; 
+                            var cleanDate = rawDate.replace(/-/g, "/").replace("T", " ").split("+")[0].split(".")[0];
+                            
+                            var depDate = new Date(cleanDate);
+                            
+                            // 2. CÁLCULO MANUAL DOS MINUTOS
+                            var diffMs = depDate.getTime() - now.getTime();
+                            var diff = Math.floor(diffMs / 60000);
+
+                            // Ajuste de fuso horário manual (Suíça está 1h à frente de Portugal)
+                            // Se o resultado der entre 40 e 80 minutos, subtraímos 60
+                            if (diff >= 45) { diff = diff - 60; }
+
+                            var timeText = diff + " MIN";
+                            if (diff <= 0) {
+                                timeText = '<span class="blink">PARTIDA</span>';
+                            }
+
                             var cClass = 'col-line';
                             if (cat === 'S' || cat === 'SN') cClass += ' s';
                             if (cat === 'IC' || cat === 'ICE') cClass += ' ic';
                             if (cat === 'IR' || cat === 'RE') cClass += ' ir';
 
-                            // CÁLCULO DE TEMPO CORRIGIDO PARA DIFERENÇA DE FUSO HORÁRIO
-                            var depDate = new Date(t.stop.departure);
-                            // Calculamos a diferença em milissegundos e convertemos para minutos
-                            var diffMs = depDate.getTime() - now.getTime();
-                            var diff = Math.floor(diffMs / 60000);
-
-                            // Se a diferença for de aproximadamente 60 min devido ao fuso horário,
-                            // ou se o iPad estiver com uma hora diferente, ajustamos:
-                            // (Isto é um truque para quando o servidor está em GMT+1 e o iPad em GMT+0)
-                            if (diff > 45 && diff < 75) {
-                                // Se der perto de 60, assumimos que é o erro de fuso e mostramos o valor real
-                                // Mas a API da Suíça normalmente envia a hora com o offset correto.
-                                // Vamos apenas garantir que o cálculo é absoluto.
-                            }
-
-                            var timeText = diff + " MIN";
-                            if (diff <= 0) timeText = '<span class="blink">PARTIDA</span>';
-
                             html += '<div class="row">' +
                                     '<span class="' + cClass + '">' + line + '</span>' +
                                     '<span class="col-dest">' + t.to.substring(0, 12) + '</span>' +
-                                    '<span class="col-plat">' + platform + '</span>' +
+                                    '<span class="col-plat">' + (t.stop.platform || '-') + '</span>' +
                                     '<span class="col-time">' + timeText + '</span>' +
                                     '</div>';
                         }
                         document.getElementById('list').innerHTML = html;
-                    } catch(e) { document.getElementById('list').innerHTML = "ERROR"; }
+                    } catch(e) { document.getElementById('list').innerHTML = "ERRO"; }
                 }
             };
             xhr.send();
