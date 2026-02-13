@@ -20,12 +20,11 @@
         
         @keyframes blinker { 50% { opacity: 0; } }
         .blink { animation: blinker 0.8s linear infinite; color: #ff3333; font-weight: bold; }
-        .live { color: #50ff50; margin-right: 5px; font-size: 18px; }
     </style>
 </head>
 <body>
     <div class="header"><span>INTERFACE CACÉM • P7+P8</span><span id="clock">00:00:00</span></div>
-    <div id="list">A SINCRONIZAR...</div>
+    <div id="list">A SINCRONIZAR RELÓGIOS...</div>
 
     <script>
         function setClock() {
@@ -33,64 +32,55 @@
             document.getElementById('clock').innerHTML = ("0" + now.getHours()).slice(-2) + ":" + ("0" + now.getMinutes()).slice(-2) + ":" + ("0" + now.getSeconds()).slice(-2);
         }
 
-        async function getStopData(id) {
-            try {
-                const response = await fetch(`https://api.carrismetropolitana.pt/stops/${id}/realtime`);
-                const data = await response.json();
-                return data.map(item => ({...item, stopLabel: 'P' + id.slice(-3)}));
-            } catch (e) { return []; }
-        }
-
         async function updateBoard() {
             const stopIds = ['170459', '172500']; 
-            
             try {
-                const results = await Promise.all(stopIds.map(id => getStopData(id)));
-                let allDepartures = [].concat(...results);
+                const results = await Promise.all(stopIds.map(id => 
+                    fetch(`https://api.carrismetropolitana.pt/stops/${id}/realtime`)
+                    .then(res => res.json())
+                    .then(data => data.map(item => ({...item, stopLabel: 'P' + id.slice(-3)})))
+                ));
                 
+                let all = [].concat(...results);
                 let html = '';
-                const now = new Date();
+                const nowUnix = Math.floor(Date.now() / 1000);
 
-                // Ordenação cronológica
-                allDepartures.sort((a, b) => (a.estimated_arrival_unix || a.scheduled_arrival_unix) - (b.estimated_arrival_unix || b.scheduled_arrival_unix));
+                all.sort((a, b) => (a.estimated_arrival_unix || a.scheduled_arrival_unix) - (b.estimated_arrival_unix || b.scheduled_arrival_unix));
 
-                if (allDepartures.length === 0) {
-                    html = '<div class="row" style="color:#444">SEM PASSAGENS PREVISTAS</div>';
-                } else {
-                    allDepartures.slice(0, 12).forEach(d => {
-                        const unix = d.estimated_arrival_unix || d.scheduled_arrival_unix;
-                        const arrivalTime = new Date(unix * 1000);
-                        
-                        // Diferença em segundos para maior precisão
-                        const diffSecs = Math.floor((arrivalTime - now) / 1000);
-                        const diffMin = Math.ceil(diffSecs / 60);
+                all.slice(0, 12).forEach(d => {
+                    const arrivalUnix = d.estimated_arrival_unix || d.scheduled_arrival_unix;
+                    
+                    // CÁLCULO DE DIFERENÇA COM TOLERÂNCIA
+                    // Adicionamos 30 segundos de "folga" para compensar atrasos de rede
+                    const diffSeconds = arrivalUnix - nowUnix;
+                    const diffMinutes = Math.floor(diffSeconds / 60);
 
-                        let timeText = "";
-                        let isLive = d.estimated_arrival_unix ? '<span class="live">📡</span>' : '  ';
+                    let timeText = "";
+                    const isLive = d.estimated_arrival_unix ? '📡' : '';
 
-                        if (diffSecs < 30) { 
-                            // Menos de 30 segundos para chegar ou valor negativo
-                            timeText = '<span class="blink">A CHEGAR</span>';
-                        } else if (diffMin > 59) {
-                            // Mais de uma hora, mostra a hora certa
-                            timeText = ("0" + arrivalTime.getHours()).slice(-2) + ":" + ("0" + arrivalTime.getMinutes()).slice(-2);
-                        } else {
-                            // Mostra os minutos restantes
-                            timeText = diffMin + " MIN";
-                        }
+                    if (diffSeconds < 20) { 
+                        // Se faltar menos de 20 segundos, está mesmo a chegar
+                        timeText = '<span class="blink">A CHEGAR</span>';
+                    } else if (diffMinutes >= 60) {
+                        // Se faltar mais de uma hora, mostra a hora (HH:MM)
+                        const dt = new Date(arrivalUnix * 1000);
+                        timeText = ("0" + dt.getHours()).slice(-2) + ":" + ("0" + dt.getMinutes()).slice(-2);
+                    } else {
+                        // Força a exibição dos minutos (mesmo que seja 1 min)
+                        timeText = (diffMinutes < 1 ? 1 : diffMinutes) + " MIN";
+                    }
 
-                        html += `<div class="row">
-                            <span class="col-line">${d.line_id}</span>
-                            <span class="col-dest">${d.headsign}</span>
-                            <span class="col-stop">${d.stopLabel}</span>
-                            <span class="col-time">${isLive}${timeText}</span>
-                        </div>`;
-                    });
-                }
+                    html += `<div class="row">
+                        <span class="col-line">${d.line_id}</span>
+                        <span class="col-dest">${d.headsign}</span>
+                        <span class="col-stop">${d.stopLabel}</span>
+                        <span class="col-time">${isLive} ${timeText}</span>
+                    </div>`;
+                });
 
-                document.getElementById('list').innerHTML = html;
+                document.getElementById('list').innerHTML = html || "SEM PASSAGENS";
             } catch (e) {
-                document.getElementById('list').innerHTML = "ERRO NA REDE";
+                document.getElementById('list').innerHTML = "ERRO DE LIGAÇÃO";
             }
         }
 
