@@ -17,20 +17,14 @@
         .col-dest { float: left; width: 52%; color: #bbb; overflow: hidden; white-space: nowrap; }
         .col-plat { float: left; width: 10%; color: #ff9900; text-align: center; }
         .col-time { float: left; width: 20%; text-align: right; }
-        
-        /* Cores CP: AP/Longo Curso (Verde/Azul), Urbanos (Amarelo) */
-        .ap { color: #00ffff; text-shadow: 0 0 5px #00ffff; } /* Alfa Pendular */
-        .ic { color: #ff3333; } /* Intercidades */
-        .u { color: #ffff00; } /* Urbanos */
-        .r { color: #ff8000; } /* Regional */
-
+        .ap { color: #00ffff; } .ic { color: #ff3333; } .u { color: #ffff00; }
         @keyframes blinker { 50% { opacity: 0; } }
         .blink { animation: blinker 0.8s linear infinite; color: #ff3333; font-weight: bold; }
     </style>
 </head>
 <body>
     <div class="header"><span>CP LISBOA ORIENTE</span><span id="clock">00:00</span></div>
-    <div id="list">A PROCURAR COMBOIOS...</div>
+    <div id="list">LADEN...</div>
 
     <script>
         function setClock() {
@@ -40,52 +34,56 @@
 
         function updateBoard() {
             var xhr = new XMLHttpRequest();
-            // API do projeto Transparente para a estação do Oriente (ID: 94-31000)
-            xhr.open('GET', 'https://api.transparente.org.pt/v1/stations/9431000/departures', true);
+            // Tentativa via Proxy AllOrigins com a API da Infraestruturas de Portugal
+            var target = 'https://servicos.infraestruturasdeportugal.pt/PandaServices/api/PARTIDASETXER/Oriente';
+            var url = 'https://api.allorigins.win/get?url=' + encodeURIComponent(target);
+
+            xhr.open('GET', url, true);
             xhr.onreadystatechange = function() {
-                if (xhr.readyState == 4 && xhr.status == 200) {
-                    try {
-                        var data = JSON.parse(xhr.responseText);
-                        var html = '';
-                        var now = new Date();
-                        var nowTotalMin = (now.getHours() * 60) + now.getMinutes();
+                if (xhr.readyState == 4) {
+                    if (xhr.status == 200) {
+                        try {
+                            var response = JSON.parse(xhr.responseText);
+                            var data = JSON.parse(response.contents);
+                            var html = '';
+                            var now = new Date();
+                            var nowTotalMin = (now.getHours() * 60) + now.getMinutes();
 
-                        // A API de PT costuma devolver os próximos 10-15 comboios
-                        var departures = data.departures || data; 
+                            // A IP envia os dados numa lista chamada "Ncombios"
+                            var comboios = data.Nodes || [];
 
-                        for (var i = 0; i < Math.min(departures.length, 10); i++) {
-                            var d = departures[i];
-                            
-                            // Em Portugal, o fuso horário é o mesmo do iPad! (0 min de diferença)
-                            var timePart = d.planned_departure_time || d.time; 
-                            var hour = parseInt(timePart.split(":")[0], 10);
-                            var min = parseInt(timePart.split(":")[1], 10);
-                            
-                            var diff = ((hour * 60) + min) - nowTotalMin;
+                            for (var i = 0; i < Math.min(comboios.length, 10); i++) {
+                                var c = comboios[i];
+                                
+                                // Formato da IP costuma ser HH:mm
+                                var timePart = c.Hora; 
+                                var hour = parseInt(timePart.split(":")[0], 10);
+                                var min = parseInt(timePart.split(":")[1], 10);
+                                
+                                var diff = ((hour * 60) + min) - nowTotalMin;
+                                if (diff < -1000) diff += 1440;
 
-                            // Se o comboio for logo após a meia-noite
-                            if (diff < -1000) diff += 1440;
+                                var timeText = diff + " MIN";
+                                if (diff <= 0) timeText = '<span class="blink">PARTIDA</span>';
 
-                            var timeText = diff + " MIN";
-                            if (diff <= 0) timeText = '<span class="blink">PARTIDA</span>';
-                            if (diff > 120) timeText = timePart; // Se faltar muito tempo, mostra a hora
+                                var service = c.Servico || "U";
+                                var cClass = 'col-line';
+                                if (service === 'Alfa' || service === 'AP') cClass += ' ap';
+                                else if (service === 'IC') cClass += ' ic';
+                                else if (service === 'Urb' || service === 'Subu') cClass += ' u';
 
-                            var service = d.service || d.train_type || "U";
-                            var cClass = 'col-line';
-                            if (service.indexOf('Alfa') !== -1 || service === 'AP') cClass += ' ap';
-                            else if (service === 'IC') cClass += ' ic';
-                            else if (service === 'U' || service.indexOf('Urb') !== -1) cClass += ' u';
-                            else cClass += ' r';
-
-                            html += '<div class="row">' +
-                                    '<span class="' + cClass + '">' + service + (d.train_number || '') + '</span>' +
-                                    '<span class="col-dest">' + d.destination.substring(0, 14) + '</span>' +
-                                    '<span class="col-plat">' + (d.platform || '-') + '</span>' +
-                                    '<span class="col-time">' + timeText + '</span>' +
-                                    '</div>';
-                        }
-                        document.getElementById('list').innerHTML = html;
-                    } catch(e) { document.getElementById('list').innerHTML = "SEM DADOS CP"; }
+                                html += '<div class="row">' +
+                                        '<span class="' + cClass + '">' + service + '</span>' +
+                                        '<span class="col-dest">' + c.Destino.substring(0, 14) + '</span>' +
+                                        '<span class="col-plat">' + (c.Linha || '-') + '</span>' +
+                                        '<span class="col-time">' + timeText + '</span>' +
+                                        '</div>';
+                            }
+                            document.getElementById('list').innerHTML = html || "SEM COMBOIOS AGORA";
+                        } catch(e) { document.getElementById('list').innerHTML = "ERRO NA API IP"; }
+                    } else {
+                        document.getElementById('list').innerHTML = "SEM LIGAÇÃO À IP";
+                    }
                 }
             };
             xhr.send();
@@ -93,7 +91,7 @@
 
         setClock(); updateBoard();
         setInterval(setClock, 1000);
-        setInterval(updateBoard, 40000);
+        setInterval(updateBoard, 60000); // 1 em 1 minuto para não ser bloqueado
     </script>
 </body>
 </html>
