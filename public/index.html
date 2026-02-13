@@ -18,42 +18,46 @@
     </div>
     <div id="list">A LIGAR...</div>
 
-    <script>
+   <script>
     function setClock() {
         var now = new Date();
-        var h = ("0" + now.getHours()).slice(-2);
-        var m = ("0" + now.getMinutes()).slice(-2);
-        document.getElementById('clock').innerHTML = h + ":" + m;
+        document.getElementById('clock').innerHTML = ("0" + now.getHours()).slice(-2) + ":" + ("0" + now.getMinutes()).slice(-2);
     }
 
     function getBuses() {
         var xhr = new XMLHttpRequest();
-        // Ligação DIRETA (sem proxies que possam falhar ou dar dados vazios)
+        // Usamos este link que é mais estável para aplicações web
         var url = 'https://api.carrismetropolitana.pt/stops/172500/estimations';
         
         xhr.open('GET', url, true);
         xhr.onreadystatechange = function() {
-            if (xhr.readyState == 4) {
-                if (xhr.status == 200) {
+            if (xhr.readyState == 4 && xhr.status == 200) {
+                try {
                     var data = JSON.parse(xhr.responseText);
                     var html = '';
                     
+                    // Se os dados vierem dentro de um objeto (comum em APIs)
+                    if (data.contents) data = JSON.parse(data.contents);
+                    
                     if (!data || data.length === 0) {
-                        document.getElementById('list').innerHTML = '<div class="row">SEM ESTIMATIVAS</div>';
+                        document.getElementById('list').innerHTML = '<div class="row">A AGUARDAR DADOS...</div>';
                         return;
                     }
 
-                    // Mostra os primeiros 5 autocarros
-                    for (var i = 0; i < Math.min(data.length, 5); i++) {
+                    for (var i = 0; i < Math.min(data.length, 6); i++) {
+                        var wait = data[i].wait_time;
+                        // Se o tempo for 0, escrevemos "A CHEGAR"
+                        var timeText = (wait <= 0) ? "A CHEGAR" : wait + "m";
+                        
                         html += '<div class="row">' +
-                                '<span>' + data[i].line_id + '</span>' +
-                                '<span>' + data[i].headsign.substring(0,10) + '</span>' +
-                                '<span class="time">' + data[i].wait_time + 'm</span>' +
+                                '<span style="color:#fff">' + data[i].line_id + '</span> ' +
+                                '<span>' + data[i].headsign.substring(0,12) + '</span> ' +
+                                '<span class="time">' + timeText + '</span>' +
                                 '</div>';
                     }
                     document.getElementById('list').innerHTML = html;
-                } else {
-                    document.getElementById('list').innerHTML = '<div class="row">ERRO NA API</div>';
+                } catch(e) {
+                    document.getElementById('list').innerHTML = '<div class="row">ERRO NO FORMATO</div>';
                 }
             }
         };
@@ -61,7 +65,7 @@
     }
 
     setInterval(setClock, 1000);
-    setInterval(getBuses, 30000);
+    setInterval(getBuses, 20000); // Atualiza mais rápido (20s)
     setClock();
     getBuses();
 </script>
