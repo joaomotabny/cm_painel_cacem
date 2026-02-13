@@ -17,18 +17,13 @@
         .col-dest { float: left; width: 52%; color: #bbb; overflow: hidden; white-space: nowrap; }
         .col-plat { float: left; width: 10%; color: #ff9900; text-align: center; }
         .col-time { float: left; width: 20%; text-align: right; }
-        
-        /* Cores DB: ICE/IC são Vermelhos, S-Bahn é Verde/Amarelo */
-        .ice { color: #ff0000; text-shadow: 0 0 5px #ff0000; }
-        .s { color: #50ff50; } 
-        .re { color: #ff8000; }
-
+        .ice { color: #ff0000; } .s { color: #50ff50; } .re { color: #ff8000; }
         @keyframes blinker { 50% { opacity: 0; } }
         .blink { animation: blinker 0.8s linear infinite; color: #ff0000; font-weight: bold; }
     </style>
 </head>
 <body>
-    <div class="header"><span>FRANKFURT HBF</span><span id="clock">00:00</span></div>
+    <div class="header"><span>DB FRANKFURT HBF</span><span id="clock">00:00</span></div>
     <div id="list">LADEN...</div>
 
     <script>
@@ -39,50 +34,54 @@
 
         function updateBoard() {
             var xhr = new XMLHttpRequest();
-            // Frankfurt Hbf ID: 8000105
+            // Usando um proxy alternativo para evitar o bloqueio
             var target = 'https://v6.db.transport.rest/stops/8000105/departures?duration=60&results=10';
-            var url = 'https://api.allorigins.win/get?url=' + encodeURIComponent(target);
+            var url = 'https://api.allorigins.win/get?url=' + encodeURIComponent(target) + '&cache=' + new Date().getTime();
             
             xhr.open('GET', url, true);
             xhr.onreadystatechange = function() {
-                if (xhr.readyState == 4 && xhr.status == 200) {
-                    var resp = JSON.parse(xhr.responseText);
-                    var data = JSON.parse(resp.contents);
-                    var html = '';
-                    var now = new Date();
-                    var nowTotalMin = (now.getHours() * 60) + now.getMinutes();
+                if (xhr.readyState == 4) {
+                    if (xhr.status == 200) {
+                        try {
+                            var resp = JSON.parse(xhr.responseText);
+                            var data = JSON.parse(resp.contents);
+                            var html = '';
+                            var now = new Date();
+                            var nowTotalMin = (now.getHours() * 60) + now.getMinutes();
 
-                    for (var i = 0; i < data.departures.length; i++) {
-                        var d = data.departures[i];
-                        
-                        // CÁLCULO MANUAL (Mesmo sistema da Suíça)
-                        var timePart = (d.when || d.plannedWhen).split("T")[1]; 
-                        var hour = parseInt(timePart.split(":")[0], 10);
-                        var min = parseInt(timePart.split(":")[1], 10);
-                        var depTotalMin = (hour * 60) + min;
-                        
-                        var diff = depTotalMin - nowTotalMin;
-                        diff = diff - 60; // Ajuste Fuso Alemanha vs Portugal
+                            for (var i = 0; i < data.departures.length; i++) {
+                                var d = data.departures[i];
+                                var timeStr = (d.when || d.plannedWhen);
+                                var timePart = timeStr.split("T")[1];
+                                var hour = parseInt(timePart.split(":")[0], 10);
+                                var min = parseInt(timePart.split(":")[1], 10);
+                                
+                                var diff = ((hour * 60) + min) - nowTotalMin - 60; // -60 para fuso horário
+                                if (diff < -1000) diff += 1440;
 
-                        if (diff < -1000) diff += 1440; 
+                                var timeText = diff + " MIN";
+                                if (diff <= 0) timeText = '<span class="blink">PARTIDA</span>';
 
-                        var timeText = diff + " MIN";
-                        if (diff <= 0) timeText = '<span class="blink">PARTIDA</span>';
+                                var lineName = d.line.name;
+                                var cClass = 'col-line';
+                                if (lineName.indexOf('S') === 0) cClass += ' s';
+                                else if (lineName.indexOf('ICE') === 0 || lineName.indexOf('IC') === 0) cClass += ' ice';
+                                else cClass += ' re';
 
-                        var lineName = d.line.name;
-                        var cClass = 'col-line';
-                        if (lineName.indexOf('S') === 0) cClass += ' s';
-                        if (lineName.indexOf('ICE') === 0 || lineName.indexOf('IC') === 0) cClass += ' ice';
-                        if (lineName.indexOf('RE') === 0 || lineName.indexOf('RB') === 0) cClass += ' re';
-
-                        html += '<div class="row">' +
-                                '<span class="' + cClass + '">' + lineName + '</span>' +
-                                '<span class="col-dest">' + d.direction.substring(0, 14) + '</span>' +
-                                '<span class="col-plat">' + (d.platform || '-') + '</span>' +
-                                '<span class="col-time">' + timeText + '</span>' +
-                                '</div>';
+                                html += '<div class="row">' +
+                                        '<span class="' + cClass + '">' + lineName + '</span>' +
+                                        '<span class="col-dest">' + d.direction.substring(0, 14) + '</span>' +
+                                        '<span class="col-plat">' + (d.platform || '-') + '</span>' +
+                                        '<span class="col-time">' + timeText + '</span>' +
+                                        '</div>';
+                            }
+                            document.getElementById('list').innerHTML = html;
+                        } catch(e) { 
+                            document.getElementById('list').innerHTML = "ERRO NA DEUTSCHE BAHN"; 
+                        }
+                    } else {
+                        document.getElementById('list').innerHTML = "SEM CONEXÃO";
                     }
-                    document.getElementById('list').innerHTML = html;
                 }
             };
             xhr.send();
