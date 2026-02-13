@@ -8,7 +8,7 @@
             background-color: #000; color: #fff; font-family: 'VT323', monospace; 
             margin: 0; padding: 15px; text-transform: uppercase;
             background-image: linear-gradient(0deg, transparent 50%, rgba(0,0,0,0.5) 50%), linear-gradient(90deg, rgba(255,255,255,0.05) 50%, transparent 50%);
-            background-size: 3px 3px; overflow: hidden;
+            background-size: 3px 3px;
         }
         .header { font-size: 24px; color: #333; border-bottom: 2px solid #222; height: 35px; }
         #clock { float: right; color: #eee; }
@@ -17,14 +17,16 @@
         .col-dest { float: left; width: 52%; color: #bbb; overflow: hidden; white-space: nowrap; }
         .col-plat { float: left; width: 10%; color: #ff9900; text-align: center; }
         .col-time { float: left; width: 20%; text-align: right; }
-        .ap { color: #00ffff; } .ic { color: #ff3333; } .u { color: #ffff00; }
+        .ap { color: #00ffff; text-shadow: 0 0 5px #00ffff; } 
+        .ic { color: #ff3333; } 
+        .u { color: #ffff00; }
         @keyframes blinker { 50% { opacity: 0; } }
         .blink { animation: blinker 0.8s linear infinite; color: #ff3333; font-weight: bold; }
     </style>
 </head>
 <body>
     <div class="header"><span>CP LISBOA ORIENTE</span><span id="clock">00:00</span></div>
-    <div id="list">LADEN...</div>
+    <div id="list">A CARREGAR...</div>
 
     <script>
         function setClock() {
@@ -32,66 +34,52 @@
             document.getElementById('clock').innerHTML = ("0" + now.getHours()).slice(-2) + ":" + ("0" + now.getMinutes()).slice(-2);
         }
 
-        function updateBoard() {
-            var xhr = new XMLHttpRequest();
-            // Tentativa via Proxy AllOrigins com a API da Infraestruturas de Portugal
-            var target = 'https://servicos.infraestruturasdeportugal.pt/PandaServices/api/PARTIDASETXER/Oriente';
-            var url = 'https://api.allorigins.win/get?url=' + encodeURIComponent(target);
+        async function updateBoard() {
+            // Usamos o AllOrigins mas no modo que o Mac prefere (Fetch)
+            const target = 'https://servicos.infraestruturasdeportugal.pt/PandaServices/api/PARTIDASETXER/Oriente';
+            const url = `https://api.allorigins.win/get?url=${encodeURIComponent(target)}&_=${new Date().getTime()}`;
 
-            xhr.open('GET', url, true);
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState == 4) {
-                    if (xhr.status == 200) {
-                        try {
-                            var response = JSON.parse(xhr.responseText);
-                            var data = JSON.parse(response.contents);
-                            var html = '';
-                            var now = new Date();
-                            var nowTotalMin = (now.getHours() * 60) + now.getMinutes();
+            try {
+                const response = await fetch(url);
+                const json = await response.json();
+                const data = JSON.parse(json.contents);
+                const comboios = data.Nodes || [];
+                
+                let html = '';
+                const now = new Date();
+                const nowTotalMin = (now.getHours() * 60) + now.getMinutes();
 
-                            // A IP envia os dados numa lista chamada "Ncombios"
-                            var comboios = data.Nodes || [];
+                comboios.slice(0, 10).forEach(c => {
+                    const [hour, min] = c.Hora.split(':').map(Number);
+                    let diff = (hour * 60 + min) - nowTotalMin;
+                    
+                    if (diff < -1000) diff += 1440;
 
-                            for (var i = 0; i < Math.min(comboios.length, 10); i++) {
-                                var c = comboios[i];
-                                
-                                // Formato da IP costuma ser HH:mm
-                                var timePart = c.Hora; 
-                                var hour = parseInt(timePart.split(":")[0], 10);
-                                var min = parseInt(timePart.split(":")[1], 10);
-                                
-                                var diff = ((hour * 60) + min) - nowTotalMin;
-                                if (diff < -1000) diff += 1440;
+                    let timeText = diff + " MIN";
+                    if (diff <= 0) timeText = '<span class="blink">PARTIDA</span>';
 
-                                var timeText = diff + " MIN";
-                                if (diff <= 0) timeText = '<span class="blink">PARTIDA</span>';
+                    let service = c.Servico;
+                    let cClass = 'col-line';
+                    if (service === 'Alfa' || service === 'AP') cClass += ' ap';
+                    else if (service === 'IC') cClass += ' ic';
+                    else if (service === 'Urb' || service === 'Subu') { service = 'URB'; cClass += ' u'; }
 
-                                var service = c.Servico || "U";
-                                var cClass = 'col-line';
-                                if (service === 'Alfa' || service === 'AP') cClass += ' ap';
-                                else if (service === 'IC') cClass += ' ic';
-                                else if (service === 'Urb' || service === 'Subu') cClass += ' u';
-
-                                html += '<div class="row">' +
-                                        '<span class="' + cClass + '">' + service + '</span>' +
-                                        '<span class="col-dest">' + c.Destino.substring(0, 14) + '</span>' +
-                                        '<span class="col-plat">' + (c.Linha || '-') + '</span>' +
-                                        '<span class="col-time">' + timeText + '</span>' +
-                                        '</div>';
-                            }
-                            document.getElementById('list').innerHTML = html || "SEM COMBOIOS AGORA";
-                        } catch(e) { document.getElementById('list').innerHTML = "ERRO NA API IP"; }
-                    } else {
-                        document.getElementById('list').innerHTML = "SEM LIGAÇÃO À IP";
-                    }
-                }
-            };
-            xhr.send();
+                    html += `<div class="row">
+                        <span class="${cClass}">${service}</span>
+                        <span class="col-dest">${c.Destino.substring(0, 14)}</span>
+                        <span class="col-plat">${c.Linha || '-'}</span>
+                        <span class="col-time">${timeText}</span>
+                    </div>`;
+                });
+                document.getElementById('list').innerHTML = html || "SEM COMBOIOS AGORA";
+            } catch (e) {
+                document.getElementById('list').innerHTML = "ERRO NA LIGAÇÃO";
+            }
         }
 
         setClock(); updateBoard();
         setInterval(setClock, 1000);
-        setInterval(updateBoard, 60000); // 1 em 1 minuto para não ser bloqueado
+        setInterval(updateBoard, 30000);
     </script>
 </body>
 </html>
