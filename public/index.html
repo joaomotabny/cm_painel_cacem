@@ -2,7 +2,6 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>PAINEL LED</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
         body { background: #000; color: #ff9900; font-family: 'VT323', monospace; margin: 0; padding: 20px; }
@@ -16,56 +15,58 @@
         <span>AV. BONS AMIGOS</span>
         <span id="clock">00:00</span>
     </div>
-    <div id="list">A LIGAR...</div>
+    <div id="list">A LIGAR À CARRIS...</div>
 
-   <script>
-    function setClock() {
-        var now = new Date();
-        document.getElementById('clock').innerHTML = ("0" + now.getHours()).slice(-2) + ":" + ("0" + now.getMinutes()).slice(-2);
-    }
+    <script>
+        function setClock() {
+            var now = new Date();
+            var h = ("0" + now.getHours()).slice(-2);
+            var m = ("0" + now.getMinutes()).slice(-2);
+            document.getElementById('clock').innerHTML = h + ":" + m;
+        }
 
-    function getBuses() {
-        var xhr = new XMLHttpRequest();
-        // Usamos este link que é mais estável para aplicações web
-        var url = 'https://api.carrismetropolitana.pt/stops/172500/estimations';
-        
-        xhr.open('GET', url, true);
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState == 4 && xhr.status == 200) {
-                try {
-                    var data = JSON.parse(xhr.responseText);
-                    var html = '';
-                    
-                    // Se os dados vierem dentro de um objeto (comum em APIs)
-                    if (data.contents) data = JSON.parse(data.contents);
-                    
-                    if (!data || data.length === 0) {
-                        document.getElementById('list').innerHTML = '<div class="row">A AGUARDAR DADOS...</div>';
-                        return;
-                    }
-
-                    for (var i = 0; i < Math.min(data.length, 6); i++) {
-                        var wait = data[i].wait_time;
-                        // Se o tempo for 0, escrevemos "A CHEGAR"
-                        var timeText = (wait <= 0) ? "A CHEGAR" : wait + "m";
+        function getBuses() {
+            var xhr = new XMLHttpRequest();
+            // ENDEREÇO ATUALIZADO: /predictions em vez de /estimations
+            var url = 'https://api.carrismetropolitana.pt/stops/172500/predictions';
+            
+            xhr.open('GET', url, true);
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4) {
+                    if (xhr.status == 200) {
+                        var data = JSON.parse(xhr.responseText);
+                        var html = '';
                         
-                        html += '<div class="row">' +
-                                '<span style="color:#fff">' + data[i].line_id + '</span> ' +
-                                '<span>' + data[i].headsign.substring(0,12) + '</span> ' +
-                                '<span class="time">' + timeText + '</span>' +
-                                '</div>';
-                    }
-                    document.getElementById('list').innerHTML = html;
-                } catch(e) {
-                    document.getElementById('list').innerHTML = '<div class="row">ERRO NO FORMATO</div>';
-                }
-            }
-        };
-        xhr.send();
-    }
+                        if (!data || data.length === 0) {
+                            document.getElementById('list').innerHTML = '<div class="row">SEM AUTOCARROS AGORA</div>';
+                            return;
+                        }
 
-    setInterval(setClock, 1000);
-    setInterval(getBuses, 20000); // Atualiza mais rápido (20s)
-    setClock();
-    getBuses();
-</script>
+                        for (var i = 0; i < Math.min(data.length, 6); i++) {
+                            // A nova API usa campos ligeiramente diferentes, vamos garantir que lê bem
+                            var line = data[i].line_id || data[i].route_id;
+                            var destination = data[i].headsign || "AUTOCARRO";
+                            var wait = data[i].wait_time || 0;
+                            
+                            html += '<div class="row">' +
+                                    '<span>' + line + '</span> ' +
+                                    '<span>' + destination.substring(0,12) + '</span> ' +
+                                    '<span class="time">' + (wait <= 0 ? "A CHEGAR" : wait + "m") + '</span>' +
+                                    '</div>';
+                        }
+                        document.getElementById('list').innerHTML = html;
+                    } else {
+                        document.getElementById('list').innerHTML = '<div class="row">ERRO NA CARRIS ('+xhr.status+')</div>';
+                    }
+                }
+            };
+            xhr.send();
+        }
+
+        setInterval(setClock, 1000);
+        setInterval(getBuses, 30000);
+        setClock();
+        getBuses();
+    </script>
+</body>
+</html>
