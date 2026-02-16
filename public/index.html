@@ -5,26 +5,71 @@
     <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
     <style>
         body { 
-            background-color: #000; color: #fff; font-family: 'VT323', monospace; 
-            margin: 0; padding: 15px; text-transform: uppercase;
-            background-image: linear-gradient(0deg, transparent 50%, rgba(0,0,0,0.5) 50%), linear-gradient(90deg, rgba(255,255,255,0.05) 50%, transparent 50%);
-            background-size: 3px 3px;
+            background-color: #000; 
+            color: #ff9900; /* Tudo Laranja */
+            font-family: 'VT323', monospace; 
+            margin: 0; 
+            padding: 20px;
+            /* Efeito de scanline subtil para estilo retro */
+            background-image: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 4px, 3px 100%;
         }
-        .header { font-size: 24px; color: #444; border-bottom: 2px solid #222; height: 35px; margin-bottom: 15px; display: flex; justify-content: space-between; }
-        #clock { color: #ff9900; }
-        .row { clear: both; font-size: 34px; border-bottom: 1px solid #111; height: 50px; line-height: 50px; display: flex; align-items: center; }
-        .col-line { width: 15%; font-weight: bold; color: #ffff00; }
-        .col-dest { width: 65%; color: #ccc; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-        .col-time { width: 20%; text-align: right; color: #ff9900; font-weight: bold; }
-        .live-icon { color: #50ff50; font-size: 16px; margin-left: 5px; }
+
+        .header { 
+            font-size: 35px; 
+            border-bottom: 3px solid #663300; 
+            padding-bottom: 10px;
+            margin-bottom: 20px; 
+            display: flex; 
+            justify-content: space-between;
+        }
+
+        #clock { font-weight: bold; }
+
+        .row { 
+            display: flex; 
+            align-items: center; 
+            border-bottom: 1px solid #331a00; 
+            height: 80px; /* Linhas mais altas */
+            line-height: 80px;
+        }
+
+        /* TAMANHOS DE FONTE AUMENTADOS */
+        .col-line { 
+            width: 18%; 
+            font-size: 65px; 
+            font-weight: bold; 
+            color: #ff9900;
+        }
+
+        .col-dest { 
+            width: 60%; 
+            font-size: 50px; 
+            overflow: hidden; 
+            white-space: nowrap; 
+            text-overflow: ellipsis;
+            padding-left: 10px;
+        }
+
+        .col-time { 
+            width: 22%; 
+            text-align: right; 
+            font-size: 60px; 
+            font-weight: bold;
+        }
+
+        .live-icon { font-size: 25px; margin-left: 10px; opacity: 0.8; }
+        
+        @keyframes blinker { 50% { opacity: 0; } }
+        .blink { animation: blinker 1s linear infinite; color: #ff0000; } /* A chegar mantém vermelho para alerta */
     </style>
 </head>
 <body>
     <div class="header">
-        <span>Cacém - Av.Bons Amigos (sentido Belas)</span>
+        <span>Cacém - Av. Bons Amigos (Belas)</span>
         <span id="clock">00:00:00</span>
     </div>
-    <div id="list">A sintonizar percurso...</div>
+    <div id="list" style="font-size: 40px;">A sintonizar...</div>
 
     <script>
         function setClock() {
@@ -41,7 +86,6 @@
         }
 
         async function updateBoard() {
-            // IDs que definimos como os mais próximos da Av. Bons Amigos/Estação
             const stopIds = ['170459', '172500']; 
             try {
                 const results = await Promise.all(stopIds.map(id => 
@@ -52,11 +96,9 @@
                 let all = [].concat(...results);
                 const nowUnix = Math.floor(Date.now() / 1000);
 
-                // Filtrar por tempo (apenas futuro) e remover destinos que pareçam errados (como Odivelas)
                 let filtered = all.filter(d => {
                     const time = (d.estimated_arrival_unix || d.scheduled_arrival_unix);
                     const isFuture = time > nowUnix - 60;
-                    // Filtro básico para evitar linhas que sabemos serem de direções opostas se necessário
                     const isNotOdivelas = !d.headsign.toLowerCase().includes("odivelas");
                     return isFuture && isNotOdivelas;
                 });
@@ -64,7 +106,8 @@
                 filtered.sort((a, b) => (a.scheduled_arrival_unix) - (b.scheduled_arrival_unix));
 
                 let html = '';
-                filtered.slice(0, 10).forEach(d => {
+                // No Mac com fonte grande, 7-8 linhas costumam caber bem no ecrã total
+                filtered.slice(0, 8).forEach(d => {
                     let rawTime = d.estimated_arrival || d.scheduled_arrival;
                     let displayTime = formatCMTime(rawTime);
                     const isLive = d.estimated_arrival ? '<span class="live-icon">📡</span>' : '';
@@ -76,7 +119,7 @@
                     </div>`;
                 });
 
-                document.getElementById('list').innerHTML = html || '<div class="row">Sem mais autocarros hoje</div>';
+                document.getElementById('list').innerHTML = html || '<div class="row">Sem mais serviços hoje</div>';
             } catch (e) {
                 document.getElementById('list').innerHTML = "Erro de ligação";
             }
