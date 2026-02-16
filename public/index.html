@@ -6,17 +6,16 @@
     <style>
         body { 
             background-color: #000; 
-            color: #ff9900; /* Tudo Laranja */
+            color: #ff9900; 
             font-family: 'VT323', monospace; 
             margin: 0; 
             padding: 20px;
-            /* Efeito de scanline subtil para estilo retro */
             background-image: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
             background-size: 100% 4px, 3px 100%;
         }
 
         .header { 
-            font-size: 35px; 
+            font-size: 40px; 
             border-bottom: 3px solid #663300; 
             padding-bottom: 10px;
             margin-bottom: 20px; 
@@ -30,38 +29,42 @@
             display: flex; 
             align-items: center; 
             border-bottom: 1px solid #331a00; 
-            height: 80px; /* Linhas mais altas */
-            line-height: 80px;
+            height: 90px; 
+            line-height: 90px;
         }
 
-        /* TAMANHOS DE FONTE AUMENTADOS */
         .col-line { 
-            width: 18%; 
-            font-size: 65px; 
-            font-weight: bold; 
-            color: #ff9900;
-        }
-
-        .col-dest { 
-            width: 60%; 
-            font-size: 50px; 
-            overflow: hidden; 
-            white-space: nowrap; 
-            text-overflow: ellipsis;
-            padding-left: 10px;
-        }
-
-        .col-time { 
-            width: 22%; 
-            text-align: right; 
-            font-size: 60px; 
+            width: 15%; 
+            font-size: 75px; 
             font-weight: bold;
         }
 
-        .live-icon { font-size: 25px; margin-left: 10px; opacity: 0.8; }
+        .col-dest { 
+            width: 50%; 
+            font-size: 55px; 
+            overflow: hidden; 
+            white-space: nowrap; 
+            text-overflow: ellipsis;
+            padding-left: 15px;
+        }
+
+        .col-time { 
+            width: 35%; 
+            text-align: right; 
+            font-size: 55px; 
+            font-weight: bold;
+        }
+
+        .diff-min {
+            font-size: 40px;
+            margin-right: 10px;
+            opacity: 0.8;
+        }
+
+        .live-icon { font-size: 25px; margin-left: 5px; vertical-align: middle; }
         
         @keyframes blinker { 50% { opacity: 0; } }
-        .blink { animation: blinker 1s linear infinite; color: #ff0000; } /* A chegar mantém vermelho para alerta */
+        .blink { animation: blinker 1s linear infinite; color: #ff3333; }
     </style>
 </head>
 <body>
@@ -69,7 +72,7 @@
         <span>Cacém - Av. Bons Amigos (Belas)</span>
         <span id="clock">00:00:00</span>
     </div>
-    <div id="list" style="font-size: 40px;">A sintonizar...</div>
+    <div id="list">A calcular tempos...</div>
 
     <script>
         function setClock() {
@@ -94,34 +97,46 @@
                 ));
                 
                 let all = [].concat(...results);
-                const nowUnix = Math.floor(Date.now() / 1000);
+                const now = new Date();
 
                 let filtered = all.filter(d => {
-                    const time = (d.estimated_arrival_unix || d.scheduled_arrival_unix);
-                    const isFuture = time > nowUnix - 60;
-                    const isNotOdivelas = !d.headsign.toLowerCase().includes("odivelas");
-                    return isFuture && isNotOdivelas;
+                    const timeUnix = (d.estimated_arrival_unix || d.scheduled_arrival_unix);
+                    return timeUnix > (Math.floor(Date.now() / 1000) - 60);
                 });
 
                 filtered.sort((a, b) => (a.scheduled_arrival_unix) - (b.scheduled_arrival_unix));
 
                 let html = '';
-                // No Mac com fonte grande, 7-8 linhas costumam caber bem no ecrã total
-                filtered.slice(0, 8).forEach(d => {
+                filtered.slice(0, 7).forEach(d => {
+                    const arrivalUnix = d.estimated_arrival_unix || d.scheduled_arrival_unix;
+                    const arrivalDate = new Date(arrivalUnix * 1000);
+                    
+                    // Cálculo da diferença
+                    const diffMs = arrivalDate - now;
+                    const diffMin = Math.floor(diffMs / 60000);
+                    
                     let rawTime = d.estimated_arrival || d.scheduled_arrival;
                     let displayTime = formatCMTime(rawTime);
                     const isLive = d.estimated_arrival ? '<span class="live-icon">📡</span>' : '';
 
+                    let timeDisplay = "";
+                    if (diffMin <= 0) {
+                        timeDisplay = `<span class="blink">A chegar</span>`;
+                    } else {
+                        // Mostra os minutos que faltam e a hora exata
+                        timeDisplay = `<span class="diff-min">${diffMin}min</span> <span>${displayTime}</span>`;
+                    }
+
                     html += `<div class="row">
                         <span class="col-line">${d.line_id}</span>
                         <span class="col-dest">${d.headsign}</span>
-                        <span class="col-time">${displayTime}${isLive}</span>
+                        <span class="col-time">${timeDisplay}${isLive}</span>
                     </div>`;
                 });
 
-                document.getElementById('list').innerHTML = html || '<div class="row">Sem mais serviços hoje</div>';
+                document.getElementById('list').innerHTML = html || '<div class="row">Sem serviços previstos</div>';
             } catch (e) {
-                document.getElementById('list').innerHTML = "Erro de ligação";
+                document.getElementById('list').innerHTML = "Erro de rede";
             }
         }
 
