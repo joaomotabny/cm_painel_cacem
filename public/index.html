@@ -7,45 +7,52 @@
         body { 
             background-color: #000; color: #ff9900; font-family: 'VT323', monospace; 
             margin: 0; padding: 20px; overflow: hidden;
-            text-shadow: 0 0 8px rgba(255, 153, 0, 0.6);
+            text-shadow: 0 0 8px rgba(255, 153, 0, 0.5);
+            height: 100vh; display: flex; flex-direction: column;
         }
 
-        /* Cabeçalho */
         .header { 
-            font-size: 40px; border-bottom: 3px solid #ff9900; 
-            padding-bottom: 5px; margin-bottom: 15px;
-            display: flex; justify-content: space-between;
+            font-size: 45px; border-bottom: 3px solid #ff9900; 
+            padding-bottom: 5px; margin-bottom: 10px;
+            display: flex; justify-content: space-between; flex-shrink: 0;
         }
 
-        /* Lista de Autocarros */
-        #list { height: 75vh; }
+        /* Área central limitada para não empurrar o rodapé */
+        #list { flex-grow: 1; overflow: hidden; }
+
         .row { 
             display: flex; align-items: center; 
             border-bottom: 1px solid rgba(255, 153, 0, 0.1); 
-            height: 85px; line-height: 85px;
+            height: 90px;
         }
-        .col-line { width: 15%; font-size: 70px; font-weight: bold; color: #ffaa00; }
-        .col-dest { width: 50%; font-size: 50px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-        .col-time { width: 35%; text-align: right; font-size: 55px; }
-        .diff-min { font-size: 38px; margin-right: 12px; opacity: 0.8; }
+        .col-line { width: 15%; font-size: 75px; font-weight: bold; }
+        .col-dest { width: 50%; font-size: 55px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+        .col-time { width: 35%; text-align: right; font-size: 60px; }
+        .diff-min { font-size: 40px; margin-right: 15px; opacity: 0.8; }
 
-        /* Rodapé com a linha a correr */
+        /* Rodapé Fixo */
         .footer {
-            position: fixed; bottom: 0; left: 0; width: 100%;
-            background: #111; border-top: 3px solid #ff9900;
-            height: 60px; line-height: 60px; overflow: hidden;
+            height: 70px; line-height: 70px; background: #0a0a0a;
+            border-top: 3px solid #ff9900; margin-top: auto;
+            overflow: hidden; position: relative; flex-shrink: 0;
         }
-        .marquee {
-            display: inline-block; white-space: nowrap;
-            padding-left: 100%; font-size: 35px;
-            animation: marquee 20s linear infinite;
+
+        .marquee-content {
+            display: inline-block;
+            white-space: nowrap;
+            font-size: 40px;
+            position: absolute;
+            will-change: transform;
+            animation: marquee-flat 25s linear infinite;
         }
-        @keyframes marquee {
-            0% { transform: translate(0, 0); }
-            100% { transform: translate(-100%, 0); }
+
+        @keyframes marquee-flat {
+            from { transform: translateX(100vw); }
+            to { transform: translateX(-100%); }
         }
+
         @keyframes blinker { 50% { opacity: 0; } }
-        .blink { animation: blinker 1s linear infinite; color: #ff4400; }
+        .blink { animation: blinker 1s linear infinite; color: #ff3333; }
     </style>
 </head>
 <body>
@@ -54,10 +61,10 @@
         <span id="clock">00:00:00</span>
     </div>
 
-    <div id="list">Carregando dados...</div>
+    <div id="list">Sincronizando...</div>
 
     <div class="footer">
-        <div class="marquee" id="info-bar">A carregar meteorologia...</div>
+        <div class="marquee-content" id="info-bar">A carregar informações meteorológicas para Agualva-Cacém...</div>
     </div>
 
     <script>
@@ -66,28 +73,25 @@
             document.getElementById('clock').innerHTML = now.toLocaleTimeString('pt-PT');
         }
 
-        // Tradutor de meteorologia simples
-        function translateWeather(code) {
-            if (code <= 1) return "Céu Limpo";
-            if (code <= 3) return "Parcialmente Nublado";
-            if (code <= 65) return "Chovoso";
-            if (code <= 75) return "Neve";
-            return "Instável";
+        function getWeatherIcon(code) {
+            if (code <= 1) return "☀️ Limpo";
+            if (code <= 3) return "☁️ Nublado";
+            if (code <= 65) return "🌧️ Chuvoso";
+            return "⛅ Variável";
         }
 
         async function updateWeather() {
             try {
-                // Coordenadas de Agualva-Cacém
                 const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=38.7705&longitude=-9.2995&current_weather=true');
                 const data = await res.json();
                 const temp = Math.round(data.current_weather.temperature);
-                const cond = translateWeather(data.current_weather.weathercode);
+                const cond = getWeatherIcon(data.current_weather.weathercode);
                 const date = new Date().toLocaleDateString('pt-PT', { weekday: 'long', day: 'numeric', month: 'long' });
                 
                 document.getElementById('info-bar').innerHTML = 
-                    `HOJE: ${date} | AGUALVA-CACÉM: ${temp}ºC | ESTADO: ${cond} | BOA VIAGEM!`;
+                    `HOJE: ${date} • AGUALVA-CACÉM: ${temp}ºC • ${cond} • TENHA UMA BOA VIAGEM! • `;
             } catch (e) {
-                document.getElementById('info-bar').innerHTML = "Informação meteorológica indisponível";
+                document.getElementById('info-bar').innerHTML = "Informação temporariamente indisponível";
             }
         }
 
@@ -107,6 +111,7 @@
                 filtered.sort((a, b) => (a.scheduled_arrival_unix) - (b.scheduled_arrival_unix));
 
                 let html = '';
+                // Limitado a 5 linhas para garantir visibilidade
                 filtered.slice(0, 5).forEach(d => {
                     const arrivalUnix = d.estimated_arrival_unix || d.scheduled_arrival_unix;
                     const diffMin = Math.floor((new Date(arrivalUnix * 1000) - now) / 60000);
@@ -120,13 +125,13 @@
                         <span class="col-time">${timeDisplay}</span>
                     </div>`;
                 });
-                document.getElementById('list').innerHTML = html || "Sem autocarros previstos";
-            } catch (e) { document.getElementById('list').innerHTML = "Erro de rede"; }
+                document.getElementById('list').innerHTML = html || '<div class="row" style="opacity:0.5">Sem serviços agora</div>';
+            } catch (e) { }
         }
 
         setInterval(setClock, 1000);
         setInterval(updateBoard, 30000);
-        setInterval(updateWeather, 600000); // Atualiza tempo a cada 10 min
+        setInterval(updateWeather, 600000);
         
         setClock(); updateBoard(); updateWeather();
     </script>
