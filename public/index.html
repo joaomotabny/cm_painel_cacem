@@ -5,73 +5,47 @@
     <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
     <style>
         body { 
-            background-color: #000; 
-            color: #ff9900; 
-            font-family: 'VT323', monospace; 
-            margin: 0; 
-            padding: 25px;
-            /* Efeito de brilho no texto para o "Glow" */
-            text-shadow: 0 0 10px rgba(255, 153, 0, 0.7), 0 0 20px rgba(255, 153, 0, 0.5);
-            background-image: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
-            background-size: 100% 3px, 3px 100%;
-            overflow: hidden;
+            background-color: #000; color: #ff9900; font-family: 'VT323', monospace; 
+            margin: 0; padding: 20px; overflow: hidden;
+            text-shadow: 0 0 8px rgba(255, 153, 0, 0.6);
         }
 
+        /* Cabeçalho */
         .header { 
-            font-size: 45px; 
-            border-bottom: 3px solid #ff9900; 
-            padding-bottom: 10px;
-            margin-bottom: 20px; 
-            display: flex; 
-            justify-content: space-between;
-            box-shadow: 0 5px 15px -5px rgba(255, 153, 0, 0.3);
+            font-size: 40px; border-bottom: 3px solid #ff9900; 
+            padding-bottom: 5px; margin-bottom: 15px;
+            display: flex; justify-content: space-between;
         }
 
-        #clock { font-weight: bold; }
-
+        /* Lista de Autocarros */
+        #list { height: 75vh; }
         .row { 
-            display: flex; 
-            align-items: center; 
+            display: flex; align-items: center; 
             border-bottom: 1px solid rgba(255, 153, 0, 0.1); 
-            height: 95px; 
-            line-height: 95px;
+            height: 85px; line-height: 85px;
         }
+        .col-line { width: 15%; font-size: 70px; font-weight: bold; color: #ffaa00; }
+        .col-dest { width: 50%; font-size: 50px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+        .col-time { width: 35%; text-align: right; font-size: 55px; }
+        .diff-min { font-size: 38px; margin-right: 12px; opacity: 0.8; }
 
-        .col-line { 
-            width: 15%; 
-            font-size: 75px; 
-            font-weight: bold;
-            color: #ffaa00;
+        /* Rodapé com a linha a correr */
+        .footer {
+            position: fixed; bottom: 0; left: 0; width: 100%;
+            background: #111; border-top: 3px solid #ff9900;
+            height: 60px; line-height: 60px; overflow: hidden;
         }
-
-        .col-dest { 
-            width: 50%; 
-            font-size: 55px; 
-            overflow: hidden; 
-            white-space: nowrap; 
-            text-overflow: ellipsis;
-            padding-left: 10px;
+        .marquee {
+            display: inline-block; white-space: nowrap;
+            padding-left: 100%; font-size: 35px;
+            animation: marquee 20s linear infinite;
         }
-
-        .col-time { 
-            width: 35%; 
-            text-align: right; 
-            font-size: 60px; 
-            font-weight: bold;
+        @keyframes marquee {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(-100%, 0); }
         }
-
-        .diff-min {
-            font-size: 42px;
-            margin-right: 15px;
-            opacity: 0.8;
-        }
-
         @keyframes blinker { 50% { opacity: 0; } }
-        .blink { 
-            animation: blinker 1s linear infinite; 
-            color: #ff4400; 
-            text-shadow: 0 0 15px #ff4400;
-        }
+        .blink { animation: blinker 1s linear infinite; color: #ff4400; }
     </style>
 </head>
 <body>
@@ -79,46 +53,64 @@
         <span>Cacém - Av. Bons Amigos</span>
         <span id="clock">00:00:00</span>
     </div>
-    <div id="list">Sincronizando...</div>
+
+    <div id="list">Carregando dados...</div>
+
+    <div class="footer">
+        <div class="marquee" id="info-bar">A carregar meteorologia...</div>
+    </div>
 
     <script>
         function setClock() {
-            var now = new Date();
-            document.getElementById('clock').innerHTML = ("0" + now.getHours()).slice(-2) + ":" + ("0" + now.getMinutes()).slice(-2) + ":" + ("0" + now.getSeconds()).slice(-2);
+            const now = new Date();
+            document.getElementById('clock').innerHTML = now.toLocaleTimeString('pt-PT');
         }
 
-        function formatCMTime(timeStr) {
-            if (!timeStr) return "--:--";
-            let parts = timeStr.split(':');
-            let hour = parseInt(parts[0]);
-            if (hour >= 24) hour -= 24;
-            return ("0" + hour).slice(-2) + ":" + parts[1];
+        // Tradutor de meteorologia simples
+        function translateWeather(code) {
+            if (code <= 1) return "Céu Limpo";
+            if (code <= 3) return "Parcialmente Nublado";
+            if (code <= 65) return "Chovoso";
+            if (code <= 75) return "Neve";
+            return "Instável";
+        }
+
+        async function updateWeather() {
+            try {
+                // Coordenadas de Agualva-Cacém
+                const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=38.7705&longitude=-9.2995&current_weather=true');
+                const data = await res.json();
+                const temp = Math.round(data.current_weather.temperature);
+                const cond = translateWeather(data.current_weather.weathercode);
+                const date = new Date().toLocaleDateString('pt-PT', { weekday: 'long', day: 'numeric', month: 'long' });
+                
+                document.getElementById('info-bar').innerHTML = 
+                    `HOJE: ${date} | AGUALVA-CACÉM: ${temp}ºC | ESTADO: ${cond} | BOA VIAGEM!`;
+            } catch (e) {
+                document.getElementById('info-bar').innerHTML = "Informação meteorológica indisponível";
+            }
         }
 
         async function updateBoard() {
             const stopIds = ['170459', '172500']; 
             const targetLines = ['1211', '2605'];
-
             try {
                 const results = await Promise.all(stopIds.map(id => 
                     fetch(`https://api.carrismetropolitana.pt/stops/${id}/realtime`).then(res => res.json())
                 ));
-                
                 let all = [].concat(...results);
                 const now = new Date();
 
-                let filtered = all.filter(d => {
-                    return targetLines.includes(d.line_id) && 
-                           (d.estimated_arrival_unix || d.scheduled_arrival_unix) > (Math.floor(Date.now() / 1000) - 60);
-                });
+                let filtered = all.filter(d => targetLines.includes(d.line_id) && 
+                    (d.estimated_arrival_unix || d.scheduled_arrival_unix) > (Date.now()/1000 - 60));
 
                 filtered.sort((a, b) => (a.scheduled_arrival_unix) - (b.scheduled_arrival_unix));
 
                 let html = '';
-                filtered.slice(0, 7).forEach(d => {
+                filtered.slice(0, 5).forEach(d => {
                     const arrivalUnix = d.estimated_arrival_unix || d.scheduled_arrival_unix;
                     const diffMin = Math.floor((new Date(arrivalUnix * 1000) - now) / 60000);
-                    let displayTime = formatCMTime(d.estimated_arrival || d.scheduled_arrival);
+                    let displayTime = (d.estimated_arrival || d.scheduled_arrival).substring(0,5);
 
                     let timeDisplay = diffMin <= 0 ? `<span class="blink">A chegar</span>` : `<span class="diff-min">${diffMin}m</span><span>${displayTime}</span>`;
 
@@ -128,16 +120,15 @@
                         <span class="col-time">${timeDisplay}</span>
                     </div>`;
                 });
-
-                document.getElementById('list').innerHTML = html || '<div class="row" style="font-size:35px; opacity:0.5;">Sem autocarros previstos</div>';
-            } catch (e) {
-                document.getElementById('list').innerHTML = "Erro de conexão";
-            }
+                document.getElementById('list').innerHTML = html || "Sem autocarros previstos";
+            } catch (e) { document.getElementById('list').innerHTML = "Erro de rede"; }
         }
 
-        setClock(); updateBoard();
         setInterval(setClock, 1000);
         setInterval(updateBoard, 30000);
+        setInterval(updateWeather, 600000); // Atualiza tempo a cada 10 min
+        
+        setClock(); updateBoard(); updateWeather();
     </script>
 </body>
 </html>
