@@ -2,70 +2,84 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
     <style>
         body { 
             background-color: #000; 
-            color: #ff8000; /* Laranja "Amber" clássico de painel LED */
-            font-family: 'DotGothic16', sans-serif; 
+            color: #ff9900; 
+            font-family: 'VT323', monospace; 
             margin: 0; 
-            padding: 30px;
+            padding: 25px;
+            /* Efeito de brilho no texto para o "Glow" */
+            text-shadow: 0 0 10px rgba(255, 153, 0, 0.7), 0 0 20px rgba(255, 153, 0, 0.5);
+            background-image: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+            background-size: 100% 3px, 3px 100%;
             overflow: hidden;
         }
 
         .header { 
-            font-size: 50px; 
-            border-bottom: 5px solid #4d2600; 
-            padding-bottom: 15px;
-            margin-bottom: 30px; 
+            font-size: 45px; 
+            border-bottom: 3px solid #ff9900; 
+            padding-bottom: 10px;
+            margin-bottom: 20px; 
             display: flex; 
             justify-content: space-between;
+            box-shadow: 0 5px 15px -5px rgba(255, 153, 0, 0.3);
         }
+
+        #clock { font-weight: bold; }
 
         .row { 
             display: flex; 
             align-items: center; 
-            border-bottom: 2px solid #261300; 
-            height: 140px; /* Ainda maior para o Mac */
-            line-height: 140px;
+            border-bottom: 1px solid rgba(255, 153, 0, 0.1); 
+            height: 95px; 
+            line-height: 95px;
         }
 
         .col-line { 
-            width: 20%; 
-            font-size: 110px; 
+            width: 15%; 
+            font-size: 75px; 
             font-weight: bold;
+            color: #ffaa00;
         }
 
         .col-dest { 
-            width: 45%; 
-            font-size: 70px; 
+            width: 50%; 
+            font-size: 55px; 
+            overflow: hidden; 
             white-space: nowrap; 
-            overflow: hidden;
             text-overflow: ellipsis;
+            padding-left: 10px;
         }
 
         .col-time { 
             width: 35%; 
             text-align: right; 
-            font-size: 75px; 
+            font-size: 60px; 
+            font-weight: bold;
         }
 
         .diff-min {
-            font-size: 50px;
+            font-size: 42px;
             margin-right: 15px;
             opacity: 0.8;
         }
 
         @keyframes blinker { 50% { opacity: 0; } }
-        .blink { animation: blinker 1s linear infinite; color: #ff0000; }
+        .blink { 
+            animation: blinker 1s linear infinite; 
+            color: #ff4400; 
+            text-shadow: 0 0 15px #ff4400;
+        }
     </style>
 </head>
 <body>
     <div class="header">
-        <span>Cacém - Bons Amigos</span>
+        <span>Cacém - Av. Bons Amigos</span>
         <span id="clock">00:00:00</span>
     </div>
-    <div id="list">A carregar...</div>
+    <div id="list">Sincronizando...</div>
 
     <script>
         function setClock() {
@@ -101,7 +115,7 @@
                 filtered.sort((a, b) => (a.scheduled_arrival_unix) - (b.scheduled_arrival_unix));
 
                 let html = '';
-                filtered.slice(0, 5).forEach(d => {
+                filtered.slice(0, 7).forEach(d => {
                     const arrivalUnix = d.estimated_arrival_unix || d.scheduled_arrival_unix;
                     const diffMin = Math.floor((new Date(arrivalUnix * 1000) - now) / 60000);
                     let displayTime = formatCMTime(d.estimated_arrival || d.scheduled_arrival);
@@ -115,9 +129,9 @@
                     </div>`;
                 });
 
-                document.getElementById('list').innerHTML = html || '<div class="row">Sem serviços</div>';
+                document.getElementById('list').innerHTML = html || '<div class="row" style="font-size:35px; opacity:0.5;">Sem autocarros previstos</div>';
             } catch (e) {
-                document.getElementById('list').innerHTML = "Erro de rede";
+                document.getElementById('list').innerHTML = "Erro de conexão";
             }
         }
 
