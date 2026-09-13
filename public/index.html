@@ -5,15 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Painel de Partidas - CP (CRT Vintage)</title>
   
-  <!-- Fontes de Matriz Pixelizada / Retro -->
+  <!-- Fonte Matrix / CRT Monospaced idêntica ao monitor real -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
 
   <style>
     :root {
       --crt-green: #c8f526;
-      --crt-green-glow: rgba(200, 245, 38, 0.5);
+      --crt-green-glow: rgba(200, 245, 38, 0.4);
       --crt-bg: #090e07;
       --crt-dark-frame: #121614;
     }
@@ -30,11 +30,224 @@
       justify-content: center;
       align-items: center;
       min-height: 100vh;
-      font-family: 'Press Start 2P', 'Silkscreen', monospace;
+      font-family: 'VT323', monospace;
       padding: 20px;
     }
 
-    /* Moldura externa do monitor CRT */
+    /* Moldura do Monitor CRT */
+    .crt-container {
+      background: var(--crt-dark-frame);
+      padding: 30px 35px;
+      border-radius: 40px;
+      box-shadow: 
+        inset 0 0 15px rgba(255,255,255,0.05),
+        0 25px 50px rgba(0,0,0,0.95);
+      border: 4px solid #1a1e1c;
+      max-width: 900px;
+      width: 100%;
+    }
+
+    /* Vidro/Ecrã CRT */
+    .crt-screen {
+      background-color: var(--crt-bg);
+      border-radius: 25px;
+      padding: 35px 40px;
+      position: relative;
+      overflow: hidden;
+      color: var(--crt-green);
+      text-shadow: 0 0 5px var(--crt-green-glow);
+      box-shadow: 
+        inset 0 0 80px rgba(0,0,0,0.88),
+        inset 0 0 15px rgba(0,0,0,0.95);
+      border: 3px solid #14200e;
+    }
+
+    /* Scanlines CRT */
+    .crt-screen::before {
+      content: " ";
+      display: block;
+      position: absolute;
+      top: 0; left: 0; bottom: 0; right: 0;
+      background: linear-gradient(
+        rgba(18, 16, 16, 0) 50%, 
+        rgba(0, 0, 0, 0.4) 50%
+      );
+      background-size: 100% 4px;
+      z-index: 3;
+      pointer-events: none;
+    }
+
+    /* Textura de Matriz de Pontos / Pixel Mask */
+    .crt-screen::after {
+      content: " ";
+      display: block;
+      position: absolute;
+      top: 0; left: 0; bottom: 0; right: 0;
+      background-image: radial-gradient(rgba(0, 0, 0, 0.35) 30%, transparent 30%);
+      background-size: 3px 3px;
+      z-index: 4;
+      pointer-events: none;
+    }
+
+    /* Bloco PARTIDAS Invertido */
+    .header-box {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    .header-title {
+      display: inline-block;
+      background-color: var(--crt-green);
+      color: var(--crt-bg);
+      font-size: 3.6rem;
+      letter-spacing: 8px;
+      padding: 2px 25px;
+      text-shadow: none;
+      font-weight: bold;
+      border-radius: 2px;
+      box-shadow: 0 0 10px var(--crt-green-glow);
+    }
+
+    /* Tabela de Partidas */
+    .board-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 3.1rem;
+      line-height: 1.1;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+    }
+
+    .board-table th {
+      text-align: left;
+      font-weight: normal;
+      padding-bottom: 18px;
+      font-size: 3.1rem;
+    }
+
+    .board-table td {
+      padding: 4px 0;
+    }
+
+    /* Larguras e Alinhamento rigoroso das Colunas */
+    .col-hora { width: 22%; text-align: left; }
+    .col-destino { width: 63%; text-align: left; }
+    .col-linha { width: 15%; text-align: right; }
+
+    /* Estilo de Mensagens */
+    .status-msg {
+      text-align: center;
+      font-size: 2.2rem;
+      padding: 40px 0;
+      opacity: 0.8;
+      letter-spacing: 3px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="crt-container">
+    <div class="crt-screen">
+      <div class="header-box">
+        <div class="header-title">PARTIDAS</div>
+      </div>
+
+      <table class="board-table">
+        <thead>
+          <tr>
+            <th class="col-hora">HORA</th>
+            <th class="col-destino">DESTINO</th>
+            <th class="col-linha">LINHA</th>
+          </tr>
+        </thead>
+        <tbody id="departures-body">
+          <tr>
+            <td colspan="3" class="status-msg">A CARREGAR PARTIDAS...</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const STATION_CODE = '9438002'; // Estação do Cacém
+
+    async function fetchDepartures() {
+      const tbody = document.getElementById('departures-body');
+
+      try {
+        // 1. Tenta carregar pela Serverless Function da Vercel
+        const response = await fetch('/api/partidas');
+        if (!response.ok) throw new Error('API local indisponível');
+        
+        const data = await response.json();
+        renderBoard(data);
+      } catch (error) {
+        console.warn('A tentar proxy direto à Infraestruturas de Portugal...');
+        fetchViaProxy();
+      }
+    }
+
+    async function fetchViaProxy() {
+      const tbody = document.getElementById('departures-body');
+      // Proxy público para contornar bloqueios CORS durante testes
+      const targetApi = `https://servicos.infraestruturasdeportugal.pt/negocios/api/partidas/estacao/${STATION_CODE}`;
+      const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetApi)}`;
+
+      try {
+        const response = await fetch(proxyUrl);
+        if (!response.ok) throw new Error('Erro no proxy');
+        
+        const resData = await response.json();
+        const parsedData = JSON.parse(resData.contents);
+        
+        // Mapeia os dados vindo da IP
+        const rawPartidas = parsedData.Partidas || parsedData || [];
+        const partidas = rawPartidas.slice(0, 6).map(item => ({
+          hora: item.Hora || item.hora || '--:--',
+          destino: (item.Destino || item.destino || '---').toUpperCase(),
+          linha: item.Linha || item.linha || '-'
+        }));
+
+        renderBoard(partidas);
+      } catch (err) {
+        console.error('Erro final ao carregar partidas:', err);
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="3" class="status-msg">ERRO AO CARREGAR DADOS</td>
+          </tr>`;
+      }
+    }
+
+    function renderBoard(partidas) {
+      const tbody = document.getElementById('departures-body');
+
+      if (!partidas || partidas.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="3" class="status-msg">SEM PARTIDAS PREVISTAS</td>
+          </tr>`;
+        return;
+      }
+
+      const htmlRows = partidas.map(item => `
+        <tr>
+          <td class="col-hora">${item.hora}</td>
+          <td class="col-destino">${item.destino}</td>
+          <td class="col-linha">${item.linha}</td>
+        </tr>
+      `).join('');
+
+      tbody.innerHTML = htmlRows;
+    }
+
+    // Carregamento inicial e atualização a cada 30s
+    fetchDepartures();
+    setInterval(fetchDepartures, 30000);
+  </script>
+
+</body>
+</html>    /* Moldura externa do monitor CRT */
     .crt-container {
       background: var(--crt-dark-frame);
       padding: 35px 40px;
