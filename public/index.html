@@ -1,40 +1,44 @@
-<!DOCTYPE html>
-<html lang="pt">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Painel de Partidas - CP CRT</title>
-  
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+<script>
+    async function fetchDepartures() {
+      const tbody = document.getElementById('departures-body');
 
-  <style>
-    :root {
-      --crt-green: #c8f526;
-      --crt-green-glow: rgba(200, 245, 38, 0.45);
-      --crt-bg: #090e07;
-      --crt-dark-frame: #121614;
+      try {
+        // Confirma se a tua rota na pasta api/ se chama buses.js ou partidas.js
+        const res = await fetch('/api/buses');
+
+        if (!res.ok) {
+          throw new Error(`Erro no servidor: ${res.status}`);
+        }
+
+        const data = await res.json();
+
+        if (Array.isArray(data) && data.length > 0) {
+          renderBoard(data);
+        } else {
+          tbody.innerHTML = `<tr><td colspan="3" class="status-msg">SEM PARTIDAS PREVISTAS</td></tr>`;
+        }
+
+      } catch (error) {
+        console.error('Erro ao obter partidas:', error);
+        tbody.innerHTML = `<tr><td colspan="3" class="status-msg">ERRO DE LIGAÇÃO IP</td></tr>`;
+      }
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
+    function renderBoard(partidas) {
+      const tbody = document.getElementById('departures-body');
+
+      tbody.innerHTML = partidas.slice(0, 6).map(item => `
+        <tr>
+          <td class="col-hora">${item.hora}</td>
+          <td class="col-destino">${item.destino}</td>
+          <td class="col-linha">${item.linha}</td>
+        </tr>
+      `).join('');
     }
 
-    html, body {
-      width: 100vw;
-      height: 100vh;
-      margin: 0;
-      padding: 0;
-      background-color: #030303;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-family: 'VT323', monospace;
-      overflow: hidden;
-    }
+    fetchDepartures();
+    setInterval(fetchDepartures, 20000);
+  </script>    }
 
     /* Força um único ecrã centrado */
     .crt-wrapper {
