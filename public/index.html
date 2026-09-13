@@ -1,148 +1,800 @@
-export default async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
+  <title>Partidas — Agualva-Cacém</title>
 
-  // Agualva-Cacém
-  const STATION_CODE = '9461002';
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=VT323&display=swap"
+    rel="stylesheet"
+  >
 
-  const DESTINOS_PERMITIDOS = {
-    'LISBOA-ORIENTE': 'LISBOA-ORIENTE',
-    'ALVERCA': 'ALVERCA',
-    'LISBOA-SANTA APOLÓNIA': 'LISBOA-S.A',
-    'LISBOA-SANTA APOLONIA': 'LISBOA-S.A',
-    'LISBOA-S.APOLONIA': 'LISBOA-S.A',
-    'LISBOA-S. APOLÓNIA': 'LISBOA-S.A'
-  };
+  <style>
+    :root {
+      --green: #c9f42a;
+      --green-soft: rgba(201, 244, 42, 0.55);
+      --green-glow: rgba(201, 244, 42, 0.18);
 
-  try {
-    const url =
-      `https://servicos.infraestruturasdeportugal.pt/estacoes?estacaoId=${STATION_CODE}`;
+      --screen: #091006;
+      --screen-deep: #020502;
 
-    const response = await fetch(url, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0',
-        'Accept': 'text/html'
-      }
-    });
+      --frame: #101312;
+      --frame-light: #242927;
 
-    if (!response.ok) {
-      throw new Error(`IP respondeu com ${response.status}`);
+      --text-size: clamp(30px, 3.3vw, 58px);
     }
 
-    const html = await response.text();
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+    }
+
+    body {
+      background:
+        radial-gradient(
+          circle at center,
+          #151918 0%,
+          #050606 55%,
+          #000 100%
+        );
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      overflow: hidden;
+
+      font-family: "VT323", monospace;
+
+      color: var(--green);
+    }
+
+    /* =========================
+       MOLDURA DO MONITOR
+       ========================= */
+
+    .monitor {
+      width: min(96vw, 1500px);
+      height: min(92vh, 930px);
+
+      padding: clamp(18px, 2vw, 42px);
+
+      border-radius: 5vw;
+
+      background:
+        linear-gradient(
+          145deg,
+          #222725,
+          #0b0d0c 35%,
+          #050605 70%,
+          #1a1e1c
+        );
+
+      border: 2px solid #272c29;
+
+      box-shadow:
+        0 30px 90px rgba(0,0,0,.9),
+        inset 0 0 0 3px rgba(255,255,255,.025),
+        inset 0 0 40px rgba(255,255,255,.025);
+    }
+
+    /* =========================
+       ECRÃ CRT
+       ========================= */
+
+    .screen {
+      width: 100%;
+      height: 100%;
+
+      position: relative;
+
+      overflow: hidden;
+
+      border-radius: 4vw;
+
+      background:
+        radial-gradient(
+          ellipse at center,
+          #10180b 0%,
+          #080e06 55%,
+          #020402 100%
+        );
+
+      border:
+        2px solid
+        rgba(255,255,255,.06);
+
+      box-shadow:
+        inset 0 0 80px rgba(0,0,0,.9),
+        inset 0 0 20px rgba(201,244,42,.05),
+        0 0 15px rgba(0,0,0,.8);
+
+      padding:
+        clamp(32px, 4vw, 70px)
+        clamp(35px, 5vw, 90px);
+    }
+
+    /* scanlines */
+
+    .screen::before {
+      content: "";
+
+      position: absolute;
+      inset: 0;
+
+      pointer-events: none;
+
+      background:
+        repeating-linear-gradient(
+          to bottom,
+          rgba(255,255,255,.025) 0px,
+          rgba(255,255,255,.025) 1px,
+          transparent 1px,
+          transparent 4px
+        );
+
+      opacity: .35;
+
+      z-index: 20;
+    }
+
+    /* ligeira textura */
+
+    .screen::after {
+      content: "";
+
+      position: absolute;
+      inset: 0;
+
+      pointer-events: none;
+
+      background:
+        radial-gradient(
+          circle at 50% 45%,
+          transparent 50%,
+          rgba(0,0,0,.32) 100%
+        );
+
+      z-index: 21;
+    }
+
+    .content {
+      position: relative;
+      z-index: 10;
+
+      width: 100%;
+      height: 100%;
+    }
+
+    /* =========================
+       BRILHO DAS LETRAS
+       ========================= */
+
+    .crt-text {
+      color: var(--green);
+
+      text-shadow:
+        0 0 2px var(--green),
+        0 0 6px var(--green-soft),
+        0 0 12px var(--green-glow);
+    }
+
+    /* =========================
+       TÍTULO
+       ========================= */
+
+    .title-row {
+      display: flex;
+      align-items: center;
+
+      width: 100%;
+
+      margin-bottom:
+        clamp(35px, 4vh, 65px);
+    }
+
+    .title-line {
+      height:
+        clamp(32px, 4vw, 60px);
+
+      flex: 1;
+
+      background:
+        repeating-linear-gradient(
+          90deg,
+          var(--green) 0px,
+          var(--green) 3px,
+          transparent 3px,
+          transparent 5px
+        );
+
+      box-shadow:
+        0 0 8px var(--green-soft);
+    }
+
+    .title {
+      font-size:
+        clamp(48px, 5vw, 82px);
+
+      line-height: .85;
+
+      padding: 0 18px;
+
+      letter-spacing: 3px;
+
+      white-space: nowrap;
+    }
+
+    /* =========================
+       CABEÇALHO
+       ========================= */
+
+    .header-row {
+      display: grid;
+
+      grid-template-columns:
+        22% 58% 20%;
+
+      font-size: var(--text-size);
+
+      margin-bottom:
+        clamp(10px, 1.5vh, 25px);
+
+      letter-spacing: 2px;
+    }
+
+    .header-row div:nth-child(3) {
+      text-align: center;
+    }
+
+    /* =========================
+       PARTIDAS
+       ========================= */
+
+    #departures {
+      width: 100%;
+    }
+
+    .departure {
+      display: grid;
+
+      grid-template-columns:
+        22% 58% 20%;
+
+      align-items: center;
+
+      min-height:
+        clamp(54px, 6.5vh, 88px);
+
+      font-size: var(--text-size);
+
+      line-height: 1;
+
+      letter-spacing: 1.5px;
+
+      animation: appear .15s ease;
+    }
+
+    .departure .line {
+      text-align: center;
+    }
+
+    @keyframes appear {
+      from {
+        opacity: .4;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    /* =========================
+       MENSAGENS
+       ========================= */
+
+    .message {
+      font-size:
+        clamp(28px, 3vw, 50px);
+
+      padding-top: 25px;
+    }
+
+    /* =========================
+       RODAPÉ TÉCNICO
+       ========================= */
+
+    .status {
+      position: absolute;
+
+      right: 0;
+      bottom: -30px;
+
+      font-size:
+        clamp(15px, 1.3vw, 21px);
+
+      opacity: .35;
+
+      letter-spacing: 1px;
+    }
+
+    /* =========================
+       FLICKER MUITO LIGEIRO
+       ========================= */
+
+    .screen {
+      animation:
+        flicker 8s infinite;
+    }
+
+    @keyframes flicker {
+      0%   { opacity: 1; }
+      49%  { opacity: 1; }
+      50%  { opacity: .985; }
+      51%  { opacity: 1; }
+      100% { opacity: 1; }
+    }
+
+    /* =========================
+       RESPONSIVO
+       ========================= */
+
+    @media (max-width: 700px) {
+
+      .monitor {
+        width: 100vw;
+        height: 100vh;
+
+        border-radius: 0;
+
+        padding: 12px;
+      }
+
+      .screen {
+        border-radius: 20px;
+
+        padding:
+          35px
+          22px;
+      }
+
+      .header-row,
+      .departure {
+        grid-template-columns:
+          24% 60% 16%;
+      }
+
+      .title {
+        padding: 0 8px;
+      }
+
+      .status {
+        bottom: -22px;
+      }
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <div class="monitor">
+
+    <div class="screen">
+
+      <div class="content crt-text">
+
+        <!-- TÍTULO -->
+
+        <div class="title-row">
+
+          <div class="title-line"></div>
+
+          <div class="title">
+            PARTIDAS
+          </div>
+
+          <div class="title-line"></div>
+
+        </div>
+
+
+        <!-- COLUNAS -->
+
+        <div class="header-row">
+
+          <div>
+            HORA
+          </div>
+
+          <div>
+            DESTINO
+          </div>
+
+          <div>
+            LINHA
+          </div>
+
+        </div>
+
+
+        <!-- COMBOIOS -->
+
+        <div id="departures">
+
+          <div class="message">
+            SINCRONIZANDO...
+          </div>
+
+        </div>
+
+
+        <!-- INFO -->
+
+        <div
+          class="status"
+          id="status"
+        >
+          AGUALVA-CACÉM
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <script>
+
+    const departuresElement =
+      document.getElementById("departures");
+
+    const statusElement =
+      document.getElementById("status");
+
 
     /*
-      Extrai linhas da tabela:
-      Hora | Comboio | Serviço | Origem | Destino | Operador | Observações
+    ==========================
+    NORMALIZA DESTINOS
+    ==========================
     */
 
-    const linhas = [];
+    function normalizarDestino(destino) {
 
-    const rowRegex = /<tr[^>]*>([\s\S]*?)<\/tr>/gi;
-    let rowMatch;
-
-    while ((rowMatch = rowRegex.exec(html)) !== null) {
-      const row = rowMatch[1];
-
-      const cells = [];
-      const cellRegex = /<t[dh][^>]*>([\s\S]*?)<\/t[dh]>/gi;
-
-      let cellMatch;
-
-      while ((cellMatch = cellRegex.exec(row)) !== null) {
-        const texto = cellMatch[1]
-          .replace(/<[^>]+>/g, ' ')
-          .replace(/&nbsp;/g, ' ')
-          .replace(/&amp;/g, '&')
-          .replace(/\s+/g, ' ')
-          .trim();
-
-        cells.push(texto);
+      if (!destino) {
+        return "";
       }
 
-      if (cells.length < 5) continue;
-
-      const hora = cells[0];
-      const comboio = cells[1];
-      const servico = cells[2];
-      const origem = cells[3];
-
-      const destinoOriginal = cells[4]
+      const texto =
+        destino
         .toUpperCase()
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .trim();
+        .normalize("NFD")
+        .replace(
+          /[\u0300-\u036f]/g,
+          ""
+        );
 
-      const operador = cells[5] || '';
-      const observacoes = cells[6] || '';
-
-      let destinoPainel = null;
-
-      if (destinoOriginal.includes('ORIENTE')) {
-        destinoPainel = 'LISBOA-ORIENTE';
-      }
-
-      if (destinoOriginal === 'ALVERCA') {
-        destinoPainel = 'ALVERCA';
-      }
 
       if (
-        destinoOriginal.includes('SANTA APOLONIA') ||
-        destinoOriginal.includes('S.APOLONIA') ||
-        destinoOriginal.includes('S. APOLONIA')
+        texto.includes("ORIENTE")
       ) {
-        destinoPainel = 'LISBOA-S.A';
+
+        return "LISBOA-ORIENTE";
+
       }
 
-      if (!destinoPainel) continue;
 
-      // Só aceita horas válidas
-      if (!/^\d{1,2}:\d{2}$/.test(hora)) continue;
+      if (
+        texto.includes("ALVERCA")
+      ) {
 
-      linhas.push({
-        hora,
-        comboio,
-        servico,
-        origem,
-        destino: destinoPainel,
-        destinoOriginal: cells[4],
-        operador,
-        observacoes
-      });
+        return "ALVERCA";
+
+      }
+
+
+      if (
+        texto.includes("SANTA APOLONIA") ||
+        texto.includes("S.APOLONIA") ||
+        texto.includes("S. APOLONIA")
+      ) {
+
+        return "LISBOA-S.A";
+
+      }
+
+
+      return "";
+
     }
 
-    // Remove possíveis duplicados
-    const unicos = linhas.filter(
-      (comboio, index, array) =>
-        index ===
-        array.findIndex(
-          x =>
-            x.hora === comboio.hora &&
-            x.comboio === comboio.comboio &&
-            x.destino === comboio.destino
+
+
+    /*
+    ==========================
+    LINHA
+    ==========================
+
+    De momento a API não fornece
+    a plataforma de forma fiável.
+
+    Portanto deixamos "---".
+
+    Depois ligamos isto à informação
+    real da IP caso esteja disponível.
+    */
+
+    function obterLinha(comboio) {
+
+      if (
+        comboio.linha
+      ) {
+
+        return comboio.linha;
+
+      }
+
+
+      if (
+        comboio.plataforma
+      ) {
+
+        return comboio.plataforma;
+
+      }
+
+
+      return "—";
+
+    }
+
+
+
+    /*
+    ==========================
+    DESENHA PAINEL
+    ==========================
+    */
+
+    function mostrarPartidas(partidas) {
+
+      departuresElement.innerHTML = "";
+
+
+      /*
+      Segunda segurança.
+
+      Mesmo que a API devolva
+      outros comboios,
+      não entram no painel.
+      */
+
+      const permitidas =
+        partidas
+        .map(comboio => {
+
+          return {
+
+            ...comboio,
+
+            destinoPainel:
+              normalizarDestino(
+                comboio.destino
+              )
+
+          };
+
+        })
+        .filter(comboio =>
+
+          comboio.destinoPainel ===
+            "LISBOA-ORIENTE"
+
+          ||
+
+          comboio.destinoPainel ===
+            "ALVERCA"
+
+          ||
+
+          comboio.destinoPainel ===
+            "LISBOA-S.A"
+
         )
+        .slice(0, 6);
+
+
+
+      if (
+        permitidas.length === 0
+      ) {
+
+        departuresElement.innerHTML = `
+
+          <div class="message">
+            SEM PARTIDAS
+          </div>
+
+        `;
+
+        return;
+
+      }
+
+
+
+      permitidas.forEach(
+        comboio => {
+
+          const row =
+            document.createElement(
+              "div"
+            );
+
+
+          row.className =
+            "departure";
+
+
+          row.innerHTML = `
+
+            <div class="time">
+              ${comboio.hora || "--:--"}
+            </div>
+
+            <div class="destination">
+              ${comboio.destinoPainel}
+            </div>
+
+            <div class="line">
+              ${obterLinha(comboio)}
+            </div>
+
+          `;
+
+
+          departuresElement
+            .appendChild(row);
+
+        }
+      );
+
+    }
+
+
+
+    /*
+    ==========================
+    CARREGA DADOS
+    ==========================
+    */
+
+    async function carregarPartidas() {
+
+      try {
+
+        const response =
+          await fetch(
+            "/api/partidas",
+            {
+              cache: "no-store"
+            }
+          );
+
+
+        if (!response.ok) {
+
+          throw new Error(
+            "Erro HTTP " +
+            response.status
+          );
+
+        }
+
+
+        const dados =
+          await response.json();
+
+
+        console.log(
+          "Dados API:",
+          dados
+        );
+
+
+        const partidas =
+          Array.isArray(dados)
+            ? dados
+            : dados.partidas || [];
+
+
+        mostrarPartidas(
+          partidas
+        );
+
+
+        const agora =
+          new Date();
+
+
+        const hora =
+          agora.toLocaleTimeString(
+            "pt-PT",
+            {
+              hour: "2-digit",
+              minute: "2-digit",
+              second: "2-digit"
+            }
+          );
+
+
+        statusElement.textContent =
+          "AGUALVA-CACÉM • " +
+          hora;
+
+
+      }
+
+      catch (erro) {
+
+        console.error(
+          "Erro:",
+          erro
+        );
+
+
+        departuresElement.innerHTML = `
+
+          <div class="message">
+            SERVIÇO INDISPONÍVEL
+          </div>
+
+        `;
+
+
+        statusElement.textContent =
+          "AGUALVA-CACÉM • SEM LIGAÇÃO";
+
+      }
+
+    }
+
+
+
+    /*
+    ==========================
+    ACTUALIZAÇÃO
+    ==========================
+    */
+
+
+    carregarPartidas();
+
+
+    /*
+    Actualiza os comboios
+    a cada 30 segundos.
+    */
+
+    setInterval(
+      carregarPartidas,
+      30000
     );
 
-    return res.status(200).json({
-      estacao: 'AGUALVA-CACÉM',
-      codigo: STATION_CODE,
-      atualizadoEm: new Date().toISOString(),
-      total: unicos.length,
-      partidas: unicos.slice(0, 8)
-    });
 
-  } catch (error) {
-    console.error(error);
+  </script>
 
-    return res.status(500).json({
-      error: 'Não foi possível obter as partidas.',
-      detalhe: error.message,
-      partidas: []
-    });
-  }
-}
+</body>
+</html>
