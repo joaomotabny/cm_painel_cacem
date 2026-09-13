@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Painel de Partidas - CP (CRT Vintage)</title>
   
-  <!-- Fonte Matrix / CRT Monospaced idêntica ao monitor real -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
@@ -13,7 +12,7 @@
   <style>
     :root {
       --crt-green: #c8f526;
-      --crt-green-glow: rgba(200, 245, 38, 0.4);
+      --crt-green-glow: rgba(200, 245, 38, 0.45);
       --crt-bg: #090e07;
       --crt-dark-frame: #121614;
     }
@@ -35,6 +34,196 @@
     }
 
     /* Moldura do Monitor CRT */
+    .crt-container {
+      background: var(--crt-dark-frame);
+      padding: 30px;
+      border-radius: 35px;
+      box-shadow: 
+        inset 0 0 15px rgba(255,255,255,0.05),
+        0 25px 50px rgba(0,0,0,0.95);
+      border: 4px solid #1a1e1c;
+      width: 100%;
+      max-width: 850px;
+    }
+
+    /* Vidro/Ecrã CRT */
+    .crt-screen {
+      background-color: var(--crt-bg);
+      border-radius: 20px;
+      padding: 35px;
+      position: relative;
+      overflow: hidden;
+      color: var(--crt-green);
+      text-shadow: 0 0 5px var(--crt-green-glow);
+      box-shadow: 
+        inset 0 0 80px rgba(0,0,0,0.88),
+        inset 0 0 15px rgba(0,0,0,0.95);
+      border: 3px solid #14200e;
+    }
+
+    /* Scanlines CRT */
+    .crt-screen::before {
+      content: " ";
+      display: block;
+      position: absolute;
+      top: 0; left: 0; bottom: 0; right: 0;
+      background: linear-gradient(
+        rgba(18, 16, 16, 0) 50%, 
+        rgba(0, 0, 0, 0.4) 50%
+      );
+      background-size: 100% 4px;
+      z-index: 3;
+      pointer-events: none;
+    }
+
+    /* Bloco PARTIDAS Invertido */
+    .header-box {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    .header-title {
+      display: inline-block;
+      background-color: var(--crt-green);
+      color: var(--crt-bg);
+      font-size: 3.2rem;
+      letter-spacing: 8px;
+      padding: 2px 20px;
+      text-shadow: none;
+      font-weight: bold;
+      border-radius: 2px;
+    }
+
+    /* Grelha do Painel (Flexbox por Linha) */
+    .board {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      font-size: 2.8rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+    }
+
+    .board-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+    }
+
+    .board-header {
+      border-bottom: 2px solid rgba(200, 245, 38, 0.2);
+      padding-bottom: 8px;
+      margin-bottom: 5px;
+    }
+
+    .col-hora {
+      width: 22%;
+      text-align: left;
+    }
+
+    .col-destino {
+      width: 60%;
+      text-align: left;
+    }
+
+    .col-linha {
+      width: 18%;
+      text-align: right;
+    }
+
+    .status-msg {
+      text-align: center;
+      font-size: 2.2rem;
+      padding: 40px 0;
+      opacity: 0.8;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="crt-container">
+    <div class="crt-screen">
+      <div class="header-box">
+        <div class="header-title">PARTIDAS</div>
+      </div>
+
+      <div class="board">
+        <div class="board-row board-header">
+          <div class="col-hora">HORA</div>
+          <div class="col-destino">DESTINO</div>
+          <div class="col-linha">LINHA</div>
+        </div>
+
+        <div id="board-content">
+          <div class="status-msg">A CARREGAR PARTIDAS...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const STATION_CODE = '9438002'; // Cacém
+
+    async function fetchDepartures() {
+      const container = document.getElementById('board-content');
+
+      // Tenta a API local da Vercel primeiro, depois o proxy
+      try {
+        const res = await fetch('/api/partidas');
+        if (res.ok) {
+          const data = await res.json();
+          renderBoard(data);
+          return;
+        }
+      } catch (e) {}
+
+      // Fallback direto via API do IP com corsproxy
+      try {
+        const targetUrl = `https://servicos.infraestruturasdeportugal.pt/negocios/api/partidas/estacao/${STATION_CODE}`;
+        const res = await fetch(`https://corsproxy.io/?${encodeURIComponent(targetUrl)}`);
+        
+        if (!res.ok) throw new Error('Erro na rede');
+        const data = await res.json();
+        
+        const raw = data.Partidas || data || [];
+        const partidas = raw.slice(0, 6).map(item => ({
+          hora: item.Hora || item.hora || '--:--',
+          destino: (item.Destino || item.destino || '---').toUpperCase(),
+          linha: item.Linha || item.linha || '-'
+        }));
+
+        renderBoard(partidas);
+      } catch (err) {
+        console.error(err);
+        container.innerHTML = `<div class="status-msg">ERRO AO CARREGAR DADOS</div>`;
+      }
+    }
+
+    function renderBoard(partidas) {
+      const container = document.getElementById('board-content');
+
+      if (!partidas || partidas.length === 0) {
+        container.innerHTML = `<div class="status-msg">SEM PARTIDAS PREVISTAS</div>`;
+        return;
+      }
+
+      container.innerHTML = partidas.map(item => `
+        <div class="board-row">
+          <div class="col-hora">${item.hora}</div>
+          <div class="col-destino">${item.destino}</div>
+          <div class="col-linha">${item.linha}</div>
+        </div>
+      `).join('');
+    }
+
+    fetchDepartures();
+    setInterval(fetchDepartures, 30000);
+  </script>
+
+</body>
+</html>    /* Moldura do Monitor CRT */
     .crt-container {
       background: var(--crt-dark-frame);
       padding: 30px 35px;
