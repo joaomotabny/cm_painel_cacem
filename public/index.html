@@ -1,40 +1,246 @@
-<!-- Importar fontes pixel perfeitas -->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel de Partidas - CP (CRT Vintage)</title>
+  
+  <!-- Fontes de Matriz Pixelizada / Retro -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
 
-<style>
-  :root {
-    --crt-green: #cbe91e;
-    --crt-green-glow: rgba(203, 233, 30, 0.5);
-    --crt-bg: #0b1108;
-  }
+  <style>
+    :root {
+      --crt-green: #c8f526;
+      --crt-green-glow: rgba(200, 245, 38, 0.5);
+      --crt-bg: #090e07;
+      --crt-dark-frame: #121614;
+    }
 
-  /* ... restante estrutura ... */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-  /* Aplicação da fonte pixel/matriz */
-  .crt-screen {
-    font-family: 'Silkscreen', 'Press Start 2P', monospace;
-    font-weight: 700;
-  }
+    body {
+      background-color: #030303;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      font-family: 'Press Start 2P', 'Silkscreen', monospace;
+      padding: 20px;
+    }
 
-  /* Bloco PARTIDAS com textura de pontos recortados */
-  .header-title {
-    font-family: 'Press Start 2P', monospace;
-    font-size: 2.8rem;
-    letter-spacing: 6px;
-    background-color: var(--crt-green);
-    color: var(--crt-bg);
-    padding: 6px 25px;
-  }
+    /* Moldura externa do monitor CRT */
+    .crt-container {
+      background: var(--crt-dark-frame);
+      padding: 35px 40px;
+      border-radius: 40px;
+      box-shadow: 
+        inset 0 0 15px rgba(255,255,255,0.05),
+        0 25px 50px rgba(0,0,0,0.95);
+      border: 4px solid #1a1e1c;
+      max-width: 980px;
+      width: 100%;
+    }
 
-  /* Grelha de Pontos (Dot Matrix effect em CSS) sobre a letra */
-  .board-table {
-    font-family: 'Press Start 2P', monospace;
-    font-size: 2.1rem;
-    letter-spacing: 4px;
-    line-height: 1.6;
-    background-image: radial-gradient(rgba(0,0,0,0.75) 20%, transparent 20%);
+    /* Vidro/Ecrã do Tubo CRT de Fósforo Verde */
+    .crt-screen {
+      background-color: var(--crt-bg);
+      border-radius: 25px;
+      padding: 45px 45px;
+      position: relative;
+      overflow: hidden;
+      color: var(--crt-green);
+      text-shadow: 0 0 5px var(--crt-green-glow);
+      box-shadow: 
+        inset 0 0 90px rgba(0,0,0,0.88),
+        inset 0 0 15px rgba(0,0,0,0.95);
+      border: 3px solid #14200e;
+    }
+
+    /* Linhas de Varredura (Scanlines CRT) */
+    .crt-screen::before {
+      content: " ";
+      display: block;
+      position: absolute;
+      top: 0; left: 0; bottom: 0; right: 0;
+      background: linear-gradient(
+        rgba(18, 16, 16, 0) 50%, 
+        rgba(0, 0, 0, 0.45) 50%
+      );
+      background-size: 100% 4px;
+      z-index: 3;
+      pointer-events: none;
+    }
+
+    /* Textura de Matriz de Pontos (Dot Matrix Overlay) */
+    .crt-screen::after {
+      content: " ";
+      display: block;
+      position: absolute;
+      top: 0; left: 0; bottom: 0; right: 0;
+      background-image: radial-gradient(rgba(0, 0, 0, 0.4) 30%, transparent 30%);
+      background-size: 3px 3px;
+      z-index: 4;
+      pointer-events: none;
+    }
+
+    /* Bloco do Título PARTIDAS Invertido */
+    .header-box {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .header-title {
+      display: inline-block;
+      background-color: var(--crt-green);
+      color: var(--crt-bg);
+      font-size: 2.5rem;
+      letter-spacing: 12px;
+      padding: 8px 30px;
+      text-shadow: none;
+      font-weight: bold;
+      border-radius: 2px;
+      box-shadow: 0 0 12px var(--crt-green-glow);
+    }
+
+    /* Tabela do Painel */
+    .board-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 1.8rem;
+      line-height: 2.3;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+    }
+
+    .board-table th {
+      text-align: left;
+      font-weight: normal;
+      padding-bottom: 25px;
+      font-size: 1.6rem;
+    }
+
+    .board-table td {
+      padding: 4px 0;
+    }
+
+    .col-hora { width: 25%; }
+    .col-destino { width: 57%; }
+    .col-linha { width: 18%; text-align: right; }
+    .board-table th.col-linha { text-align: right; }
+
+    /* Mensagem de Estado */
+    .status-msg {
+      text-align: center;
+      font-size: 1.2rem;
+      padding: 40px 0;
+      opacity: 0.8;
+      letter-spacing: 2px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="crt-container">
+    <div class="crt-screen">
+      <div class="header-box">
+        <div class="header-title">PARTIDAS</div>
+      </div>
+
+      <table class="board-table">
+        <thead>
+          <tr>
+            <th class="col-hora">HORA</th>
+            <th class="col-destino">DESTINO</th>
+            <th class="col-linha">LINHA</th>
+          </tr>
+        </thead>
+        <tbody id="departures-body">
+          <tr>
+            <td colspan="3" class="status-msg">A CARREGAR PARTIDAS...</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    async function fetchDepartures() {
+      const tbody = document.getElementById('departures-body');
+
+      try {
+        // Tenta ir buscar os dados à Serverless Function da Vercel
+        const response = await fetch('/api/partidas');
+        if (!response.ok) throw new Error('Erro no servidor');
+        
+        const partidas = await response.json();
+        renderBoard(partidas);
+      } catch (error) {
+        console.warn('Falha na API própria, a tentar ligação direta com proxy:', error);
+        fetchFallback();
+      }
+    }
+
+    // Fallback caso estejas a testar localmente sem a Vercel CLI
+    async function fetchFallback() {
+      const STATION_CODE = '9438002';
+      const API_URL = `https://servicos.infraestruturasdeportusr.pt/negocios/api/partidas/estacao/${STATION_CODE}`;
+      const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(API_URL)}`;
+
+      try {
+        const response = await fetch(proxyUrl);
+        const data = await response.json();
+        const parsed = JSON.parse(data.contents);
+
+        const partidas = (parsed.Partidas || []).slice(0, 6).map(item => ({
+          hora: item.Hora || '--:--',
+          destino: (item.Destino || '---').toUpperCase(),
+          linha: item.Linha || '-'
+        }));
+
+        renderBoard(partidas);
+      } catch (err) {
+        document.getElementById('departures-body').innerHTML = `
+          <tr>
+            <td colspan="3" class="status-msg">ERRO AO CARREGAR DADOS</td>
+          </tr>`;
+      }
+    }
+
+    function renderBoard(partidas) {
+      const tbody = document.getElementById('departures-body');
+
+      if (!partidas || partidas.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="3" class="status-msg">SEM PARTIDAS PREVISTAS</td>
+          </tr>`;
+        return;
+      }
+
+      const htmlRows = partidas.map(item => `
+        <tr>
+          <td class="col-hora">${item.hora}</td>
+          <td class="col-destino">${item.destino}</td>
+          <td class="col-linha">${item.linha}</td>
+        </tr>
+      `).join('');
+
+      tbody.innerHTML = htmlRows;
+    }
+
+    // Atualização automática de 30 em 30 segundos
+    fetchDepartures();
+    setInterval(fetchDepartures, 30000);
+  </script>
+
+</body>
+</html>    background-image: radial-gradient(rgba(0,0,0,0.75) 20%, transparent 20%);
     background-size: 4px 4px; /* Simula os furos da matriz de pontos */
   }
 </style>
