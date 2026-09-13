@@ -1,33 +1,67 @@
 export default async function handler(req, res) {
+  res.setHeader('Access-Control-Allow-Credentials', true);
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Cache-Control', 's-maxage=15, stale-while-revalidate');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS');
+  res.setHeader(
+    'Access-Control-Allow-Headers',
+    'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
+  );
 
-  // Código da Estação do Cacém na IP (9438002)
-  const STATION_CODE = '9438002';
-  const API_URL = `https://servicos.infraestruturasdeportugal.pt/negocios/api/partidas/estacao/${STATION_CODE}`;
+  if (req.method === 'OPTIONS') {
+    res.status(200).end();
+    return;
+  }
+
+  const STATION_CODE = '9438002'; // Cacém
 
   try {
-    const response = await fetch(API_URL, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
+    const response = await fetch(
+      `https://servicos.infraestruturasdeportugal.pt/negocios/api/partidas/estacao/${STATION_CODE}`,
+      {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          'Accept': 'application/json, text/plain, */*'
+        }
       }
-    });
+    );
 
     if (!response.ok) {
-      return res.status(response.status).json({ error: 'Erro ao consultar a IP' });
+      throw new Error(`Erro na IP: ${response.status}`);
     }
 
     const data = await response.json();
+    const rawPartidas = data.Partidas || data || [];
 
-    // Filtra e formata as 6 próximas partidas
-    const partidasTratadas = (data.Partidas || []).slice(0, 6).map(comboio => ({
-      hora: comboio.Hora || '--:--',
-      destino: (comboio.Destino || '---').toUpperCase(),
-      linha: comboio.Linha || '-'
-    }));
+    // Lista de destinos permitidos (em maiúsculas)
+    const destinosPermitidos = ['SANTA APOLÓNIA', 'SANTA APOLONIA', 'ORIENTE', 'ALVERCA'];
 
-    return res.status(200).json(partidasTratadas);
+    const partidasFiltradas = rawPartidas
+      .filter(p => {
+        const destino = (p.Destino || p.destino || '').toUpperCase();
+        // Verifica se o destino inclui algum dos nomes permitidos
+        return destinosPermitidos.some(d => destino.includes(d));
+      })
+      .map(p => {
+        let horaFormatada = p.Hora || p.hora || '--:--';
+        if (horaFormatada.includes(' ')) {
+          horaFormatada = horaFormatada.split(' ')[1] || horaFormatada;
+        }
+        if (horaFormatada.length > 5) {
+          horaFormatada = horaFormatada.substring(0, 5);
+        }
+
+        return {
+          hora: horaFormatada,
+          destino: (p.Destino || p.destino || '---').toUpperCase(),
+          linha: p.Linha || p.linha || '-'
+        };
+      });
+
+    // Devolve os primeiros 6 comboios que correspondem aos destinos escolhidos
+    return res.status(200).json(partidasFiltradas.slice(0, 6));
+
   } catch (error) {
-    return res.status(500).json({ error: 'Falha na ligação à API', details: error.message });
+    console.error('Erro ao procurar partidas:', error);
+    return res.status(500).json({ error: 'Erro ao obter dados em tempo real', details: error.message });
   }
 }
