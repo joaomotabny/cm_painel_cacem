@@ -1,5 +1,4 @@
 export default async function handler(req, res) {
-  // Configuração de CORS
   res.setHeader('Access-Control-Allow-Credentials', true);
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS');
@@ -13,28 +12,64 @@ export default async function handler(req, res) {
     return;
   }
 
-  // Código UIC de Estação do Cacém na IP: 9438002
+  // Código UIC da Estação do Cacém na IP: 9438002
   const STATION_CODE = '9438002';
 
   try {
-    const url = `https://servicos.infraestruturasdeportugal.pt/negocios/api/partidas/estacao/${STATION_CODE}`;
-    
+    // URL da API oficial da Infraestruturas de Portugal (IP)
+    const url = `https://servicos.infraestruturasdeportugal.pt/negocios-e-servicos/partidas-chegadas/estacao/${STATION_CODE}`;
+
     const response = await fetch(url, {
       method: 'GET',
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        'Accept': 'application/json, text/plain, */*',
-        'Referer': 'https://www.infraestruturasdeportugal.pt/'
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko)',
+        'Accept': 'application/json, text/plain, */*'
       }
     });
 
     if (!response.ok) {
-      throw new Error(`Erro IP: ${response.status}`);
+      // Tenta endpoint alternativo da IP
+      const altUrl = `https://servicos.infraestruturasdeportugal.pt/negocios/api/partidas/estacao/${STATION_CODE}`;
+      const altRes = await fetch(altUrl);
+      if (!altRes.ok) throw new Error(`Erro na ligação à IP: ${altRes.status}`);
+      var data = await altRes.json();
+    } else {
+      var data = await response.json();
     }
 
-    const data = await response.json();
-    
-    // Procura a lista de partidas na resposta
+    // Extrai a lista de partidas da resposta da IP
+    const rawPartidas = data.Partidas || data.partidas || (Array.isArray(data) ? data : []);
+
+    // Destinos permitidos
+    const destinosPermitidos = ['SANTA APOLÓNIA', 'SANTA APOLONIA', 'ORIENTE', 'ALVERCA'];
+
+    const partidasFiltradas = rawPartidas
+      .filter(item => {
+        const dest = (item.Destino || item.destino || item.NomeEstacaoDestino || '').toUpperCase();
+        return destinosPermitidos.some(d => dest.includes(d));
+      })
+      .map(item => {
+        let hora = item.Hora || item.hora || item.HoraPartida || '--:--';
+        if (hora.includes(' ')) {
+          hora = hora.split(' ')[1] || hora;
+        }
+        if (hora.length > 5) {
+          hora = hora.substring(0, 5);
+        }
+
+        let destino = (item.Destino || item.destino || item.NomeEstacaoDestino || '---').toUpperCase();
+        let linha = item.Linha || item.linha || item.NumeroLinha || '-';
+
+        return { hora, destino, linha };
+      });
+
+    return res.status(200).json(partidasFiltradas.slice(0, 6));
+
+  } catch (error) {
+    console.error('Erro na rota /api:', error);
+    return res.status(500).json({ error: 'Erro ao conectar à API da IP', details: error.message });
+  }
+}    // Procura a lista de partidas na resposta
     let rawPartidas = [];
     if (Array.isArray(data)) {
       rawPartidas = data;
