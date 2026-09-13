@@ -5,12 +5,13 @@
 
   <meta
     name="viewport"
-    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    content="width=device-width, initial-scale=1.0"
   >
 
-  <title>Partidas</title>
+  <title>Partidas para Lisboa</title>
 
   <style>
+
     * {
       box-sizing: border-box;
       margin: 0;
@@ -21,8 +22,8 @@
     body {
       width: 100%;
       height: 100%;
+      background: #050505;
       overflow: hidden;
-      background: #010201;
     }
 
     body {
@@ -32,56 +33,56 @@
 
       background:
         radial-gradient(
-          ellipse at center,
-          #111512 0%,
-          #050706 58%,
+          circle at center,
+          #20201d 0%,
+          #0b0b0a 55%,
           #000 100%
         );
     }
 
-    /*
-    ==============================
-    MOLDURA EXTERIOR
-    ==============================
-    */
+
+    /* =========================
+       CAIXA DO PAINEL
+       ========================= */
 
     .monitor {
+
       position: relative;
 
-      width: min(96vw, 1600px);
-      height: min(94vh, 1000px);
+      width: min(94vw, 1100px);
+
+      aspect-ratio: 4 / 3;
 
       padding:
-        clamp(20px, 2.2vw, 45px);
-
-      border-radius:
-        clamp(35px, 5vw, 90px);
+        clamp(20px, 2.3vw, 38px);
 
       background:
         linear-gradient(
           145deg,
-          #252b29 0%,
-          #111513 18%,
-          #050706 50%,
-          #151a17 82%,
-          #080a09 100%
+          #252525 0%,
+          #111 30%,
+          #050505 70%,
+          #181818 100%
         );
 
-      border: 2px solid #262c29;
+      border-radius:
+        clamp(16px, 2vw, 32px);
+
+      border:
+        2px solid #262626;
 
       box-shadow:
-        0 35px 100px rgba(0, 0, 0, .95),
-        inset 0 0 5px rgba(255,255,255,.08),
-        inset 0 0 35px rgba(255,255,255,.02);
+        0 35px 90px rgba(0,0,0,.9),
+        inset 0 0 25px rgba(255,255,255,.025);
     }
 
-    /*
-    ==============================
-    VIDRO / CRT
-    ==============================
-    */
+
+    /* =========================
+       ECRÃ
+       ========================= */
 
     .screen {
+
       position: relative;
 
       width: 100%;
@@ -90,184 +91,140 @@
       overflow: hidden;
 
       border-radius:
-        clamp(28px, 4vw, 70px);
+        clamp(12px, 1.5vw, 24px);
 
       background:
         radial-gradient(
-          ellipse at 50% 42%,
-          #111b0e 0%,
-          #091008 46%,
-          #040704 77%,
-          #010201 100%
+          ellipse at center,
+          #11180d 0%,
+          #080d07 58%,
+          #020302 100%
         );
 
       border:
-        2px solid rgba(255,255,255,.055);
+        2px solid rgba(255,255,255,.08);
 
       box-shadow:
-        inset 0 0 30px rgba(0,0,0,.95),
-        inset 0 0 100px rgba(0,0,0,.70),
-        inset 0 0 8px rgba(190,255,35,.05);
+        inset 0 0 22px rgba(0,0,0,.95),
+        inset 0 0 70px rgba(0,0,0,.8),
+        inset 0 0 5px rgba(196,235,65,.08);
     }
 
-    /*
-    scanlines
-    */
+
+    /* scanlines */
 
     .screen::before {
-      content: "";
 
-      position: absolute;
-      inset: 0;
-
-      z-index: 3;
-      pointer-events: none;
-
-      background:
-        repeating-linear-gradient(
-          to bottom,
-          rgba(255,255,255,.025) 0px,
-          rgba(255,255,255,.025) 1px,
-          transparent 1px,
-          transparent 4px
-        );
-
-      opacity: .45;
-    }
-
-    /*
-    vidro + vinheta
-    */
-
-    .screen::after {
       content: "";
 
       position: absolute;
       inset: 0;
 
       z-index: 4;
+
+      pointer-events: none;
+
+      background:
+        repeating-linear-gradient(
+          to bottom,
+          rgba(255,255,255,.018) 0px,
+          rgba(255,255,255,.018) 1px,
+          transparent 1px,
+          transparent 3px
+        );
+
+      opacity: .5;
+    }
+
+
+    /* vinheta */
+
+    .screen::after {
+
+      content: "";
+
+      position: absolute;
+      inset: 0;
+
+      z-index: 5;
+
       pointer-events: none;
 
       background:
         radial-gradient(
           ellipse at center,
-          transparent 50%,
-          rgba(0,0,0,.18) 70%,
-          rgba(0,0,0,.62) 100%
+          transparent 58%,
+          rgba(0,0,0,.2) 77%,
+          rgba(0,0,0,.64) 100%
         );
     }
 
-    /*
-    ==============================
-    CANVAS
-    ==============================
-    */
 
-    #board {
+    canvas {
+
       position: absolute;
       inset: 0;
 
       width: 100%;
       height: 100%;
 
-      z-index: 2;
-
       image-rendering: pixelated;
+
+      z-index: 2;
     }
 
-    /*
-    ==============================
-    REFLEXO MUITO SUAVE
-    ==============================
-    */
+
+    /* Reflexo discreto */
 
     .reflection {
+
       position: absolute;
 
-      width: 45%;
-      height: 170%;
+      left: -12%;
+      top: -35%;
 
-      left: -22%;
-      top: -40%;
+      width: 38%;
+      height: 160%;
 
-      transform: rotate(13deg);
+      transform: rotate(12deg);
 
-      z-index: 5;
+      z-index: 6;
+
       pointer-events: none;
 
       background:
         linear-gradient(
           90deg,
           transparent,
-          rgba(255,255,255,.018),
-          rgba(255,255,255,.035),
+          rgba(255,255,255,.025),
           transparent
         );
 
       filter: blur(10px);
     }
 
-    /*
-    ==============================
-    FLICKER
-    ==============================
-    */
-
-    .screen {
-      animation:
-        crtFlicker 7s infinite;
-    }
-
-    @keyframes crtFlicker {
-      0% {
-        filter: brightness(1);
-      }
-
-      48% {
-        filter: brightness(1);
-      }
-
-      49% {
-        filter: brightness(.985);
-      }
-
-      50% {
-        filter: brightness(1.015);
-      }
-
-      51% {
-        filter: brightness(1);
-      }
-
-      100% {
-        filter: brightness(1);
-      }
-    }
-
-    /*
-    ==============================
-    MOBILE
-    ==============================
-    */
 
     @media (max-width: 700px) {
 
       .monitor {
-        width: 100vw;
-        height: 100vh;
 
-        padding: 10px;
+        width: 100vw;
+
+        max-width: none;
 
         border-radius: 0;
+
+        padding: 8px;
       }
 
       .screen {
-        border-radius: 25px;
+        border-radius: 14px;
       }
-
     }
+
   </style>
 </head>
+
 
 <body>
 
@@ -284,1304 +241,1338 @@
   </div>
 
 
-  <script>
-
-    /*
-    ==========================================================
-    CONFIGURAÇÃO
-    ==========================================================
-    */
-
-    const API_URL = "/api/partidas";
-
-    const MAX_PARTIDAS = 6;
-
-    const REFRESH_INTERVAL = 30000;
-
-
-    /*
-    ==========================================================
-    MATRIZ 5x7
-    ==========================================================
-
-    Cada carácter é realmente desenhado
-    através de pequenos quadrados.
-
-    Não estamos a utilizar uma font.
-    */
-
-    const FONT = {
-
-      "A": [
-        "01110",
-        "10001",
-        "10001",
-        "11111",
-        "10001",
-        "10001",
-        "10001"
-      ],
-
-      "B": [
-        "11110",
-        "10001",
-        "10001",
-        "11110",
-        "10001",
-        "10001",
-        "11110"
-      ],
-
-      "C": [
-        "01111",
-        "10000",
-        "10000",
-        "10000",
-        "10000",
-        "10000",
-        "01111"
-      ],
-
-      "D": [
-        "11110",
-        "10001",
-        "10001",
-        "10001",
-        "10001",
-        "10001",
-        "11110"
-      ],
-
-      "E": [
-        "11111",
-        "10000",
-        "10000",
-        "11110",
-        "10000",
-        "10000",
-        "11111"
-      ],
-
-      "F": [
-        "11111",
-        "10000",
-        "10000",
-        "11110",
-        "10000",
-        "10000",
-        "10000"
-      ],
-
-      "G": [
-        "01111",
-        "10000",
-        "10000",
-        "10111",
-        "10001",
-        "10001",
-        "01111"
-      ],
-
-      "H": [
-        "10001",
-        "10001",
-        "10001",
-        "11111",
-        "10001",
-        "10001",
-        "10001"
-      ],
-
-      "I": [
-        "11111",
-        "00100",
-        "00100",
-        "00100",
-        "00100",
-        "00100",
-        "11111"
-      ],
-
-      "J": [
-        "00111",
-        "00010",
-        "00010",
-        "00010",
-        "10010",
-        "10010",
-        "01100"
-      ],
-
-      "K": [
-        "10001",
-        "10010",
-        "10100",
-        "11000",
-        "10100",
-        "10010",
-        "10001"
-      ],
-
-      "L": [
-        "10000",
-        "10000",
-        "10000",
-        "10000",
-        "10000",
-        "10000",
-        "11111"
-      ],
-
-      "M": [
-        "10001",
-        "11011",
-        "10101",
-        "10101",
-        "10001",
-        "10001",
-        "10001"
-      ],
-
-      "N": [
-        "10001",
-        "11001",
-        "10101",
-        "10011",
-        "10001",
-        "10001",
-        "10001"
-      ],
-
-      "O": [
-        "01110",
-        "10001",
-        "10001",
-        "10001",
-        "10001",
-        "10001",
-        "01110"
-      ],
-
-      "P": [
-        "11110",
-        "10001",
-        "10001",
-        "11110",
-        "10000",
-        "10000",
-        "10000"
-      ],
-
-      "Q": [
-        "01110",
-        "10001",
-        "10001",
-        "10001",
-        "10101",
-        "10010",
-        "01101"
-      ],
-
-      "R": [
-        "11110",
-        "10001",
-        "10001",
-        "11110",
-        "10100",
-        "10010",
-        "10001"
-      ],
-
-      "S": [
-        "01111",
-        "10000",
-        "10000",
-        "01110",
-        "00001",
-        "00001",
-        "11110"
-      ],
-
-      "T": [
-        "11111",
-        "00100",
-        "00100",
-        "00100",
-        "00100",
-        "00100",
-        "00100"
-      ],
-
-      "U": [
-        "10001",
-        "10001",
-        "10001",
-        "10001",
-        "10001",
-        "10001",
-        "01110"
-      ],
-
-      "V": [
-        "10001",
-        "10001",
-        "10001",
-        "10001",
-        "10001",
-        "01010",
-        "00100"
-      ],
-
-      "W": [
-        "10001",
-        "10001",
-        "10001",
-        "10101",
-        "10101",
-        "10101",
-        "01010"
-      ],
-
-      "X": [
-        "10001",
-        "10001",
-        "01010",
-        "00100",
-        "01010",
-        "10001",
-        "10001"
-      ],
-
-      "Y": [
-        "10001",
-        "10001",
-        "01010",
-        "00100",
-        "00100",
-        "00100",
-        "00100"
-      ],
-
-      "Z": [
-        "11111",
-        "00001",
-        "00010",
-        "00100",
-        "01000",
-        "10000",
-        "11111"
-      ],
-
-
-      "0": [
-        "01110",
-        "10001",
-        "10011",
-        "10101",
-        "11001",
-        "10001",
-        "01110"
-      ],
-
-      "1": [
-        "00100",
-        "01100",
-        "00100",
-        "00100",
-        "00100",
-        "00100",
-        "01110"
-      ],
-
-      "2": [
-        "01110",
-        "10001",
-        "00001",
-        "00010",
-        "00100",
-        "01000",
-        "11111"
-      ],
-
-      "3": [
-        "11110",
-        "00001",
-        "00001",
-        "01110",
-        "00001",
-        "00001",
-        "11110"
-      ],
-
-      "4": [
-        "00010",
-        "00110",
-        "01010",
-        "10010",
-        "11111",
-        "00010",
-        "00010"
-      ],
-
-      "5": [
-        "11111",
-        "10000",
-        "10000",
-        "11110",
-        "00001",
-        "00001",
-        "11110"
-      ],
-
-      "6": [
-        "01110",
-        "10000",
-        "10000",
-        "11110",
-        "10001",
-        "10001",
-        "01110"
-      ],
-
-      "7": [
-        "11111",
-        "00001",
-        "00010",
-        "00100",
-        "01000",
-        "01000",
-        "01000"
-      ],
-
-      "8": [
-        "01110",
-        "10001",
-        "10001",
-        "01110",
-        "10001",
-        "10001",
-        "01110"
-      ],
-
-      "9": [
-        "01110",
-        "10001",
-        "10001",
-        "01111",
-        "00001",
-        "00001",
-        "01110"
-      ],
-
-
-      ":": [
-        "00000",
-        "00100",
-        "00100",
-        "00000",
-        "00100",
-        "00100",
-        "00000"
-      ],
-
-      "-": [
-        "00000",
-        "00000",
-        "00000",
-        "11111",
-        "00000",
-        "00000",
-        "00000"
-      ],
-
-      ".": [
-        "00000",
-        "00000",
-        "00000",
-        "00000",
-        "00000",
-        "00110",
-        "00110"
-      ],
-
-      " ": [
-        "00000",
-        "00000",
-        "00000",
-        "00000",
-        "00000",
-        "00000",
-        "00000"
-      ]
-
-    };
-
-
-    /*
-    ==========================================================
-    CANVAS
-    ==========================================================
-    */
-
-    const canvas =
-      document.getElementById("board");
-
-    const ctx =
-      canvas.getContext("2d");
-
-
-    let partidas = [];
-
-    let mensagem = "SINCRONIZANDO";
-
-
-    /*
-    ==========================================================
-    CORES
-    ==========================================================
-    */
-
-    const GREEN =
-      "#c8f52a";
-
-    const GREEN_DIM =
-      "rgba(200,245,42,0.16)";
-
-    const DARK =
-      "#10180c";
-
-
-    /*
-    ==========================================================
-    NORMALIZAÇÃO
-    ==========================================================
-    */
-
-    function normalizarDestino(destino) {
-
-      if (!destino) {
-        return "";
-      }
-
-      const texto =
-        destino
-          .toUpperCase()
-          .normalize("NFD")
-          .replace(
-            /[\u0300-\u036f]/g,
-            ""
-          )
-          .trim();
 
+<script>
+
+/*
+===========================================================
+CONFIGURAÇÃO
+===========================================================
+*/
+
+const API_URL = "/api/partidas";
+
+const MAX_PARTIDAS = 6;
+
+const REFRESH_INTERVAL = 30000;
+
+
+/*
+===========================================================
+CORES
+===========================================================
+*/
+
+const GREEN = "#c7ec3d";
+
+const GREEN_HEADER = "#c9ef43";
+
+const DARK_HEADER = "#172009";
+
+const DIM = "rgba(199,236,61,.08)";
+
+
+/*
+===========================================================
+MATRIZ 5x7
+===========================================================
+*/
+
+const FONT = {
+
+"A":[
+"01110",
+"10001",
+"10001",
+"11111",
+"10001",
+"10001",
+"10001"
+],
+
+"B":[
+"11110",
+"10001",
+"10001",
+"11110",
+"10001",
+"10001",
+"11110"
+],
+
+"C":[
+"01111",
+"10000",
+"10000",
+"10000",
+"10000",
+"10000",
+"01111"
+],
+
+"D":[
+"11110",
+"10001",
+"10001",
+"10001",
+"10001",
+"10001",
+"11110"
+],
+
+"E":[
+"11111",
+"10000",
+"10000",
+"11110",
+"10000",
+"10000",
+"11111"
+],
+
+"F":[
+"11111",
+"10000",
+"10000",
+"11110",
+"10000",
+"10000",
+"10000"
+],
+
+"G":[
+"01111",
+"10000",
+"10000",
+"10111",
+"10001",
+"10001",
+"01111"
+],
+
+"H":[
+"10001",
+"10001",
+"10001",
+"11111",
+"10001",
+"10001",
+"10001"
+],
+
+"I":[
+"11111",
+"00100",
+"00100",
+"00100",
+"00100",
+"00100",
+"11111"
+],
+
+"J":[
+"00111",
+"00010",
+"00010",
+"00010",
+"10010",
+"10010",
+"01100"
+],
+
+"K":[
+"10001",
+"10010",
+"10100",
+"11000",
+"10100",
+"10010",
+"10001"
+],
+
+"L":[
+"10000",
+"10000",
+"10000",
+"10000",
+"10000",
+"10000",
+"11111"
+],
+
+"M":[
+"10001",
+"11011",
+"10101",
+"10101",
+"10001",
+"10001",
+"10001"
+],
+
+"N":[
+"10001",
+"11001",
+"10101",
+"10011",
+"10001",
+"10001",
+"10001"
+],
+
+"O":[
+"01110",
+"10001",
+"10001",
+"10001",
+"10001",
+"10001",
+"01110"
+],
+
+"P":[
+"11110",
+"10001",
+"10001",
+"11110",
+"10000",
+"10000",
+"10000"
+],
+
+"Q":[
+"01110",
+"10001",
+"10001",
+"10001",
+"10101",
+"10010",
+"01101"
+],
+
+"R":[
+"11110",
+"10001",
+"10001",
+"11110",
+"10100",
+"10010",
+"10001"
+],
+
+"S":[
+"01111",
+"10000",
+"10000",
+"01110",
+"00001",
+"00001",
+"11110"
+],
+
+"T":[
+"11111",
+"00100",
+"00100",
+"00100",
+"00100",
+"00100",
+"00100"
+],
+
+"U":[
+"10001",
+"10001",
+"10001",
+"10001",
+"10001",
+"10001",
+"01110"
+],
+
+"V":[
+"10001",
+"10001",
+"10001",
+"10001",
+"10001",
+"01010",
+"00100"
+],
+
+"W":[
+"10001",
+"10001",
+"10001",
+"10101",
+"10101",
+"10101",
+"01010"
+],
+
+"X":[
+"10001",
+"10001",
+"01010",
+"00100",
+"01010",
+"10001",
+"10001"
+],
+
+"Y":[
+"10001",
+"10001",
+"01010",
+"00100",
+"00100",
+"00100",
+"00100"
+],
+
+"Z":[
+"11111",
+"00001",
+"00010",
+"00100",
+"01000",
+"10000",
+"11111"
+],
+
+
+"0":[
+"01110",
+"10001",
+"10011",
+"10101",
+"11001",
+"10001",
+"01110"
+],
+
+"1":[
+"00100",
+"01100",
+"00100",
+"00100",
+"00100",
+"00100",
+"01110"
+],
+
+"2":[
+"01110",
+"10001",
+"00001",
+"00010",
+"00100",
+"01000",
+"11111"
+],
+
+"3":[
+"11110",
+"00001",
+"00001",
+"01110",
+"00001",
+"00001",
+"11110"
+],
+
+"4":[
+"00010",
+"00110",
+"01010",
+"10010",
+"11111",
+"00010",
+"00010"
+],
+
+"5":[
+"11111",
+"10000",
+"10000",
+"11110",
+"00001",
+"00001",
+"11110"
+],
+
+"6":[
+"01110",
+"10000",
+"10000",
+"11110",
+"10001",
+"10001",
+"01110"
+],
+
+"7":[
+"11111",
+"00001",
+"00010",
+"00100",
+"01000",
+"01000",
+"01000"
+],
+
+"8":[
+"01110",
+"10001",
+"10001",
+"01110",
+"10001",
+"10001",
+"01110"
+],
+
+"9":[
+"01110",
+"10001",
+"10001",
+"01111",
+"00001",
+"00001",
+"01110"
+],
+
+
+":":[
+"00000",
+"00100",
+"00100",
+"00000",
+"00100",
+"00100",
+"00000"
+],
+
+"-":[
+"00000",
+"00000",
+"00000",
+"11111",
+"00000",
+"00000",
+"00000"
+],
+
+".":[
+"00000",
+"00000",
+"00000",
+"00000",
+"00000",
+"00110",
+"00110"
+],
+
+" ":[
+"00000",
+"00000",
+"00000",
+"00000",
+"00000",
+"00000",
+"00000"
+]
+
+};
+
+
+/*
+===========================================================
+CANVAS
+===========================================================
+*/
+
+const canvas =
+  document.getElementById("board");
+
+const ctx =
+  canvas.getContext("2d");
+
+let partidas = [];
+
+let mensagem =
+  "SINCRONIZANDO";
+
+
+/*
+===========================================================
+DESTINOS
+===========================================================
+*/
+
+function normalizarDestino(destino) {
+
+  if (!destino) {
+    return "";
+  }
+
+  const texto =
+    destino
+    .toUpperCase()
+    .normalize("NFD")
+    .replace(
+      /[\u0300-\u036f]/g,
+      ""
+    )
+    .trim();
+
+
+  if (
+    texto.includes("ORIENTE")
+  ) {
+
+    return "LISBOA-ORIENTE";
+
+  }
+
+
+  if (
+    texto.includes("ALVERCA")
+  ) {
+
+    return "ALVERCA";
+
+  }
+
+
+  if (
+    texto.includes("SANTA APOLONIA") ||
+    texto.includes("S.APOLONIA") ||
+    texto.includes("S. APOLONIA") ||
+    texto.includes("LISBOA-S.A")
+  ) {
+
+    return "LISBOA-S.A";
+
+  }
+
+
+  return "";
+
+}
+
+
+/*
+===========================================================
+VIA
+===========================================================
+*/
+
+function obterVia(destino) {
+
+  if (
+    destino === "LISBOA-S.A"
+  ) {
+
+    return "04";
+
+  }
+
+
+  if (
+    destino === "LISBOA-ORIENTE" ||
+    destino === "ALVERCA"
+  ) {
+
+    return "03";
+
+  }
+
+
+  return "--";
+
+}
+
+
+/*
+===========================================================
+TAMANHO DE TEXTO
+===========================================================
+*/
+
+function larguraTexto(
+  texto,
+  pixel,
+  gap = 1
+) {
+
+  return (
+    texto.length *
+    (5 + gap) *
+    pixel
+    -
+    gap * pixel
+  );
+
+}
+
+
+/*
+===========================================================
+CARÁCTER
+===========================================================
+*/
+
+function desenharCaracter(
+  char,
+  x,
+  y,
+  pixel,
+  cor,
+  brilho = true
+) {
+
+  const pattern =
+    FONT[char] ||
+    FONT[" "];
+
+
+  ctx.save();
+
+
+  ctx.fillStyle =
+    cor;
+
+
+  if (brilho) {
+
+    ctx.shadowColor =
+      "rgba(200,235,55,.25)";
+
+    ctx.shadowBlur =
+      pixel * .55;
+
+  }
+
+
+  const margem =
+    Math.max(
+      .35,
+      pixel * .09
+    );
+
+
+  for (
+    let linha = 0;
+    linha < 7;
+    linha++
+  ) {
+
+    for (
+      let coluna = 0;
+      coluna < 5;
+      coluna++
+    ) {
 
       if (
-        texto.includes("ORIENTE")
+        pattern[linha][coluna]
+        ===
+        "1"
       ) {
-        return "LISBOA-ORIENTE";
+
+        ctx.fillRect(
+
+          x +
+          coluna * pixel +
+          margem,
+
+          y +
+          linha * pixel +
+          margem,
+
+          pixel -
+          margem * 2,
+
+          pixel -
+          margem * 2
+
+        );
+
       }
-
-
-      if (
-        texto.includes("ALVERCA")
-      ) {
-        return "ALVERCA";
-      }
-
-
-      if (
-        texto.includes("SANTA APOLONIA") ||
-        texto.includes("S.APOLONIA") ||
-        texto.includes("S. APOLONIA") ||
-        texto.includes("LISBOA-S.A")
-      ) {
-        return "LISBOA-S.A";
-      }
-
-
-      return "";
 
     }
 
-
-    /*
-    ==========================================================
-    LINHA
-    ==========================================================
-
-    Regra definida para este painel:
-
-    Oriente       -> 3
-    Alverca        -> 3
-    Santa Apolónia -> 4
-    */
-
-    function obterLinha(destino) {
-
-      if (
-        destino === "LISBOA-S.A"
-      ) {
-        return "4";
-      }
-
-      if (
-        destino === "LISBOA-ORIENTE" ||
-        destino === "ALVERCA"
-      ) {
-        return "3";
-      }
-
-      return "";
-    }
+  }
 
 
-    /*
-    ==========================================================
-    DIMENSÕES DE TEXTO
-    ==========================================================
-    */
+  ctx.restore();
 
-    function larguraTexto(texto, pixel, gap = 1) {
-
-      const characterWidth =
-        (5 + gap) * pixel;
-
-      return (
-        texto.length * characterWidth
-        -
-        gap * pixel
-      );
-
-    }
+}
 
 
-    /*
-    ==========================================================
-    DESENHA UM CARÁCTER
-    ==========================================================
-    */
+/*
+===========================================================
+TEXTO
+===========================================================
+*/
 
-    function desenharCaracter(
+function desenharTexto(
+  texto,
+  x,
+  y,
+  pixel,
+  opcoes = {}
+) {
+
+  const {
+
+    color = GREEN,
+
+    glow = true,
+
+    gap = 1
+
+  } = opcoes;
+
+
+  let cursor =
+    x;
+
+
+  texto =
+    texto.toUpperCase();
+
+
+  for (
+    const char of texto
+  ) {
+
+    desenharCaracter(
+
       char,
-      x,
+
+      cursor,
+
       y,
+
       pixel,
-      cor = GREEN,
-      glow = true
+
+      color,
+
+      glow
+
+    );
+
+
+    cursor +=
+      (5 + gap) *
+      pixel;
+
+  }
+
+}
+
+
+/*
+===========================================================
+MATRIZ DE FUNDO
+===========================================================
+*/
+
+function desenharMatrizFundo(
+  largura,
+  altura
+) {
+
+  const spacing =
+    Math.max(
+      4,
+      largura / 240
+    );
+
+
+  ctx.save();
+
+  ctx.fillStyle =
+    DIM;
+
+
+  for (
+    let y = spacing;
+    y < altura;
+    y += spacing
+  ) {
+
+    for (
+      let x = spacing;
+      x < largura;
+      x += spacing
     ) {
-
-      const pattern =
-        FONT[char] || FONT[" "];
-
-
-      ctx.save();
-
-
-      if (glow) {
-
-        ctx.shadowColor =
-          "rgba(200,245,42,.55)";
-
-        ctx.shadowBlur =
-          pixel * 1.15;
-
-      }
-
-
-      ctx.fillStyle = cor;
-
-
-      for (
-        let row = 0;
-        row < 7;
-        row++
-      ) {
-
-        for (
-          let col = 0;
-          col < 5;
-          col++
-        ) {
-
-          if (
-            pattern[row][col] === "1"
-          ) {
-
-            /*
-            Pequeno espaço entre píxeis.
-            */
-
-            const inset =
-              Math.max(
-                .4,
-                pixel * .10
-              );
-
-
-            ctx.fillRect(
-
-              x +
-              col * pixel +
-              inset,
-
-              y +
-              row * pixel +
-              inset,
-
-              pixel -
-              inset * 2,
-
-              pixel -
-              inset * 2
-
-            );
-
-          }
-
-        }
-
-      }
-
-
-      ctx.restore();
-
-    }
-
-
-    /*
-    ==========================================================
-    DESENHA TEXTO
-    ==========================================================
-    */
-
-    function desenharTexto(
-      texto,
-      x,
-      y,
-      pixel,
-      options = {}
-    ) {
-
-      const {
-        color = GREEN,
-        glow = true,
-        gap = 1
-      } = options;
-
-
-      texto =
-        texto.toUpperCase();
-
-
-      let cursorX = x;
-
-
-      for (
-        const char of texto
-      ) {
-
-        desenharCaracter(
-          char,
-          cursorX,
-          y,
-          pixel,
-          color,
-          glow
-        );
-
-
-        cursorX +=
-          (5 + gap) * pixel;
-
-      }
-
-    }
-
-
-    /*
-    ==========================================================
-    BARRA PARTIDAS
-    ==========================================================
-    */
-
-    function desenharCabecalho(
-      width,
-      top,
-      left,
-      right,
-      pixel
-    ) {
-
-      const barHeight =
-        9 * pixel;
-
-
-      /*
-      Matriz verde inteira
-      */
-
-      for (
-        let y = top;
-        y < top + barHeight;
-        y += pixel
-      ) {
-
-        for (
-          let x = left;
-          x < width - right;
-          x += pixel
-        ) {
-
-          const inset =
-            Math.max(
-              .45,
-              pixel * .09
-            );
-
-
-          ctx.save();
-
-          ctx.fillStyle =
-            GREEN;
-
-          ctx.shadowColor =
-            "rgba(200,245,42,.40)";
-
-          ctx.shadowBlur =
-            pixel;
-
-
-          ctx.fillRect(
-            x + inset,
-            y + inset,
-            pixel - inset * 2,
-            pixel - inset * 2
-          );
-
-          ctx.restore();
-
-        }
-
-      }
-
-
-      /*
-      PARTIDAS em negativo
-      */
-
-      const titulo =
-        "PARTIDAS";
-
-      const tituloPixel =
-        pixel;
-
-
-      const titleWidth =
-        larguraTexto(
-          titulo,
-          tituloPixel
-        );
-
-
-      const titleX =
-        (width - titleWidth) / 2;
-
-
-      const titleY =
-        top + pixel;
-
-
-      /*
-      Fundo verde contínuo atrás
-      das letras para limpar
-      alguns pontos da matriz.
-      */
-
-      ctx.fillStyle = GREEN;
 
       ctx.fillRect(
-        titleX - pixel,
-        titleY - pixel / 2,
-        titleWidth + pixel * 2,
-        pixel * 8
-      );
-
-
-      desenharTexto(
-        titulo,
-        titleX,
-        titleY,
-        tituloPixel,
-        {
-          color: DARK,
-          glow: false
-        }
+        x,
+        y,
+        .55,
+        .55
       );
 
     }
 
-
-    /*
-    ==========================================================
-    FUNDO EM MATRIZ QUASE INVISÍVEL
-    ==========================================================
-    */
-
-    function desenharMatrizFundo(
-      width,
-      height
-    ) {
-
-      const spacing =
-        Math.max(
-          5,
-          width / 240
-        );
+  }
 
 
-      ctx.save();
+  ctx.restore();
 
-      ctx.fillStyle =
-        GREEN_DIM;
-
-
-      for (
-        let y = spacing;
-        y < height;
-        y += spacing
-      ) {
-
-        for (
-          let x = spacing;
-          x < width;
-          x += spacing
-        ) {
-
-          ctx.fillRect(
-            x,
-            y,
-            .55,
-            .55
-          );
-
-        }
-
-      }
+}
 
 
-      ctx.restore();
+/*
+===========================================================
+CABEÇALHO VERDE
+===========================================================
+*/
 
+function desenharCabecalho(
+  largura,
+  pixel,
+  x,
+  y
+) {
+
+  const texto =
+    "PARTIDAS PARA LISBOA";
+
+
+  const textWidth =
+    larguraTexto(
+      texto,
+      pixel
+    );
+
+
+  const paddingX =
+    pixel * 2.5;
+
+  const paddingY =
+    pixel * 1.5;
+
+
+  const boxWidth =
+    textWidth +
+    paddingX * 2;
+
+
+  const boxHeight =
+    pixel * 7 +
+    paddingY * 2;
+
+
+  /*
+  Cabeçalho compacto
+  semelhante ao painel real.
+  */
+
+  ctx.save();
+
+  ctx.fillStyle =
+    GREEN_HEADER;
+
+  ctx.shadowColor =
+    "rgba(200,235,55,.18)";
+
+  ctx.shadowBlur =
+    pixel;
+
+
+  ctx.fillRect(
+    x,
+    y,
+    boxWidth,
+    boxHeight
+  );
+
+  ctx.restore();
+
+
+  desenharTexto(
+
+    texto,
+
+    x + paddingX,
+
+    y + paddingY,
+
+    pixel,
+
+    {
+      color:
+        DARK_HEADER,
+
+      glow:
+        false
     }
 
-
-    /*
-    ==========================================================
-    DESENHO COMPLETO DO PAINEL
-    ==========================================================
-    */
-
-    function render() {
-
-      const rect =
-        canvas.getBoundingClientRect();
+  );
 
 
-      const dpr =
-        window.devicePixelRatio || 1;
+  return {
+    width:
+      boxWidth,
+
+    height:
+      boxHeight
+  };
+
+}
 
 
-      canvas.width =
-        Math.round(
-          rect.width * dpr
-        );
+/*
+===========================================================
+RENDER
+===========================================================
+*/
 
-      canvas.height =
-        Math.round(
-          rect.height * dpr
-        );
+function render() {
 
-
-      ctx.setTransform(
-        dpr,
-        0,
-        0,
-        dpr,
-        0,
-        0
-      );
+  const rect =
+    canvas.getBoundingClientRect();
 
 
-      const width =
-        rect.width;
-
-      const height =
-        rect.height;
+  const dpr =
+    window.devicePixelRatio ||
+    1;
 
 
-      ctx.clearRect(
-        0,
-        0,
-        width,
-        height
-      );
+  canvas.width =
+    Math.round(
+      rect.width *
+      dpr
+    );
+
+  canvas.height =
+    Math.round(
+      rect.height *
+      dpr
+    );
 
 
-      desenharMatrizFundo(
-        width,
-        height
-      );
+  ctx.setTransform(
+    dpr,
+    0,
+    0,
+    dpr,
+    0,
+    0
+  );
 
 
-      /*
-      Escala baseada na largura.
+  const largura =
+    rect.width;
 
-      A referência foi feita
-      aproximadamente para 1500px.
-      */
-
-      const scale =
-        Math.min(
-          width / 1500,
-          height / 900
-        );
+  const altura =
+    rect.height;
 
 
-      const marginX =
-        Math.max(
-          45,
-          width * .105
-        );
+  ctx.clearRect(
+    0,
+    0,
+    largura,
+    altura
+  );
 
 
-      /*
-      ==========================
-      PARTIDAS
-      ==========================
-      */
-
-      const headerPixel =
-        Math.max(
-          5,
-          8 * scale
-        );
+  desenharMatrizFundo(
+    largura,
+    altura
+  );
 
 
-      const headerTop =
-        height * .115;
+  /*
+  Escala geral
+  */
+
+  const escala =
+    Math.min(
+      largura / 1000,
+      altura / 750
+    );
 
 
-      desenharCabecalho(
-        width,
-        headerTop,
-        marginX,
-        marginX,
-        headerPixel
-      );
+  /*
+  Layout inspirado na fotografia
+  */
+
+  const margemEsquerda =
+    largura * .10;
+
+  const topo =
+    altura * .12;
 
 
-      /*
-      ==========================
-      COLUNAS
-      ==========================
-      */
-
-      const textPixel =
-        Math.max(
-          5.5,
-          7.2 * scale
-        );
+  const headerPixel =
+    Math.max(
+      4,
+      5.2 * escala
+    );
 
 
-      const columnY =
-        headerTop +
-        headerPixel * 12;
+  const header =
+    desenharCabecalho(
+
+      largura,
+
+      headerPixel,
+
+      margemEsquerda,
+
+      topo
+
+    );
 
 
-      /*
-      Posições semelhantes
-      à imagem de referência.
-      */
+  /*
+  Tamanho principal da matriz
+  */
 
-      const horaX =
-        width * .13;
-
-      const destinoX =
-        width * .345;
-
-      const linhaX =
-        width * .77;
+  const pixel =
+    Math.max(
+      4.4,
+      5.9 * escala
+    );
 
 
-      desenharTexto(
-        "HORA",
-        horaX,
-        columnY,
-        textPixel
-      );
+  /*
+  Colunas
+  */
+
+  const horaX =
+    largura * .105;
+
+  const destinoX =
+    largura * .34;
+
+  const viaX =
+    largura * .80;
 
 
-      desenharTexto(
-        "DESTINO",
-        destinoX,
-        columnY,
-        textPixel
-      );
+  const colunasY =
+    topo +
+    header.height +
+    altura * .025;
 
 
-      desenharTexto(
-        "LINHA",
-        linhaX,
-        columnY,
-        textPixel
-      );
+  desenharTexto(
+    "HORA",
+    horaX,
+    colunasY,
+    pixel
+  );
 
 
-      /*
-      ==========================
-      PARTIDAS
-      ==========================
-      */
-
-      const firstRowY =
-        columnY +
-        textPixel * 11;
+  desenharTexto(
+    "DESTINO",
+    destinoX,
+    colunasY,
+    pixel
+  );
 
 
-      const rowGap =
-        textPixel * 10.4;
+  desenharTexto(
+    "VIA",
+    viaX,
+    colunasY,
+    pixel
+  );
 
 
-      if (
-        partidas.length === 0
-      ) {
+  /*
+  Linhas de comboios
+  */
+
+  const primeiraLinhaY =
+    colunasY +
+    pixel * 9.5;
+
+
+  const espacamento =
+    pixel * 9.1;
+
+
+  /*
+  Sem dados
+  */
+
+  if (
+    partidas.length === 0
+  ) {
+
+    desenharTexto(
+
+      mensagem,
+
+      horaX,
+
+      primeiraLinhaY,
+
+      pixel * .82
+
+    );
+
+    return;
+
+  }
+
+
+  partidas
+    .slice(
+      0,
+      MAX_PARTIDAS
+    )
+    .forEach(
+      (
+        comboio,
+        index
+      ) => {
+
+        const y =
+          primeiraLinhaY +
+          index *
+          espacamento;
+
+
+        /*
+        HORA
+        */
 
         desenharTexto(
-          mensagem,
-          destinoX,
-          firstRowY,
-          textPixel * .85
+
+          comboio.hora ||
+          "--:--",
+
+          horaX,
+
+          y,
+
+          pixel
+
         );
 
-        return;
+
+        /*
+        DESTINO
+        */
+
+        desenharTexto(
+
+          comboio.destinoPainel,
+
+          destinoX,
+
+          y,
+
+          pixel
+
+        );
+
+
+        /*
+        VIA
+        */
+
+        desenharTexto(
+
+          obterVia(
+            comboio.destinoPainel
+          ),
+
+          viaX,
+
+          y,
+
+          pixel
+
+        );
 
       }
+    );
+
+}
 
 
-      partidas
-        .slice(
-          0,
-          MAX_PARTIDAS
-        )
-        .forEach(
-          (
-            comboio,
-            index
-          ) => {
+/*
+===========================================================
+CARREGAR PARTIDAS
+===========================================================
+*/
 
-            const y =
-              firstRowY +
-              index * rowGap;
+async function carregarPartidas() {
 
+  try {
 
-            /*
-            Hora
-            */
+    const resposta =
+      await fetch(
 
-            desenharTexto(
-              comboio.hora ||
-              "--:--",
+        API_URL +
+        "?t=" +
+        Date.now(),
 
-              horaX,
-              y,
-              textPixel
-            );
-
-
-            /*
-            Destino
-            */
-
-            desenharTexto(
-              comboio.destinoPainel,
-
-              destinoX,
-              y,
-              textPixel
-            );
-
-
-            /*
-            Linha
-            */
-
-            desenharTexto(
-              obterLinha(
-                comboio.destinoPainel
-              ),
-
-              linhaX +
-              textPixel * 3,
-
-              y,
-              textPixel
-            );
-
-          }
-        );
-
-    }
-
-
-    /*
-    ==========================================================
-    DADOS DA API
-    ==========================================================
-    */
-
-    async function carregarPartidas() {
-
-      try {
-
-        const response =
-          await fetch(
-            API_URL +
-            "?t=" +
-            Date.now(),
-            {
-              cache: "no-store"
-            }
-          );
-
-
-        if (!response.ok) {
-
-          throw new Error(
-            "HTTP " +
-            response.status
-          );
-
+        {
+          cache:
+            "no-store"
         }
 
-
-        const dados =
-          await response.json();
+      );
 
 
-        console.log(
-          "Resposta API:",
-          dados
-        );
+    if (
+      !resposta.ok
+    ) {
 
-
-        const lista =
-          Array.isArray(dados)
-            ? dados
-            : dados.partidas || [];
-
-
-        partidas =
-          lista
-
-            .map(
-              comboio => {
-
-                const destino =
-                  normalizarDestino(
-                    comboio.destino ||
-                    comboio.destination ||
-                    comboio.destinoOriginal
-                  );
-
-
-                return {
-
-                  ...comboio,
-
-                  destinoPainel:
-                    destino
-
-                };
-
-              }
-            )
-
-            .filter(
-              comboio =>
-
-                comboio.destinoPainel ===
-                  "LISBOA-ORIENTE"
-
-                ||
-
-                comboio.destinoPainel ===
-                  "ALVERCA"
-
-                ||
-
-                comboio.destinoPainel ===
-                  "LISBOA-S.A"
-
-            )
-
-            .slice(
-              0,
-              MAX_PARTIDAS
-            );
-
-
-        mensagem =
-          partidas.length
-            ? ""
-            : "SEM PARTIDAS";
-
-
-        render();
-
-      }
-
-      catch (erro) {
-
-        console.error(
-          "Erro ao carregar partidas:",
-          erro
-        );
-
-
-        partidas = [];
-
-        mensagem =
-          "SEM LIGACAO";
-
-
-        render();
-
-      }
+      throw new Error(
+        "HTTP " +
+        resposta.status
+      );
 
     }
 
 
-    /*
-    ==========================================================
-    ARRANQUE
-    ==========================================================
-    */
+    const dados =
+      await resposta.json();
 
-    window.addEventListener(
-      "resize",
-      render
+
+    console.log(
+      "API:",
+      dados
     );
+
+
+    const lista =
+      Array.isArray(dados)
+      ?
+      dados
+      :
+      dados.partidas ||
+      [];
+
+
+    partidas =
+      lista
+
+      .map(
+        comboio => {
+
+          const destino =
+            normalizarDestino(
+
+              comboio.destino ||
+
+              comboio.destination ||
+
+              comboio.destinoOriginal
+
+            );
+
+
+          return {
+
+            ...comboio,
+
+            destinoPainel:
+              destino
+
+          };
+
+        }
+      )
+
+      .filter(
+        comboio =>
+
+        comboio.destinoPainel
+        ===
+        "LISBOA-ORIENTE"
+
+        ||
+
+        comboio.destinoPainel
+        ===
+        "ALVERCA"
+
+        ||
+
+        comboio.destinoPainel
+        ===
+        "LISBOA-S.A"
+
+      )
+
+      .slice(
+        0,
+        MAX_PARTIDAS
+      );
+
+
+    mensagem =
+      partidas.length
+      ?
+      ""
+      :
+      "SEM PARTIDAS";
 
 
     render();
 
-    carregarPartidas();
+  }
 
+  catch (
+    erro
+  ) {
 
-    setInterval(
-      carregarPartidas,
-      REFRESH_INTERVAL
+    console.error(
+      erro
     );
 
-  </script>
+
+    partidas =
+      [];
+
+
+    mensagem =
+      "SEM LIGACAO";
+
+
+    render();
+
+  }
+
+}
+
+
+/*
+===========================================================
+ARRANQUE
+===========================================================
+*/
+
+window.addEventListener(
+  "resize",
+  render
+);
+
+
+render();
+
+carregarPartidas();
+
+
+setInterval(
+
+  carregarPartidas,
+
+  REFRESH_INTERVAL
+
+);
+
+</script>
 
 </body>
 </html>
