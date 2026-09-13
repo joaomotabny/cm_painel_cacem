@@ -1,40 +1,47 @@
-<!DOCTYPE html>
-<html lang="pt">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Painel de Partidas - Cacém (CRT Edition)</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <!-- Fonte no estilo LED Dot Matrix / CRT Monospaced -->
-  <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
-  
-  <style>
-    :root {
-      --crt-green: #c8f526;
-      --crt-green-glow: rgba(200, 245, 38, 0.45);
-      --crt-bg: #0b1108;
-      --crt-dark-green: #14200e;
-    }
+async function fetchDepartures() {
+  const tbody = document.getElementById('departures-body');
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+  try {
+    // Chama a Serverless Function da Vercel
+    const response = await fetch('/api/partidas');
+    if (!response.ok) throw new Error('Erro na API');
+    
+    const partidas = await response.json();
+    renderBoard(partidas);
+  } catch (error) {
+    console.error('Erro ao obter partidas:', error);
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="3" class="status-msg">ERRO AO LIGAR À API</td>
+      </tr>`;
+  }
+}
 
-    body {
-      background-color: #050505;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      font-family: 'VT323', monospace;
-      padding: 20px;
-    }
+function renderBoard(partidas) {
+  const tbody = document.getElementById('departures-body');
 
-    /* Structure da moldura do monitor CRT */
-    .crt-container {
+  if (!partidas || partidas.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="3" class="status-msg">SEM PARTIDAS PREVISTAS</td>
+      </tr>`;
+    return;
+  }
+
+  const htmlRows = partidas.map(item => `
+    <tr>
+      <td class="col-hora">${item.hora}</td>
+      <td class="col-destino">${item.destino}</td>
+      <td class="col-linha">${item.linha}</td>
+    </tr>
+  `).join('');
+
+  tbody.innerHTML = htmlRows;
+}
+
+// Carrega imediatamente e depois atualiza de 30 em 30 segundos
+fetchDepartures();
+setInterval(fetchDepartures, 30000);    .crt-container {
       background: #141716;
       padding: 35px 40px;
       border-radius: 40px;
