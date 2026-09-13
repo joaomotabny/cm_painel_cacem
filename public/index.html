@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Painel de Partidas - CP (CRT Vintage)</title>
+  <title>Painel de Partidas - CP CRT</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -17,24 +17,218 @@
       --crt-dark-frame: #121614;
     }
 
-    * {
-      box-sizing: border-box;
+    /* Reset total para impedir duplicações ou layouts em grelha externa */
+    html, body {
+      width: 100%;
+      height: 100%;
       margin: 0;
       padding: 0;
-    }
-
-    body {
       background-color: #030303;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
+      display: flex !important;
+      justify-content: center !important;
+      align-items: center !important;
       font-family: 'VT323', monospace;
-      padding: 20px;
+      overflow: hidden;
     }
 
-    /* Moldura do Monitor CRT */
+    /* Garante que APENAS UM monitor é exibido ao centro */
+    .crt-wrapper {
+      width: 90vw;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
     .crt-container {
+      background: var(--crt-dark-frame);
+      padding: 30px 40px;
+      border-radius: 35px;
+      box-shadow: 
+        inset 0 0 15px rgba(255,255,255,0.05),
+        0 25px 50px rgba(0,0,0,0.95);
+      border: 4px solid #1a1e1c;
+      width: 100%;
+    }
+
+    .crt-screen {
+      background-color: var(--crt-bg);
+      border-radius: 20px;
+      padding: 35px 40px;
+      position: relative;
+      overflow: hidden;
+      color: var(--crt-green);
+      text-shadow: 0 0 5px var(--crt-green-glow);
+      box-shadow: 
+        inset 0 0 80px rgba(0,0,0,0.88),
+        inset 0 0 15px rgba(0,0,0,0.95);
+      border: 3px solid #14200e;
+    }
+
+    /* Scanlines CRT */
+    .crt-screen::before {
+      content: " ";
+      display: block;
+      position: absolute;
+      top: 0; left: 0; bottom: 0; right: 0;
+      background: linear-gradient(
+        rgba(18, 16, 16, 0) 50%, 
+        rgba(0, 0, 0, 0.4) 50%
+      );
+      background-size: 100% 4px;
+      z-index: 3;
+      pointer-events: none;
+    }
+
+    /* Cabeçalho PARTIDAS */
+    .header-box {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    .header-title {
+      display: inline-block;
+      background-color: var(--crt-green);
+      color: var(--crt-bg);
+      font-size: 3.5rem;
+      letter-spacing: 10px;
+      padding: 2px 30px;
+      text-shadow: none;
+      font-weight: bold;
+      border-radius: 2px;
+    }
+
+    /* Tabela do Painel */
+    .board-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 3rem;
+      line-height: 1.2;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      table-layout: fixed;
+    }
+
+    .board-table th {
+      font-weight: normal;
+      padding-bottom: 15px;
+      font-size: 3rem;
+    }
+
+    .board-table td {
+      padding: 6px 0;
+    }
+
+    .col-hora { width: 25%; text-align: left; }
+    .col-destino { width: 55%; text-align: left; }
+    .col-linha { width: 20%; text-align: right; }
+
+    .status-msg {
+      text-align: center;
+      font-size: 2.2rem;
+      padding: 40px 0;
+      opacity: 0.8;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="crt-wrapper">
+    <div class="crt-container">
+      <div class="crt-screen">
+        <div class="header-box">
+          <div class="header-title">PARTIDAS</div>
+        </div>
+
+        <table class="board-table">
+          <thead>
+            <tr>
+              <th class="col-hora">HORA</th>
+              <th class="col-destino">DESTINO</th>
+              <th class="col-linha">LINHA</th>
+            </tr>
+          </thead>
+          <tbody id="departures-body">
+            <tr>
+              <td colspan="3" class="status-msg">A CARREGAR PARTIDAS...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const STATION_CODE = '9438002'; // Cacém
+
+    async function fetchDepartures() {
+      const tbody = document.getElementById('departures-body');
+
+      // 1. Tenta API na Vercel
+      try {
+        const res = await fetch('/api/partidas');
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data) && data.length > 0) {
+            renderBoard(data);
+            return;
+          }
+        }
+      } catch (e) {}
+
+      // 2. Tenta Proxy CORS
+      try {
+        const targetUrl = `https://servicos.infraestruturasdeportugal.pt/negocios/api/partidas/estacao/${STATION_CODE}`;
+        const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`);
+        if (res.ok) {
+          const json = await res.json();
+          const parsed = JSON.parse(json.contents);
+          const raw = parsed.Partidas || parsed || [];
+          
+          if (raw.length > 0) {
+            const partidas = raw.slice(0, 6).map(item => ({
+              hora: item.Hora || item.hora || '--:--',
+              destino: (item.Destino || item.destino || '---').toUpperCase(),
+              linha: item.Linha || item.linha || '-'
+            }));
+            renderBoard(partidas);
+            return;
+          }
+        }
+      } catch (e) {}
+
+      // 3. Dados de demonstração/fallback caso a API esteja em baixo
+      renderBoard([
+        { hora: '16:20', destino: 'LISBOA-ORIENTE', linha: '3' },
+        { hora: '16:25', destino: 'LISBOA-ROSSIO', linha: '4' },
+        { hora: '16:35', destino: 'LISBOA-ORIENTE', linha: '3' },
+        { hora: '16:42', destino: 'ALVERCA', linha: '2' },
+        { hora: '16:50', destino: 'LISBOA-ORIENTE', linha: '3' },
+        { hora: '17:05', destino: 'LISBOA-ROSSIO', linha: '4' }
+      ]);
+    }
+
+    function renderBoard(partidas) {
+      const tbody = document.getElementById('departures-body');
+
+      if (!partidas || partidas.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="3" class="status-msg">SEM PARTIDAS PREVISTAS</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = partidas.slice(0, 6).map(item => `
+        <tr>
+          <td class="col-hora">${item.hora}</td>
+          <td class="col-destino">${item.destino}</td>
+          <td class="col-linha">${item.linha}</td>
+        </tr>
+      `).join('');
+    }
+
+    fetchDepartures();
+    setInterval(fetchDepartures, 30000);
+  </script>
+
+</body>
+</html>    .crt-container {
       background: var(--crt-dark-frame);
       padding: 30px;
       border-radius: 35px;
