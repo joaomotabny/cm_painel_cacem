@@ -1,5 +1,4 @@
 export default async function handler(req, res) {
-  // Permite pedidos de qualquer origem (CORS)
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Cache-Control', 's-maxage=15, stale-while-revalidate');
 
@@ -20,7 +19,7 @@ export default async function handler(req, res) {
 
     const data = await response.json();
 
-    // Limpa e formata os dados para o ecrã CRT
+    // Filtra e formata as 6 próximas partidas
     const partidasTratadas = (data.Partidas || []).slice(0, 6).map(comboio => ({
       hora: comboio.Hora || '--:--',
       destino: (comboio.Destino || '---').toUpperCase(),
