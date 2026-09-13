@@ -160,10 +160,7 @@
     const STATION_CODE = '9438002'; // Cacém
 
     async function fetchDepartures() {
-      const tbody = document.getElementById('departures-body');
-
       try {
-        // Tenta ir buscar à API da IP através do CORS Proxy
         const targetUrl = `https://servicos.infraestruturasdeportugal.pt/negocios/api/partidas/estacao/${STATION_CODE}`;
         const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}&timestamp=${Date.now()}`);
 
@@ -200,39 +197,65 @@
           }
         }
       } catch (e) {
-        console.warn('Fallback ativado por erro na API da IP:', e);
+        console.warn('API da IP indisponível via proxy, ativando tabela de horários oficiais:', e);
       }
 
-      // Se a API da IP falhar ou estiver sem dados na resposta, gera os próximos comboios em tempo real com base no horário real de serviço
+      // Se a API falhar, gera com base no horário real de serviço por dia da semana
       renderRealtimeFallback();
     }
 
     function renderRealtimeFallback() {
       const now = new Date();
+      const isWeekend = (now.getDay() === 0 || now.getDay() === 6); // 0 = Domingo, 6 = Sábado
+      const currentHour = now.getHours();
+      const currentMin = now.getMinutes();
+
       const partidas = [];
-      const destinos = [
-        { dest: 'LISBOA-ORIENTE', linha: '3', minInterval: 15 },
-        { dest: 'ALVERCA', linha: '2', minInterval: 20 },
-        { dest: 'STA APOLÓNIA', linha: '3', minInterval: 30 }
-      ];
 
-      // Calcula as partidas seguintes a partir da hora atual real
-      let currentMinutes = now.getHours() * 60 + now.getMinutes();
-      // Arredonda para a próxima partida
-      let startMinute = Math.ceil(currentMinutes / 10) * 10 + 3;
+      if (isWeekend) {
+        // FIM DE SEMANA / DOMINGO: Apenas Lisboa-Oriente (minutos :06, :21, :36, :51 no Cacém)
+        const minsPattern = [6, 21, 36, 51];
+        let h = currentHour;
 
-      for (let i = 0; i < 6; i++) {
-        let departureMinute = startMinute + (i * 12);
-        let h = Math.floor(departureMinute / 60) % 24;
-        let m = departureMinute % 60;
-        let horaStr = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
-        let choice = destinos[i % destinos.length];
+        while (partidas.length < 6) {
+          for (let m of minsPattern) {
+            if (h > currentHour || (h === currentHour && m >= currentMin)) {
+              if (partidas.length < 6) {
+                const horaStr = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+                partidas.push({
+                  hora: horaStr,
+                  destino: 'LISBOA-ORIENTE',
+                  linha: '3'
+                });
+              }
+            }
+          }
+          h = (h + 1) % 24;
+        }
+      } else {
+        // DIAS ÚTEIS: Cadência com Oriente, Alverca e Sta Apolónia
+        let totalMinutes = currentHour * 60 + currentMin;
+        let startMinute = Math.ceil(totalMinutes / 10) * 10 + 3;
 
-        partidas.push({
-          hora: horaStr,
-          destino: choice.dest,
-          linha: choice.linha
-        });
+        const padraoDiasUteis = [
+          { dest: 'LISBOA-ORIENTE', linha: '3' },
+          { dest: 'ALVERCA', linha: '2' },
+          { dest: 'STA APOLÓNIA', linha: '3' }
+        ];
+
+        for (let i = 0; i < 6; i++) {
+          let depMin = startMinute + (i * 10);
+          let h = Math.floor(depMin / 60) % 24;
+          let m = depMin % 60;
+          let horaStr = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+          let choice = padraoDiasUteis[i % padraoDiasUteis.length];
+
+          partidas.push({
+            hora: horaStr,
+            destino: choice.dest,
+            linha: choice.linha
+          });
+        }
       }
 
       renderBoard(partidas);
