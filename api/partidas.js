@@ -1,112 +1,148 @@
 export default async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Credentials', true);
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS');
-  res.setHeader(
-    'Access-Control-Allow-Headers',
-    'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
-  );
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
   if (req.method === 'OPTIONS') {
-    res.status(200).end();
-    return;
+    return res.status(200).end();
   }
 
-  // Código UIC da Estação do Cacém na IP: 9438002
-  const STATION_CODE = '9438002';
+  // Agualva-Cacém
+  const STATION_CODE = '9461002';
+
+  const DESTINOS_PERMITIDOS = {
+    'LISBOA-ORIENTE': 'LISBOA-ORIENTE',
+    'ALVERCA': 'ALVERCA',
+    'LISBOA-SANTA APOLÓNIA': 'LISBOA-S.A',
+    'LISBOA-SANTA APOLONIA': 'LISBOA-S.A',
+    'LISBOA-S.APOLONIA': 'LISBOA-S.A',
+    'LISBOA-S. APOLÓNIA': 'LISBOA-S.A'
+  };
 
   try {
-    // URL da API oficial da Infraestruturas de Portugal (IP)
-    const url = `https://servicos.infraestruturasdeportugal.pt/negocios-e-servicos/partidas-chegadas/estacao/${STATION_CODE}`;
+    const url =
+      `https://servicos.infraestruturasdeportugal.pt/estacoes?estacaoId=${STATION_CODE}`;
 
     const response = await fetch(url, {
-      method: 'GET',
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko)',
-        'Accept': 'application/json, text/plain, */*'
+        'User-Agent': 'Mozilla/5.0',
+        'Accept': 'text/html'
       }
     });
 
     if (!response.ok) {
-      // Tenta endpoint alternativo da IP
-      const altUrl = `https://servicos.infraestruturasdeportugal.pt/negocios/api/partidas/estacao/${STATION_CODE}`;
-      const altRes = await fetch(altUrl);
-      if (!altRes.ok) throw new Error(`Erro na ligação à IP: ${altRes.status}`);
-      var data = await altRes.json();
-    } else {
-      var data = await response.json();
+      throw new Error(`IP respondeu com ${response.status}`);
     }
 
-    // Extrai a lista de partidas da resposta da IP
-    const rawPartidas = data.Partidas || data.partidas || (Array.isArray(data) ? data : []);
+    const html = await response.text();
 
-    // Destinos permitidos
-    const destinosPermitidos = ['SANTA APOLÓNIA', 'SANTA APOLONIA', 'ORIENTE', 'ALVERCA'];
+    /*
+      Extrai linhas da tabela:
+      Hora | Comboio | Serviço | Origem | Destino | Operador | Observações
+    */
 
-    const partidasFiltradas = rawPartidas
-      .filter(item => {
-        const dest = (item.Destino || item.destino || item.NomeEstacaoDestino || '').toUpperCase();
-        return destinosPermitidos.some(d => dest.includes(d));
-      })
-      .map(item => {
-        let hora = item.Hora || item.hora || item.HoraPartida || '--:--';
-        if (hora.includes(' ')) {
-          hora = hora.split(' ')[1] || hora;
-        }
-        if (hora.length > 5) {
-          hora = hora.substring(0, 5);
-        }
+    const linhas = [];
 
-        let destino = (item.Destino || item.destino || item.NomeEstacaoDestino || '---').toUpperCase();
-        let linha = item.Linha || item.linha || item.NumeroLinha || '-';
+    const rowRegex = /<tr[^>]*>([\s\S]*?)<\/tr>/gi;
+    let rowMatch;
 
-        return { hora, destino, linha };
+    while ((rowMatch = rowRegex.exec(html)) !== null) {
+      const row = rowMatch[1];
+
+      const cells = [];
+      const cellRegex = /<t[dh][^>]*>([\s\S]*?)<\/t[dh]>/gi;
+
+      let cellMatch;
+
+      while ((cellMatch = cellRegex.exec(row)) !== null) {
+        const texto = cellMatch[1]
+          .replace(/<[^>]+>/g, ' ')
+          .replace(/&nbsp;/g, ' ')
+          .replace(/&amp;/g, '&')
+          .replace(/\s+/g, ' ')
+          .trim();
+
+        cells.push(texto);
+      }
+
+      if (cells.length < 5) continue;
+
+      const hora = cells[0];
+      const comboio = cells[1];
+      const servico = cells[2];
+      const origem = cells[3];
+
+      const destinoOriginal = cells[4]
+        .toUpperCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .trim();
+
+      const operador = cells[5] || '';
+      const observacoes = cells[6] || '';
+
+      let destinoPainel = null;
+
+      if (destinoOriginal.includes('ORIENTE')) {
+        destinoPainel = 'LISBOA-ORIENTE';
+      }
+
+      if (destinoOriginal === 'ALVERCA') {
+        destinoPainel = 'ALVERCA';
+      }
+
+      if (
+        destinoOriginal.includes('SANTA APOLONIA') ||
+        destinoOriginal.includes('S.APOLONIA') ||
+        destinoOriginal.includes('S. APOLONIA')
+      ) {
+        destinoPainel = 'LISBOA-S.A';
+      }
+
+      if (!destinoPainel) continue;
+
+      // Só aceita horas válidas
+      if (!/^\d{1,2}:\d{2}$/.test(hora)) continue;
+
+      linhas.push({
+        hora,
+        comboio,
+        servico,
+        origem,
+        destino: destinoPainel,
+        destinoOriginal: cells[4],
+        operador,
+        observacoes
       });
-
-    return res.status(200).json(partidasFiltradas.slice(0, 6));
-
-  } catch (error) {
-    console.error('Erro na rota /api:', error);
-    return res.status(500).json({ error: 'Erro ao conectar à API da IP', details: error.message });
-  }
-}    // Procura a lista de partidas na resposta
-    let rawPartidas = [];
-    if (Array.isArray(data)) {
-      rawPartidas = data;
-    } else if (data && data.Partidas && Array.isArray(data.Partidas)) {
-      rawPartidas = data.Partidas;
-    } else if (data && data.partidas && Array.isArray(data.partidas)) {
-      rawPartidas = data.partidas;
     }
 
-    // Filtro estrito de destinos pedidos: Lisboa Santa Apolónia, Lisboa Oriente e Alverca
-    const destinosPermitidos = ['SANTA APOLÓNIA', 'SANTA APOLONIA', 'ORIENTE', 'ALVERCA'];
+    // Remove possíveis duplicados
+    const unicos = linhas.filter(
+      (comboio, index, array) =>
+        index ===
+        array.findIndex(
+          x =>
+            x.hora === comboio.hora &&
+            x.comboio === comboio.comboio &&
+            x.destino === comboio.destino
+        )
+    );
 
-    const partidasFiltradas = rawPartidas
-      .filter(item => {
-        const dest = (item.Destino || item.destino || item.NomeEstacaoDestino || '').toUpperCase();
-        return destinosPermitidos.some(d => dest.includes(d));
-      })
-      .map(item => {
-        let hora = item.Hora || item.hora || item.HoraPartida || '--:--';
-        if (hora.includes(' ')) {
-          hora = hora.split(' ')[1] || hora;
-        }
-        if (hora.length > 5) {
-          hora = hora.substring(0, 5);
-        }
-
-        let destino = (item.Destino || item.destino || item.NomeEstacaoDestino || '---').toUpperCase();
-        let linha = item.Linha || item.linha || item.NumeroLinha || '-';
-
-        return { hora, destino, linha };
-      });
-
-    return res.status(200).json(partidasFiltradas.slice(0, 6));
+    return res.status(200).json({
+      estacao: 'AGUALVA-CACÉM',
+      codigo: STATION_CODE,
+      atualizadoEm: new Date().toISOString(),
+      total: unicos.length,
+      partidas: unicos.slice(0, 8)
+    });
 
   } catch (error) {
-    console.error('Erro na rota /api:', error);
-    // Em caso de falha temporária da IP, devolve mensagem clara
-    return res.status(500).json({ error: 'Erro ao ligar à API da IP', details: error.message });
+    console.error(error);
+
+    return res.status(500).json({
+      error: 'Não foi possível obter as partidas.',
+      detalhe: error.message,
+      partidas: []
+    });
   }
 }
