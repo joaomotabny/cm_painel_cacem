@@ -293,7 +293,7 @@ body {
 
 
 /* ==================================================
-   MATRIZ FLIP-DOT 5x7
+   FLIP-DOT 5x7
 ================================================== */
 
 .dot-character {
@@ -533,7 +533,7 @@ body {
 
 
 /* ==================================================
-   PARAGENS CRT
+   PARAGENS
 ================================================== */
 
 .stops {
@@ -547,11 +547,11 @@ body {
     1fr 1fr;
 
   /*
-    Mais próximas como no CRT real.
+    As colunas ficam mais próximas.
   */
-  column-gap: 6%;
+  column-gap: 5%;
 
-  height: 74%;
+  height: 76%;
 }
 
 
@@ -560,6 +560,12 @@ body {
   flex-direction: column;
 }
 
+
+/*
+  TAMANHO NORMAL:
+
+  Oriente e Santa Apolónia.
+*/
 
 .stop {
   height: 10%;
@@ -575,18 +581,33 @@ body {
   font-weight: 400;
 
   /*
-    AUMENTADO
+    Bem maior que antes.
   */
   font-size:
-    clamp(16px, 1.70vw, 34px);
+    clamp(19px, 2.15vw, 43px);
 
-  line-height: .86;
+  line-height: .90;
 
   letter-spacing: .01em;
 
   text-shadow:
     0 0 4px
-    rgba(200,239,53,.32);
+    rgba(200,239,53,.34);
+}
+
+
+/*
+  ALVERCA:
+
+  Como tem 17 paragens,
+  baixamos ligeiramente o tamanho.
+*/
+
+.stops.muitas .stop {
+  font-size:
+    clamp(16px, 1.75vw, 34px);
+
+  line-height: .88;
 }
 
 
@@ -615,7 +636,7 @@ body {
 
 
 /*
-  MANTIDO PEQUENO DE PROPÓSITO
+  Continua pequeno.
 */
 
 .next-label {
@@ -632,13 +653,13 @@ body {
 
   white-space: nowrap;
 
-  opacity: .9;
+  opacity: .85;
 }
 
 
 /*
-  DESTINO + HORA SEGUINTE
-  um pouco maiores
+  Destino e hora do próximo comboio
+  ficam maiores.
 */
 
 .next-destination,
@@ -650,7 +671,7 @@ body {
   font-weight: 400;
 
   font-size:
-    clamp(20px, 2.10vw, 40px);
+    clamp(20px, 2.05vw, 40px);
 
   line-height: .9;
 
@@ -670,7 +691,7 @@ body {
 
 
 /* ==================================================
-   MOBILE / IPHONE
+   IPHONE / MOBILE
 ================================================== */
 
 @media (max-width: 700px) {
@@ -746,30 +767,44 @@ body {
   .destino {
     left: 7%;
     right: 2%;
-
     top: 63%;
   }
 
 
   /*
-    CRT MAIOR NO IPHONE
+    ORIENTE / S.A.
+    Agora nota-se mesmo o aumento.
   */
 
   .stop {
     font-size:
-      clamp(8px, 2vw, 16px);
+      clamp(10px, 2.65vw, 20px);
 
-    line-height: .84;
+    line-height: .90;
   }
 
 
   /*
-    Continua discreto.
+    ALVERCA:
+    ligeiramente menor para
+    as 17 paragens caberem.
+  */
+
+  .stops.muitas .stop {
+    font-size:
+      clamp(8px, 2.15vw, 16px);
+
+    line-height: .88;
+  }
+
+
+  /*
+    COMB.SEGUINTE continua discreto.
   */
 
   .next-label {
     font-size:
-      clamp(4.5px, .82vw, 7px);
+      clamp(4px, .82vw, 7px);
   }
 
 
@@ -864,7 +899,10 @@ body {
       <div class="crt">
 
 
-        <div class="stops">
+        <div
+          class="stops"
+          id="stops"
+        >
 
 
           <div
@@ -1003,7 +1041,7 @@ const PARAGENS = {
 
 
 /* ==================================================
-   MATRIZ 5x7
+   MATRIZ FLIP-DOT
 ================================================== */
 
 const FONT = {
@@ -1168,18 +1206,14 @@ function normalizarDestino(
   if (
     texto.includes("ORIENTE")
   ) {
-
     return "LISBOA-ORIENTE";
-
   }
 
 
   if (
     texto.includes("ALVERCA")
   ) {
-
     return "ALVERCA";
-
   }
 
 
@@ -1189,9 +1223,7 @@ function normalizarDestino(
     texto.includes("S. APOLONIA") ||
     texto.includes("LISBOA-S.A")
   ) {
-
     return "LISBOA-S.A";
-
   }
 
 
@@ -1260,7 +1292,7 @@ function mostrarHora(
 
 
 /* ==================================================
-   CRT - MÁXIMO 10 CARACTERES
+   CRT
 ================================================== */
 
 function limitarCRT(
@@ -1276,10 +1308,6 @@ function limitarCRT(
 
 }
 
-
-/* ==================================================
-   COMBOIO SEGUINTE
-================================================== */
 
 function limitarProximoDestino(
   texto
@@ -1317,6 +1345,24 @@ function mostrarParagens(
     document.getElementById(
       "coluna2"
     );
+
+
+  const stops =
+    document.getElementById(
+      "stops"
+    );
+
+
+  /*
+    Se houver muitas paragens,
+    usamos automaticamente a
+    versão ligeiramente menor.
+  */
+
+  stops.classList.toggle(
+    "muitas",
+    lista.length > 12
+  );
 
 
   coluna1.innerHTML =
@@ -1418,17 +1464,9 @@ function atualizarPainel(
 
           const destino =
             normalizarDestino(
-
-              comboio.destino
-
-              ||
-
-              comboio.destination
-
-              ||
-
+              comboio.destino ||
+              comboio.destination ||
               comboio.destinoOriginal
-
             );
 
 
@@ -1562,7 +1600,7 @@ function atualizarPainel(
 
 
 /* ==================================================
-   CACHE LOCAL
+   CACHE
 ================================================== */
 
 function carregarCacheLocal() {
