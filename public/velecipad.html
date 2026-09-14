@@ -1,19 +1,55 @@
 <!DOCTYPE html>
 <html lang="pt">
+
 <head>
+
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black">
-<meta name="theme-color" content="#050505">
+
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+>
+
+<meta
+  name="apple-mobile-web-app-capable"
+  content="yes"
+>
+
+<meta
+  name="apple-mobile-web-app-status-bar-style"
+  content="black"
+>
+
+<meta
+  name="theme-color"
+  content="#050505"
+>
 
 <title>Painel VELEC iPad</title>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+
+<link
+  rel="preconnect"
+  href="https://fonts.googleapis.com"
+>
+
+<link
+  rel="preconnect"
+  href="https://fonts.gstatic.com"
+  crossorigin
+>
+
+<link
+  href="https://fonts.googleapis.com/css2?family=VT323&display=swap"
+  rel="stylesheet"
+>
+
 
 <style>
+
+/* ==================================================
+   RESET
+================================================== */
 
 * {
   box-sizing: border-box;
@@ -21,30 +57,35 @@
   padding: 0;
 }
 
+
 html,
 body {
   width: 100%;
   height: 100%;
+
   min-height: 100%;
+
   overflow: hidden;
+
   background: #050505;
 }
 
+
 body {
   display: flex;
+
   align-items: center;
   justify-content: center;
-  font-family: Arial, sans-serif;
+
+  font-family:
+    Arial,
+    sans-serif;
 }
+
 
 
 /* ==================================================
    PAINEL
-
-   Versão feita para iPad/Safari antigo:
-   - sem aspect-ratio
-   - sem clamp() nos elementos importantes
-   - sem min()
 ================================================== */
 
 .panel {
@@ -64,16 +105,23 @@ body {
       #18232c
     );
 
-  border: 2px solid #293640;
+  border:
+    2px solid #293640;
+
   border-radius: 7px;
 
   box-shadow:
-    0 30px 90px rgba(0,0,0,.92),
-    inset 0 0 30px rgba(255,255,255,.025);
+
+    0 30px 90px
+    rgba(0,0,0,.92),
+
+    inset 0 0 30px
+    rgba(255,255,255,.025);
 
   padding:
     2.5% 2.2% 2.6%;
 }
+
 
 
 /* ==================================================
@@ -100,9 +148,11 @@ body {
     8px 8px 0 0;
 }
 
+
 .mount.left {
   left: 23%;
 }
+
 
 .mount.center {
   left: 48%;
@@ -116,9 +166,11 @@ body {
     );
 }
 
+
 .mount.right {
   right: 18%;
 }
+
 
 
 /* ==================================================
@@ -136,6 +188,7 @@ body {
 
   grid-column-gap: 2%;
 }
+
 
 
 /* ==================================================
@@ -161,15 +214,21 @@ body {
     );
 
   box-shadow:
-    inset 0 0 35px rgba(0,0,0,.88),
-    inset 0 0 8px rgba(255,255,255,.14);
+
+    inset 0 0 35px
+    rgba(0,0,0,.88),
+
+    inset 0 0 8px
+    rgba(255,255,255,.14);
 }
+
 
 
 .left-display::after {
   content: "";
 
   position: absolute;
+
   inset: 0;
 
   z-index: 20;
@@ -187,24 +246,33 @@ body {
 }
 
 
+
 /* ==================================================
    LABELS
 ================================================== */
 
 .hora-label,
 .destino-label {
+
   position: absolute;
 
   left: 7%;
 
-  color: #deddb6;
+  color:
+    #deddb6;
 
-  font-weight: 700;
-  letter-spacing: .01em;
+  font-weight:
+    700;
 
-  font-size: 3vw;
+  letter-spacing:
+    .01em;
 
-  z-index: 5;
+  font-size:
+    3vw;
+
+  z-index:
+    5;
+
 }
 
 
@@ -216,6 +284,7 @@ body {
 .destino-label {
   top: 46%;
 }
+
 
 
 /* ==================================================
@@ -237,41 +306,49 @@ body {
 
 
 .hora-grupo {
+
   display: flex;
 
   align-items: center;
 
-  /*
-    Tamanho fixo dos dots para
-    funcionar corretamente no iPad.
-  */
+  --dot:
+    5px;
 
-  --dot: 5px;
-  --dot-gap: 1px;
+  --dot-gap:
+    1px;
+
 }
 
 
 .hora .hora-grupo:first-child {
-  margin-right: 10px;
+  margin-right:
+    10px;
 }
 
 
 .hora .hora-grupo:last-child {
-  margin-left: 10px;
+  margin-left:
+    10px;
 }
 
 
 .h-separator {
-  color: #d8d5b3;
+
+  color:
+    #d8d5b3;
 
   font-family:
     Arial,
     sans-serif;
 
-  font-weight: 400;
+  font-weight:
+    400;
 
-  font-size: 3vw;
+  font-size:
+    3vw;
+
 }
+
 
 
 /* ==================================================
@@ -279,6 +356,7 @@ body {
 ================================================== */
 
 .destino {
+
   position: absolute;
 
   left: 7%;
@@ -289,24 +367,27 @@ body {
   overflow: hidden;
 
   z-index: 5;
+
 }
 
 
 .destino-grupo {
+
   display: flex;
 
   align-items: center;
 
-  /*
-    Ligeiramente menor do que
-    a hora para LISBOA-ORIENTE caber.
-  */
+  --dot:
+    4.2px;
 
-  --dot: 4.2px;
-  --dot-gap: .85px;
+  --dot-gap:
+    .85px;
 
-  width: 100%;
+  width:
+    100%;
+
 }
+
 
 
 /* ==================================================
@@ -314,9 +395,12 @@ body {
 ================================================== */
 
 .dot-character {
-  flex: 0 0 auto;
 
-  display: grid;
+  flex:
+    0 0 auto;
+
+  display:
+    grid;
 
   grid-template-columns:
     var(--dot)
@@ -337,14 +421,18 @@ body {
   grid-gap:
     var(--dot-gap);
 
-  padding: 1px;
+  padding:
+    1px;
 
-  margin-right: 3px;
+  margin-right:
+    3px;
 
   border:
-    1px solid rgba(0,0,0,.9);
+    1px solid
+    rgba(0,0,0,.9);
 
-  border-radius: 2px;
+  border-radius:
+    2px;
 
   background:
     linear-gradient(
@@ -354,28 +442,45 @@ body {
     );
 
   box-shadow:
-    inset 0 0 4px rgba(0,0,0,.95),
-    0 1px 2px rgba(0,0,0,.7);
+
+    inset
+    0 0 4px
+    rgba(0,0,0,.95),
+
+    0 1px 2px
+    rgba(0,0,0,.7);
+
 }
 
 
-.destino-grupo .dot-character {
-  margin-right: 2px;
+.destino-grupo
+.dot-character {
+
+  margin-right:
+    2px;
+
 }
 
 
 .dot-character:last-child {
-  margin-right: 0;
+
+  margin-right:
+    0;
+
 }
 
 
-/* DOT APAGADO */
 
 .dot {
-  width: var(--dot);
-  height: var(--dot);
 
-  border-radius: 50%;
+  width:
+    var(--dot);
+
+  height:
+    var(--dot);
+
+  border-radius:
+    50%;
 
   background:
     radial-gradient(
@@ -384,12 +489,13 @@ body {
       #141914 48%,
       #060806 100%
     );
+
 }
 
 
-/* DOT ACESO */
 
 .dot.on {
+
   background:
     radial-gradient(
       circle at 38% 32%,
@@ -400,18 +506,20 @@ body {
     );
 
   box-shadow:
+
     0 0 4px
     rgba(255,225,20,.48);
+
 }
+
 
 
 /* ==================================================
    LINHA 3
-
-   Sem aspect-ratio para compatibilidade.
 ================================================== */
 
 .via {
+
   position: absolute;
 
   right: 5%;
@@ -426,35 +534,48 @@ body {
   justify-content: center;
 
   border:
-    5px solid #d9f343;
 
-  border-radius: 7%;
+    5px solid
+    #d9f343;
 
-  color: #d9f343;
+  border-radius:
+    7%;
+
+  color:
+    #d9f343;
 
   font-family:
     Arial,
     sans-serif;
 
-  font-weight: 500;
+  font-weight:
+    500;
 
-  font-size: 10vw;
+  font-size:
+    10vw;
 
-  line-height: 1;
+  line-height:
+    1;
 
   text-shadow:
+
     0 0 12px
     rgba(200,255,50,.35);
 
   box-shadow:
-    inset 0 0 15px
+
+    inset
+    0 0 15px
     rgba(190,255,50,.07),
 
     0 0 6px
     rgba(190,255,50,.15);
 
-  z-index: 5;
+  z-index:
+    5;
+
 }
+
 
 
 /* ==================================================
@@ -462,17 +583,26 @@ body {
 ================================================== */
 
 .crt-frame {
+
   position: relative;
 
-  background: #040505;
+  background:
+    #040505;
 
-  border-radius: 6px;
+  border-radius:
+    6px;
 
-  padding: 3%;
+  padding:
+    3%;
 
   box-shadow:
-    inset 0 0 20px #000;
+
+    inset
+    0 0 20px
+    #000;
+
 }
+
 
 
 /* ==================================================
@@ -480,6 +610,7 @@ body {
 ================================================== */
 
 .crt {
+
   position: relative;
 
   width: 100%;
@@ -487,12 +618,14 @@ body {
 
   overflow: hidden;
 
-  border-radius: 10%;
+  border-radius:
+    10%;
 
   padding:
-    6% 7% 5%;
+    5.5% 6% 5%;
 
   background:
+
     radial-gradient(
       ellipse at center,
       #17341c 0%,
@@ -500,32 +633,44 @@ body {
       #030904 100%
     );
 
-  color: #c9ef35;
+  color:
+    #d7f04b;
 
   font-family:
     "VT323",
     monospace;
 
-  font-weight: 400;
+  font-weight:
+    400;
 
-  letter-spacing: .015em;
+  letter-spacing:
+    .01em;
 
   text-shadow:
-    0 0 3px
-    rgba(200,239,53,.34);
+
+    0 0 4px
+    rgba(210,245,60,.40);
 
   box-shadow:
-    inset 0 0 30px
+
+    inset
+    0 0 30px
     rgba(0,0,0,.95),
 
-    inset 0 0 65px
+    inset
+    0 0 65px
     rgba(0,0,0,.65);
+
 }
 
 
-/* SOMBRA / CURVATURA */
+
+/* ==================================================
+   CURVATURA CRT
+================================================== */
 
 .crt::before {
+
   content: "";
 
   position: absolute;
@@ -537,18 +682,24 @@ body {
   z-index: 8;
 
   background:
+
     radial-gradient(
       ellipse at center,
       transparent 48%,
       rgba(0,0,0,.12) 70%,
       rgba(0,0,0,.45) 100%
     );
+
 }
 
 
-/* SCANLINES */
+
+/* ==================================================
+   SCANLINES
+================================================== */
 
 .crt::after {
+
   content: "";
 
   position: absolute;
@@ -560,77 +711,145 @@ body {
   pointer-events: none;
 
   background:
+
     repeating-linear-gradient(
       to bottom,
+
       rgba(255,255,255,.025) 0,
+
       rgba(255,255,255,.025) 1px,
+
       transparent 1px,
+
       transparent 3px
     );
 
-  opacity: .45;
+  opacity:
+    .45;
+
 }
+
 
 
 /* ==================================================
    PARAGENS
+
+   AGORA MAIORES + HÍFEN
 ================================================== */
 
 .stops {
+
   position: relative;
 
-  z-index: 2;
+  z-index:
+    2;
 
-  display: grid;
+  display:
+    grid;
 
   grid-template-columns:
     1fr 1fr;
 
-  grid-column-gap: 5%;
+  grid-column-gap:
+    4%;
 
-  height: 76%;
+  /*
+    Dá mais espaço vertical
+    às estações.
+  */
+
+  height:
+    73%;
+
 }
 
 
 .stop-column {
-  display: flex;
 
-  flex-direction: column;
+  display:
+    flex;
+
+  flex-direction:
+    column;
+
 }
 
 
 .stop {
-  height: 10%;
 
-  white-space: nowrap;
+  /*
+    Reduz espaço vazio entre linhas.
+  */
 
-  overflow: hidden;
+  height:
+    auto;
+
+  margin-bottom:
+    .06em;
+
+  white-space:
+    nowrap;
+
+  overflow:
+    hidden;
 
   font-family:
     "VT323",
     monospace;
 
-  font-weight: 400;
+  font-weight:
+    400;
 
-  font-size: 2.35vw;
+  /*
+    MUITO MAIOR
+  */
 
-  line-height: .90;
+  font-size:
+    3vw;
 
-  letter-spacing: .01em;
+  line-height:
+    .88;
+
+  letter-spacing:
+    .005em;
+
+  color:
+    #d7f04b;
 
   text-shadow:
+
     0 0 4px
-    rgba(200,239,53,.34);
+    rgba(220,255,60,.55),
+
+    0 0 9px
+    rgba(150,255,70,.16);
+
 }
 
 
-/* ALVERCA */
 
-.stops.muitas .stop {
-  font-size: 1.95vw;
+/* ==================================================
+   ALVERCA
 
-  line-height: .88;
+   Tem muitas paragens.
+   Continua maior que antes,
+   mas reduz o suficiente para caber.
+================================================== */
+
+.stops.muitas
+.stop {
+
+  font-size:
+    2.42vw;
+
+  line-height:
+    .86;
+
+  margin-bottom:
+    .025em;
+
 }
+
 
 
 /* ==================================================
@@ -638,68 +857,156 @@ body {
 ================================================== */
 
 .next-train {
+
   position: absolute;
 
-  z-index: 3;
+  z-index:
+    3;
 
-  left: 7%;
-  right: 7%;
-  bottom: 6%;
+  left:
+    6%;
 
-  display: grid;
+  right:
+    6%;
+
+  bottom:
+    5%;
+
+  display:
+    grid;
 
   grid-template-columns:
     auto minmax(0,1fr) auto;
 
-  grid-column-gap: 3%;
+  grid-column-gap:
+    3%;
 
-  align-items: baseline;
+  align-items:
+    end;
+
 }
 
+
+
+/* ==================================================
+   COMB.SEGUINTE
+
+   Continua pequeno, como no real.
+================================================== */
 
 .next-label {
+
   font-family:
     "VT323",
     monospace;
 
-  font-weight: 400;
+  font-weight:
+    400;
 
-  font-size: .9vw;
+  font-size:
+    .75vw;
 
-  line-height: 1;
+  line-height:
+    1;
 
-  white-space: nowrap;
+  white-space:
+    nowrap;
 
-  opacity: .85;
+  opacity:
+    .9;
+
+  padding-bottom:
+    .15em;
+
 }
 
 
-.next-destination,
-.next-time {
-  font-family:
-    "VT323",
-    monospace;
 
-  font-weight: 400;
+/* ==================================================
+   DESTINO SEGUINTE
 
-  font-size: 2.25vw;
-
-  line-height: .9;
-
-  white-space: nowrap;
-}
-
+   AGORA MUITO MAIOR
+================================================== */
 
 .next-destination {
-  overflow: hidden;
 
-  text-align: left;
+  font-family:
+    "VT323",
+    monospace;
+
+  font-weight:
+    400;
+
+  font-size:
+    3vw;
+
+  line-height:
+    .82;
+
+  white-space:
+    nowrap;
+
+  overflow:
+    hidden;
+
+  text-align:
+    left;
+
+  color:
+    #d7f04b;
+
+  text-shadow:
+
+    0 0 4px
+    rgba(220,255,60,.58),
+
+    0 0 10px
+    rgba(150,255,70,.18);
+
 }
 
+
+
+/* ==================================================
+   HORA SEGUINTE
+
+   AGORA GRANDE COMO NO CRT REAL
+================================================== */
 
 .next-time {
-  text-align: right;
+
+  font-family:
+    "VT323",
+    monospace;
+
+  font-weight:
+    400;
+
+  font-size:
+    3.2vw;
+
+  line-height:
+    .82;
+
+  white-space:
+    nowrap;
+
+  text-align:
+    right;
+
+  color:
+    #d7f04b;
+
+  text-shadow:
+
+    0 0 4px
+    rgba(220,255,60,.60),
+
+    0 0 10px
+    rgba(150,255,70,.18);
+
 }
+
 
 
 /* ==================================================
@@ -709,136 +1016,264 @@ body {
 @media (min-width: 900px) {
 
   .panel {
-    width: 98vw;
-    height: 33vw;
+
+    width:
+      98vw;
+
+    height:
+      33vw;
+
   }
 
 
   .hora-label,
   .destino-label {
-    font-size: 2.8vw;
+
+    font-size:
+      2.8vw;
+
   }
 
 
   .h-separator {
-    font-size: 2.7vw;
+
+    font-size:
+      2.7vw;
+
   }
 
 
   .hora-grupo {
-    --dot: 6px;
-    --dot-gap: 1.2px;
+
+    --dot:
+      6px;
+
+    --dot-gap:
+      1.2px;
+
   }
 
 
   .destino-grupo {
-    --dot: 5.3px;
-    --dot-gap: 1px;
+
+    --dot:
+      5.3px;
+
+    --dot-gap:
+      1px;
+
   }
 
 
   .dot-character {
-    margin-right: 4px;
+
+    margin-right:
+      4px;
+
   }
 
 
-  .destino-grupo .dot-character {
-    margin-right: 3px;
+  .destino-grupo
+  .dot-character {
+
+    margin-right:
+      3px;
+
   }
 
+
+  /*
+    PARAGENS AINDA MAIORES
+    em landscape.
+  */
 
   .stop {
-    font-size: 2.1vw;
+
+    font-size:
+      2.75vw;
+
+    line-height:
+      .88;
+
   }
 
 
-  .stops.muitas .stop {
-    font-size: 1.8vw;
+  .stops.muitas
+  .stop {
+
+    font-size:
+      2.15vw;
+
+    line-height:
+      .86;
+
   }
 
 
   .next-label {
-    font-size: .75vw;
+
+    font-size:
+      .62vw;
+
   }
 
 
-  .next-destination,
+  .next-destination {
+
+    font-size:
+      2.75vw;
+
+  }
+
+
   .next-time {
-    font-size: 2vw;
+
+    font-size:
+      2.95vw;
+
   }
 
 
   .via {
-    font-size: 9vw;
+
+    font-size:
+      9vw;
+
   }
 
 }
 
 
+
 /* ==================================================
-   IPAD PORTRAIT / MAIS ESTREITO
+   IPAD PORTRAIT
 ================================================== */
 
 @media (max-width: 899px) {
 
   .panel {
-    width: 99vw;
-    height: 35vw;
+
+    width:
+      99vw;
+
+    height:
+      35vw;
 
     padding:
       2.3% 1.8% 2.4%;
+
   }
 
 
   .screens {
+
     grid-template-columns:
       64% 34%;
 
-    grid-column-gap: 2%;
+    grid-column-gap:
+      2%;
+
   }
 
 
   .hora-label,
   .destino-label {
-    font-size: 3.2vw;
+
+    font-size:
+      3.2vw;
+
   }
 
 
   .h-separator {
-    font-size: 3.1vw;
+
+    font-size:
+      3.1vw;
+
   }
 
 
   .via {
-    border-width: 4px;
 
-    font-size: 10vw;
+    border-width:
+      4px;
+
+    font-size:
+      10vw;
+
   }
 
+
+  /*
+    PARAGENS GRANDES
+  */
 
   .stop {
-    font-size: 2.55vw;
+
+    font-size:
+      3.15vw;
+
+    line-height:
+      .88;
+
   }
 
 
-  .stops.muitas .stop {
-    font-size: 2.1vw;
+  /*
+    ALVERCA
+  */
+
+  .stops.muitas
+  .stop {
+
+    font-size:
+      2.45vw;
+
+    line-height:
+      .84;
+
   }
 
+
+  /*
+    COMB.SEGUINTE discreto
+  */
 
   .next-label {
-    font-size: 1vw;
+
+    font-size:
+      .8vw;
+
   }
 
 
-  .next-destination,
+  /*
+    Destino seguinte grande
+  */
+
+  .next-destination {
+
+    font-size:
+      3.15vw;
+
+  }
+
+
+  /*
+    Hora ligeiramente maior
+  */
+
   .next-time {
-    font-size: 2.45vw;
+
+    font-size:
+      3.4vw;
+
   }
 
 }
 
 </style>
+
 </head>
 
 
@@ -950,6 +1385,7 @@ body {
         </div>
 
 
+
         <div class="next-train">
 
 
@@ -994,15 +1430,12 @@ body {
 
 /* ==================================================
    CONFIG
+
+   NÃO MEXER NAS APIs
 ================================================== */
 
-const API_URLS = [
-
-  "/api/partidas",
-
-  "/api/partidas-todas"
-
-];
+const API_URL =
+  "/api/partidas";
 
 
 const REFRESH_INTERVAL =
@@ -1010,7 +1443,7 @@ const REFRESH_INTERVAL =
 
 
 const CACHE_KEY =
-  "velec-ipad-partidas-v3";
+  "velec-ipad-partidas-final-v1";
 
 
 const CACHE_MAX_AGE =
@@ -1114,429 +1547,91 @@ const PARAGENS = {
 const FONT = {
 
 
-"A":[
-"01110",
-"10001",
-"10001",
-"11111",
-"10001",
-"10001",
-"10001"
-],
-
-
-"B":[
-"11110",
-"10001",
-"10001",
-"11110",
-"10001",
-"10001",
-"11110"
-],
-
-
-"C":[
-"01111",
-"10000",
-"10000",
-"10000",
-"10000",
-"10000",
-"01111"
-],
-
-
-"D":[
-"11110",
-"10001",
-"10001",
-"10001",
-"10001",
-"10001",
-"11110"
-],
-
-
-"E":[
-"11111",
-"10000",
-"10000",
-"11110",
-"10000",
-"10000",
-"11111"
-],
-
-
-"F":[
-"11111",
-"10000",
-"10000",
-"11110",
-"10000",
-"10000",
-"10000"
-],
-
-
-"G":[
-"01111",
-"10000",
-"10000",
-"10111",
-"10001",
-"10001",
-"01111"
-],
-
-
-"H":[
-"10001",
-"10001",
-"10001",
-"11111",
-"10001",
-"10001",
-"10001"
-],
-
-
-"I":[
-"11111",
-"00100",
-"00100",
-"00100",
-"00100",
-"00100",
-"11111"
-],
-
-
-"J":[
-"00111",
-"00010",
-"00010",
-"00010",
-"10010",
-"10010",
-"01100"
-],
-
-
-"K":[
-"10001",
-"10010",
-"10100",
-"11000",
-"10100",
-"10010",
-"10001"
-],
-
-
-"L":[
-"10000",
-"10000",
-"10000",
-"10000",
-"10000",
-"10000",
-"11111"
-],
-
-
-"M":[
-"10001",
-"11011",
-"10101",
-"10101",
-"10001",
-"10001",
-"10001"
-],
-
-
-"N":[
-"10001",
-"11001",
-"10101",
-"10011",
-"10001",
-"10001",
-"10001"
-],
-
-
-"O":[
-"01110",
-"10001",
-"10001",
-"10001",
-"10001",
-"10001",
-"01110"
-],
-
-
-"P":[
-"11110",
-"10001",
-"10001",
-"11110",
-"10000",
-"10000",
-"10000"
-],
-
-
-"Q":[
-"01110",
-"10001",
-"10001",
-"10001",
-"10101",
-"10010",
-"01101"
-],
-
-
-"R":[
-"11110",
-"10001",
-"10001",
-"11110",
-"10100",
-"10010",
-"10001"
-],
-
-
-"S":[
-"01111",
-"10000",
-"10000",
-"01110",
-"00001",
-"00001",
-"11110"
-],
-
-
-"T":[
-"11111",
-"00100",
-"00100",
-"00100",
-"00100",
-"00100",
-"00100"
-],
-
-
-"U":[
-"10001",
-"10001",
-"10001",
-"10001",
-"10001",
-"10001",
-"01110"
-],
-
-
-"V":[
-"10001",
-"10001",
-"10001",
-"10001",
-"10001",
-"01010",
-"00100"
-],
-
-
-"W":[
-"10001",
-"10001",
-"10001",
-"10101",
-"10101",
-"10101",
-"01010"
-],
-
-
-"X":[
-"10001",
-"10001",
-"01010",
-"00100",
-"01010",
-"10001",
-"10001"
-],
-
-
-"Y":[
-"10001",
-"10001",
-"01010",
-"00100",
-"00100",
-"00100",
-"00100"
-],
-
-
-"Z":[
-"11111",
-"00001",
-"00010",
-"00100",
-"01000",
-"10000",
-"11111"
-],
-
-
-"0":[
-"01110",
-"10001",
-"10011",
-"10101",
-"11001",
-"10001",
-"01110"
-],
-
-
-"1":[
-"00100",
-"01100",
-"00100",
-"00100",
-"00100",
-"00100",
-"01110"
-],
-
-
-"2":[
-"01110",
-"10001",
-"00001",
-"00010",
-"00100",
-"01000",
-"11111"
-],
-
-
-"3":[
-"11110",
-"00001",
-"00001",
-"01110",
-"00001",
-"00001",
-"11110"
-],
-
-
-"4":[
-"00010",
-"00110",
-"01010",
-"10010",
-"11111",
-"00010",
-"00010"
-],
-
-
-"5":[
-"11111",
-"10000",
-"10000",
-"11110",
-"00001",
-"00001",
-"11110"
-],
-
-
-"6":[
-"01110",
-"10000",
-"10000",
-"11110",
-"10001",
-"10001",
-"01110"
-],
-
-
-"7":[
-"11111",
-"00001",
-"00010",
-"00100",
-"01000",
-"01000",
-"01000"
-],
-
-
-"8":[
-"01110",
-"10001",
-"10001",
-"01110",
-"10001",
-"10001",
-"01110"
-],
-
-
-"9":[
-"01110",
-"10001",
-"10001",
-"01111",
-"00001",
-"00001",
-"01110"
-],
-
-
-"-":[
-"00000",
-"00000",
-"00000",
-"11111",
-"00000",
-"00000",
-"00000"
-],
-
-
-" ":[
-"00000",
-"00000",
-"00000",
-"00000",
-"00000",
-"00000",
-"00000"
-]
+"A":["01110","10001","10001","11111","10001","10001","10001"],
+
+"B":["11110","10001","10001","11110","10001","10001","11110"],
+
+"C":["01111","10000","10000","10000","10000","10000","01111"],
+
+"D":["11110","10001","10001","10001","10001","10001","11110"],
+
+"E":["11111","10000","10000","11110","10000","10000","11111"],
+
+"F":["11111","10000","10000","11110","10000","10000","10000"],
+
+"G":["01111","10000","10000","10111","10001","10001","01111"],
+
+"H":["10001","10001","10001","11111","10001","10001","10001"],
+
+"I":["11111","00100","00100","00100","00100","00100","11111"],
+
+"J":["00111","00010","00010","00010","10010","10010","01100"],
+
+"K":["10001","10010","10100","11000","10100","10010","10001"],
+
+"L":["10000","10000","10000","10000","10000","10000","11111"],
+
+"M":["10001","11011","10101","10101","10001","10001","10001"],
+
+"N":["10001","11001","10101","10011","10001","10001","10001"],
+
+"O":["01110","10001","10001","10001","10001","10001","01110"],
+
+"P":["11110","10001","10001","11110","10000","10000","10000"],
+
+"Q":["01110","10001","10001","10001","10101","10010","01101"],
+
+"R":["11110","10001","10001","11110","10100","10010","10001"],
+
+"S":["01111","10000","10000","01110","00001","00001","11110"],
+
+"T":["11111","00100","00100","00100","00100","00100","00100"],
+
+"U":["10001","10001","10001","10001","10001","10001","01110"],
+
+"V":["10001","10001","10001","10001","10001","01010","00100"],
+
+"W":["10001","10001","10001","10101","10101","10101","01010"],
+
+"X":["10001","10001","01010","00100","01010","10001","10001"],
+
+"Y":["10001","10001","01010","00100","00100","00100","00100"],
+
+"Z":["11111","00001","00010","00100","01000","10000","11111"],
+
+
+"0":["01110","10001","10011","10101","11001","10001","01110"],
+
+"1":["00100","01100","00100","00100","00100","00100","01110"],
+
+"2":["01110","10001","00001","00010","00100","01000","11111"],
+
+"3":["11110","00001","00001","01110","00001","00001","11110"],
+
+"4":["00010","00110","01010","10010","11111","00010","00010"],
+
+"5":["11111","10000","10000","11110","00001","00001","11110"],
+
+"6":["01110","10000","10000","11110","10001","10001","01110"],
+
+"7":["11111","00001","00010","00100","01000","01000","01000"],
+
+"8":["01110","10001","10001","01110","10001","10001","01110"],
+
+"9":["01110","10001","10001","01111","00001","00001","01110"],
+
+
+"-":["00000","00000","00000","11111","00000","00000","00000"],
+
+
+" ":["00000","00000","00000","00000","00000","00000","00000"]
 
 };
 
 
 
 /* ==================================================
-   DESENHAR MATRIZ
+   DESENHAR FLIP-DOT
 ================================================== */
 
 function desenharDotText(
@@ -1570,7 +1665,8 @@ function desenharDotText(
 
 
     const pattern =
-      FONT[caracter] ||
+      FONT[caracter]
+      ||
       FONT[" "];
 
 
@@ -1619,6 +1715,7 @@ function desenharDotText(
 
 
       }
+
 
     }
 
@@ -1671,8 +1768,11 @@ function normalizarDestino(
       .trim();
 
 
+
   if (
-    texto.indexOf("ORIENTE") !== -1
+    texto.includes(
+      "ORIENTE"
+    )
   ) {
 
     return "LISBOA-ORIENTE";
@@ -1680,8 +1780,11 @@ function normalizarDestino(
   }
 
 
+
   if (
-    texto.indexOf("ALVERCA") !== -1
+    texto.includes(
+      "ALVERCA"
+    )
   ) {
 
     return "ALVERCA";
@@ -1689,17 +1792,30 @@ function normalizarDestino(
   }
 
 
+
   if (
 
-    texto.indexOf("SANTA APOLONIA") !== -1 ||
+    texto.includes(
+      "SANTA APOLONIA"
+    )
 
-    texto.indexOf("S.APOLONIA") !== -1 ||
+    ||
 
-    texto.indexOf("S. APOLONIA") !== -1 ||
+    texto.includes(
+      "S.APOLONIA"
+    )
 
-    texto.indexOf("LISBOA-S.A") !== -1 ||
+    ||
 
-    texto.indexOf("LIS-S.APOL") !== -1
+    texto.includes(
+      "S. APOLONIA"
+    )
+
+    ||
+
+    texto.includes(
+      "LISBOA-S.A"
+    )
 
   ) {
 
@@ -1752,7 +1868,6 @@ function mostrarHora(
 
     return;
 
-
   }
 
 
@@ -1763,14 +1878,20 @@ function mostrarHora(
 
 
   desenharDotText(
+
     horas,
+
     partes[0] || "--"
+
   );
 
 
   desenharDotText(
+
     minutos,
+
     partes[1] || "--"
+
   );
 
 }
@@ -1778,7 +1899,7 @@ function mostrarHora(
 
 
 /* ==================================================
-   LIMITES CRT
+   CRT
 ================================================== */
 
 function limitarCRT(
@@ -1787,7 +1908,9 @@ function limitarCRT(
 
 
   return String(texto)
+
     .toUpperCase()
+
     .slice(
       0,
       10
@@ -1803,7 +1926,9 @@ function limitarProximoDestino(
 
 
   return String(texto)
+
     .toUpperCase()
+
     .slice(
       0,
       11
@@ -1815,6 +1940,9 @@ function limitarProximoDestino(
 
 /* ==================================================
    PARAGENS
+
+   NOVO:
+   adiciona "- " antes de cada estação.
 ================================================== */
 
 function mostrarParagens(
@@ -1823,7 +1951,9 @@ function mostrarParagens(
 
 
   const lista =
-    PARAGENS[destino] || [];
+    PARAGENS[destino]
+    ||
+    [];
 
 
   const coluna1 =
@@ -1892,6 +2022,7 @@ function mostrarParagens(
     );
 
 
+
   esquerda.forEach(
     function (
       paragem
@@ -1909,6 +2040,8 @@ function mostrarParagens(
 
 
       linha.textContent =
+
+        "- " +
         limitarCRT(
           paragem
         );
@@ -1921,6 +2054,7 @@ function mostrarParagens(
 
     }
   );
+
 
 
   direita.forEach(
@@ -1940,6 +2074,8 @@ function mostrarParagens(
 
 
       linha.textContent =
+
+        "- " +
         limitarCRT(
           paragem
         );
@@ -1958,80 +2094,6 @@ function mostrarParagens(
 
 
 /* ==================================================
-   PREPARAR COMBOIOS
-================================================== */
-
-function prepararComboios(
-  lista
-) {
-
-
-  return lista
-
-    .map(
-      function (
-        comboio
-      ) {
-
-
-        const destino =
-          normalizarDestino(
-
-            comboio.destino ||
-
-            comboio.destination ||
-
-            comboio.destinoOriginal
-
-          );
-
-
-        const copia =
-          {};
-
-
-        for (
-          const chave in comboio
-        ) {
-
-
-          copia[chave] =
-            comboio[chave];
-
-
-        }
-
-
-        copia.destinoPainel =
-          destino;
-
-
-        return copia;
-
-
-      }
-    )
-
-
-    .filter(
-      function (
-        comboio
-      ) {
-
-
-        return Boolean(
-          comboio.destinoPainel
-        );
-
-
-      }
-    );
-
-}
-
-
-
-/* ==================================================
    ATUALIZAR PAINEL
 ================================================== */
 
@@ -2041,21 +2103,63 @@ function atualizarPainel(
 
 
   const comboios =
-    prepararComboios(
-      lista
-    );
+
+    lista
+
+      .map(
+        function (
+          comboio
+        ) {
+
+
+          const destino =
+            normalizarDestino(
+
+              comboio.destino
+
+              ||
+
+              comboio.destination
+
+              ||
+
+              comboio.destinoOriginal
+
+            );
+
+
+          return {
+
+            ...comboio,
+
+            destinoPainel:
+              destino
+
+          };
+
+
+        }
+      )
+
+      .filter(
+        function (
+          comboio
+        ) {
+
+
+          return Boolean(
+            comboio.destinoPainel
+          );
+
+
+        }
+      );
+
 
 
   if (
     comboios.length === 0
   ) {
-
-
-    /*
-      Se já temos dados no ecrã,
-      NÃO apagamos o painel só
-      porque uma atualização veio vazia.
-    */
 
 
     if (
@@ -2082,7 +2186,7 @@ function atualizarPainel(
     }
 
 
-    return false;
+    return;
 
 
   }
@@ -2090,7 +2194,6 @@ function atualizarPainel(
 
 
   /* COMBOIO ATUAL */
-
 
   const atual =
     comboios[0];
@@ -2118,8 +2221,7 @@ function atualizarPainel(
 
 
 
-  /* COMBOIO SEGUINTE */
-
+  /* PRÓXIMO COMBOIO */
 
   const seguinte =
     comboios[1];
@@ -2147,7 +2249,9 @@ function atualizarPainel(
       )
       .textContent =
 
-        seguinte.hora ||
+        seguinte.hora
+
+        ||
 
         "--:--";
 
@@ -2179,15 +2283,12 @@ function atualizarPainel(
   temDadosVisiveis =
     true;
 
-
-  return true;
-
 }
 
 
 
 /* ==================================================
-   CACHE LOCAL
+   CACHE
 ================================================== */
 
 function carregarCacheLocal() {
@@ -2204,7 +2305,7 @@ function carregarCacheLocal() {
 
     if (!bruto) {
 
-      return false;
+      return;
 
     }
 
@@ -2217,25 +2318,33 @@ function carregarCacheLocal() {
 
     if (
 
-      !cache ||
+      !cache
+
+      ||
 
       !Array.isArray(
         cache.lista
-      ) ||
+      )
+
+      ||
 
       !cache.guardadoEm
 
     ) {
 
 
-      return false;
+      return;
 
 
     }
 
 
     const idade =
-      Date.now() -
+
+      Date.now()
+
+      -
+
       cache.guardadoEm;
 
 
@@ -2245,13 +2354,13 @@ function carregarCacheLocal() {
     ) {
 
 
-      return false;
+      return;
 
 
     }
 
 
-    return atualizarPainel(
+    atualizarPainel(
       cache.lista
     );
 
@@ -2263,7 +2372,9 @@ function carregarCacheLocal() {
   ) {
 
 
-    return false;
+    console.log(
+      "Cache ignorado"
+    );
 
 
   }
@@ -2310,234 +2421,126 @@ function guardarCacheLocal(
 
 
 /* ==================================================
-   OBTER LISTA DA RESPOSTA
-================================================== */
-
-function obterLista(
-  dados
-) {
-
-
-  if (
-    Array.isArray(
-      dados
-    )
-  ) {
-
-
-    return dados;
-
-
-  }
-
-
-  if (
-
-    dados &&
-
-    Array.isArray(
-      dados.partidas
-    )
-
-  ) {
-
-
-    return dados.partidas;
-
-
-  }
-
-
-  return [];
-
-}
-
-
-
-/* ==================================================
-   CARREGAR PARTIDAS
-
-   Primeiro tenta:
-   /api/partidas
-
-   Se falhar ou vier vazio:
-   /api/partidas-todas
+   API
 ================================================== */
 
 async function carregarPartidas() {
 
 
-  let encontrou =
-    false;
+  try {
 
 
-  for (
-    let i = 0;
-    i < API_URLS.length;
-    i++
-  ) {
+    const resposta =
+      await fetch(
+        API_URL
+      );
 
 
-    try {
-
-
-      const resposta =
-        await fetch(
-
-          API_URLS[i] +
-          "?t=" +
-          Date.now(),
-
-          {
-            cache:
-              "no-store"
-          }
-
-        );
-
-
-      if (
-        !resposta.ok
-      ) {
-
-
-        continue;
-
-
-      }
-
-
-      const dados =
-        await resposta.json();
-
-
-      const lista =
-        obterLista(
-          dados
-        );
-
-
-      if (
-        lista.length === 0
-      ) {
-
-
-        continue;
-
-
-      }
-
-
-      if (
-        atualizarPainel(
-          lista
-        )
-      ) {
-
-
-        guardarCacheLocal(
-          lista
-        );
-
-
-        encontrou =
-          true;
-
-
-        break;
-
-
-      }
-
-
-    }
-
-    catch (
-      erro
+    if (
+      !resposta.ok
     ) {
 
 
-      console.log(
-
-        "Falha em " +
-        API_URLS[i],
-
-        erro
-
+      throw new Error(
+        "HTTP " +
+        resposta.status
       );
 
 
     }
 
 
+    const dados =
+      await resposta.json();
+
+
+    const lista =
+
+      Array.isArray(
+        dados
+      )
+
+      ?
+
+      dados
+
+      :
+
+      (
+
+        Array.isArray(
+          dados.partidas
+        )
+
+        ?
+
+        dados.partidas
+
+        :
+
+        []
+
+      );
+
+
+    if (
+      lista.length > 0
+    ) {
+
+
+      guardarCacheLocal(
+        lista
+      );
+
+
+    }
+
+
+    atualizarPainel(
+      lista
+    );
+
+
   }
 
-
-
-  /*
-    Só mostra SEM PARTIDAS se:
-
-    - nenhuma API devolveu dados
-    - não temos cache válida
-    - ainda não existem dados visíveis
-  */
-
-
-  if (
-
-    !encontrou &&
-
-    !temDadosVisiveis
-
+  catch (
+    erro
   ) {
 
 
-    mostrarHora(
-      null
+    console.error(
+      "Erro API:",
+      erro
     );
 
 
-    desenharDotText(
+    /*
+      Mantém cache visível
+      se existir.
+    */
 
-      document.getElementById(
-        "destinoAtual"
-      ),
-
-      "SEM PARTIDAS"
-
-    );
-
-
-    document
-      .getElementById(
-        "coluna1"
-      )
-      .innerHTML =
-        "";
+    if (
+      !temDadosVisiveis
+    ) {
 
 
-    document
-      .getElementById(
-        "coluna2"
-      )
-      .innerHTML =
-        "";
+      mostrarHora(
+        null
+      );
 
 
-    document
-      .getElementById(
-        "proximoDestino"
-      )
-      .textContent =
-        "----";
+      desenharDotText(
+
+        document.getElementById(
+          "destinoAtual"
+        ),
+
+        "SEM LIGACAO"
+
+      );
 
 
-    document
-      .getElementById(
-        "proximaHora"
-      )
-      .textContent =
-        "--:--";
+    }
 
 
   }
@@ -2569,7 +2572,7 @@ if (
       "destinoAtual"
     ),
 
-    "A CARREGAR"
+    "----------"
 
   );
 
@@ -2589,6 +2592,7 @@ setInterval(
 );
 
 </script>
+
 
 </body>
 </html>
