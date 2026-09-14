@@ -54,10 +54,6 @@ body {
 
   width: min(98vw, 1500px);
 
-  /*
-    Mais próximo da proporção
-    do VELEC verdadeiro.
-  */
   aspect-ratio: 2.95 / 1;
 
   background:
@@ -78,9 +74,6 @@ body {
     0 30px 90px rgba(0,0,0,.92),
     inset 0 0 30px rgba(255,255,255,.025);
 
-  /*
-    Menos moldura vazia
-  */
   padding:
     3.5% 4.5% 4%;
 }
@@ -178,7 +171,7 @@ body {
 }
 
 
-/* REFLEXO VIDRO */
+/* REFLEXO */
 
 .left-display::after {
   content: "";
@@ -230,13 +223,6 @@ body {
 .hora-label {
   top: 7%;
 }
-
-
-/*
-  Mais abaixo que HORA,
-  mas muito mais próximo
-  dos flip-dots do destino.
-*/
 
 .destino-label {
   top: 48%;
@@ -305,18 +291,11 @@ body {
   position: absolute;
 
   left: 7%;
-  right: 4%;
+  right: 3%;
 
-  /*
-    Aqui está uma das maiores alterações:
-    já não fica colado ao fundo.
+  top: 65%;
 
-    Aproxima-se muito mais de DESTINO.
-  */
-  top: 66%;
-
-  overflow:
-    hidden;
+  overflow: visible;
 
   z-index:
     5;
@@ -328,25 +307,37 @@ body {
 
   align-items: center;
 
-  gap:
-    clamp(1px, .14vw, 3px);
-
-  width:
-    100%;
-
   /*
-    Letras maiores.
+    MESMO TAMANHO VERTICAL DA HORA
   */
+
   --dot:
-    clamp(1.5px, .43vw, 6px);
+    clamp(2px, .54vw, 8px);
 
   --dot-gap:
-    clamp(.4px, .065vw, 1.3px);
+    clamp(.6px, .08vw, 1.8px);
+
+  gap:
+    clamp(1px, .12vw, 3px);
+
+  /*
+    Apenas comprimimos horizontalmente
+    para LISBOA-ORIENTE caber.
+  */
+
+  transform:
+    scaleX(.72);
+
+  transform-origin:
+    left center;
+
+  width:
+    138%;
 }
 
 
 /* ==================================================
-   MATRIZ FLIPDOT 5x7
+   MATRIZ 5x7
 ================================================== */
 
 .dot-character {
@@ -554,9 +545,6 @@ body {
   color:
     #c9ef35;
 
-  /*
-    NOVA TIPOGRAFIA CRT
-  */
   font-family:
     "VT323",
     monospace;
@@ -582,7 +570,7 @@ body {
 }
 
 
-/* CURVATURA / VINHETA */
+/* VINHETA */
 
 .crt::before {
   content: "";
@@ -732,11 +720,6 @@ body {
 }
 
 
-/*
-  Propositadamente bastante pequeno,
-  como no original.
-*/
-
 .next-label {
   font-family:
     "VT323",
@@ -801,11 +784,6 @@ body {
     width:
       100vw;
 
-    /*
-      Continua legível,
-      mas fica bastante mais
-      próximo da proporção real.
-    */
     aspect-ratio:
       2.70 / 1;
 
@@ -848,22 +826,23 @@ body {
 
 
   /*
-    Destino maior no telemóvel.
+    MESMA ALTURA DA HORA
   */
 
   .destino-grupo {
     --dot:
-      clamp(1.25px, .40vw, 2.7px);
+      clamp(1.8px, .52vw, 3px);
 
     --dot-gap:
-      clamp(.35px, .055vw, .8px);
+      clamp(.5px, .08vw, 1px);
+
+    transform:
+      scaleX(.70);
+
+    width:
+      143%;
   }
 
-
-  /*
-    Também aproximamos ainda
-    mais DESTINO do texto.
-  */
 
   .destino-label {
     top:
@@ -873,7 +852,7 @@ body {
 
   .destino {
     top:
-      64%;
+      63%;
   }
 
 
@@ -918,10 +897,6 @@ body {
 
   <div class="screens">
 
-
-    <!-- ============================
-         PAINEL ESQUERDO
-    ============================= -->
 
     <section class="left-display">
 
@@ -975,10 +950,6 @@ body {
     </section>
 
 
-
-    <!-- ============================
-         CRT DIREITO
-    ============================= -->
 
     <section class="crt-frame">
 
@@ -1405,7 +1376,7 @@ function mostrarHora(
 
 
 /* ==================================================
-   CRT - MÁX. 10 CARACTERES
+   CRT - 10 CARACTERES
 ================================================== */
 
 function limitarCRT(
@@ -1425,12 +1396,6 @@ function limitarCRT(
 
 /* ==================================================
    PRÓXIMO DESTINO
-
-   Máx. 11 caracteres.
-
-   LISBOA-ORIENTE
-         ↓
-   LISBOA-ORIE
 ================================================== */
 
 function limitarProximoDestino(
@@ -1636,8 +1601,6 @@ function atualizarPainel(
 
 
 
-  /* COMBOIO ATUAL */
-
   const atual =
     comboios[0];
 
@@ -1663,8 +1626,6 @@ function atualizarPainel(
   );
 
 
-
-  /* COMBOIO SEGUINTE */
 
   const seguinte =
     comboios[1];
