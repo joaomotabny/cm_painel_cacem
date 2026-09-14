@@ -1,1455 +1,1369 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-  <meta charset="UTF-8">
 
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
-  >
+<meta charset="UTF-8">
 
-  <title>Partidas</title>
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+>
 
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+<meta
+  name="apple-mobile-web-app-capable"
+  content="yes"
+>
 
-    html,
-    body {
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      background: #010201;
-    }
+<meta
+  name="mobile-web-app-capable"
+  content="yes"
+>
 
-    body {
-      display: flex;
-      align-items: center;
-      justify-content: center;
+<meta
+  name="apple-mobile-web-app-status-bar-style"
+  content="black"
+>
 
-      background:
-        radial-gradient(
-          ellipse at center,
-          #111512 0%,
-          #050706 58%,
-          #000 100%
-        );
-    }
+<meta
+  name="theme-color"
+  content="#020803"
+>
 
-    .monitor {
-      position: relative;
+<title>Partidas — Agualva-Cacém</title>
 
-      width: min(96vw, 1600px);
-      height: min(94vh, 1000px);
 
-      padding: clamp(20px, 2.2vw, 45px);
+<link rel="preconnect" href="https://fonts.googleapis.com">
 
-      border-radius: clamp(35px, 5vw, 90px);
+<link
+  rel="preconnect"
+  href="https://fonts.gstatic.com"
+  crossorigin
+>
 
-      background:
-        linear-gradient(
-          145deg,
-          #252b29 0%,
-          #111513 18%,
-          #050706 50%,
-          #151a17 82%,
-          #080a09 100%
-        );
+<link
+  href="https://fonts.googleapis.com/css2?family=VT323&display=swap"
+  rel="stylesheet"
+>
 
-      border: 2px solid #262c29;
 
-      box-shadow:
-        0 35px 100px rgba(0, 0, 0, .95),
-        inset 0 0 5px rgba(255,255,255,.08),
-        inset 0 0 35px rgba(255,255,255,.02);
-    }
+<style>
 
-    .screen {
-      position: relative;
+/* ==================================================
+   RESET
+================================================== */
 
-      width: 100%;
-      height: 100%;
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
-      overflow: hidden;
 
-      border-radius: clamp(28px, 4vw, 70px);
+html,
+body {
 
-      background:
-        radial-gradient(
-          ellipse at 50% 42%,
-          #111b0e 0%,
-          #091008 46%,
-          #040704 77%,
-          #010201 100%
-        );
+  width: 100%;
+  height: 100%;
 
-      border: 2px solid rgba(255,255,255,.055);
+  overflow: hidden;
 
-      box-shadow:
-        inset 0 0 30px rgba(0,0,0,.95),
-        inset 0 0 100px rgba(0,0,0,.70),
-        inset 0 0 8px rgba(190,255,35,.05);
+  background: #020302;
 
-      animation: crtFlicker 7s infinite;
-    }
+}
 
-    .screen::before {
-      content: "";
 
-      position: absolute;
-      inset: 0;
+body {
 
-      z-index: 3;
-      pointer-events: none;
+  display: flex;
 
-      background:
-        repeating-linear-gradient(
-          to bottom,
-          rgba(255,255,255,.025) 0px,
-          rgba(255,255,255,.025) 1px,
-          transparent 1px,
-          transparent 4px
-        );
+  align-items: center;
+  justify-content: center;
 
-      opacity: .45;
-    }
+  font-family:
+    "VT323",
+    monospace;
 
-    .screen::after {
-      content: "";
+}
 
-      position: absolute;
-      inset: 0;
 
-      z-index: 4;
-      pointer-events: none;
 
-      background:
-        radial-gradient(
-          ellipse at center,
-          transparent 50%,
-          rgba(0,0,0,.18) 70%,
-          rgba(0,0,0,.62) 100%
-        );
-    }
+/* ==================================================
+   MONITOR
+================================================== */
 
-    #board {
-      position: absolute;
-      inset: 0;
+.monitor {
 
-      width: 100%;
-      height: 100%;
+  position: relative;
 
-      z-index: 2;
+  width:
+    min(98vw, 1200px);
 
-      image-rendering: pixelated;
-    }
+  height:
+    min(94vh, 760px);
 
-    .reflection {
-      position: absolute;
+  padding:
+    clamp(10px, 2vw, 26px);
 
-      width: 45%;
-      height: 170%;
+  background:
+    linear-gradient(
+      145deg,
+      #151b18 0%,
+      #080b09 45%,
+      #030403 100%
+    );
 
-      left: -22%;
-      top: -40%;
+  border:
+    2px solid #262d29;
 
-      transform: rotate(13deg);
+  border-radius:
+    clamp(12px, 2vw, 28px);
 
-      z-index: 5;
-      pointer-events: none;
+  box-shadow:
 
-      background:
-        linear-gradient(
-          90deg,
-          transparent,
-          rgba(255,255,255,.018),
-          rgba(255,255,255,.035),
-          transparent
-        );
+    0 35px 110px
+    rgba(0,0,0,.95),
 
-      filter: blur(10px);
-    }
+    inset 0 0 30px
+    rgba(255,255,255,.035);
 
-    @keyframes crtFlicker {
-      0%   { filter: brightness(1); }
-      48%  { filter: brightness(1); }
-      49%  { filter: brightness(.985); }
-      50%  { filter: brightness(1.015); }
-      51%  { filter: brightness(1); }
-      100% { filter: brightness(1); }
-    }
+}
 
-    @media (max-width: 700px) {
-      .monitor {
-        width: 100vw;
-        height: 100vh;
-        height: 100svh;
 
-        padding: 10px;
 
-        border-radius: 0;
-      }
+/* ==================================================
+   CRT
+================================================== */
 
-      .screen {
-        border-radius: 25px;
-      }
-    }
-  </style>
+.crt {
+
+  position: relative;
+
+  width: 100%;
+  height: 100%;
+
+  overflow: hidden;
+
+  border-radius:
+    7% / 10%;
+
+  padding:
+    5% 7% 4%;
+
+  color:
+    #c9ef35;
+
+  background:
+
+    radial-gradient(
+      ellipse at center,
+      #16361d 0%,
+      #0b2512 52%,
+      #020803 100%
+    );
+
+  box-shadow:
+
+    inset 0 0 45px
+    rgba(0,0,0,.92),
+
+    inset 0 0 110px
+    rgba(0,0,0,.75);
+
+}
+
+
+
+/* ==================================================
+   VINHETA
+================================================== */
+
+.crt::before {
+
+  content: "";
+
+  position: absolute;
+  inset: 0;
+
+  z-index: 20;
+
+  pointer-events: none;
+
+  background:
+
+    radial-gradient(
+      ellipse at center,
+
+      transparent 42%,
+
+      rgba(0,0,0,.10) 65%,
+
+      rgba(0,0,0,.60) 100%
+    );
+
+}
+
+
+
+/* ==================================================
+   SCANLINES
+================================================== */
+
+.crt::after {
+
+  content: "";
+
+  position: absolute;
+  inset: 0;
+
+  z-index: 30;
+
+  pointer-events: none;
+
+  opacity: .44;
+
+  background:
+
+    repeating-linear-gradient(
+
+      to bottom,
+
+      rgba(255,255,255,.025)
+      0,
+
+      rgba(255,255,255,.025)
+      1px,
+
+      transparent
+      1px,
+
+      transparent
+      4px
+
+    );
+
+}
+
+
+
+/* ==================================================
+   CONTEÚDO
+================================================== */
+
+.content {
+
+  position: relative;
+
+  z-index: 5;
+
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  flex-direction: column;
+
+}
+
+
+
+/* ==================================================
+   ESTAÇÃO
+================================================== */
+
+.station {
+
+  text-align: center;
+
+  font-size:
+    clamp(24px, 4vw, 60px);
+
+  line-height: .88;
+
+  letter-spacing:
+    .035em;
+
+  text-shadow:
+    0 0 7px
+    rgba(200,239,53,.42);
+
+}
+
+
+
+/* ==================================================
+   PARTIDAS
+================================================== */
+
+.title {
+
+  margin-top:
+    clamp(3px, .6vh, 8px);
+
+  text-align: center;
+
+  font-size:
+    clamp(15px, 2.3vw, 34px);
+
+  line-height: 1;
+
+  letter-spacing:
+    .18em;
+
+}
+
+
+
+/* ==================================================
+   CABEÇALHO
+================================================== */
+
+.header {
+
+  display: grid;
+
+  grid-template-columns:
+    20% 64% 16%;
+
+  align-items: center;
+
+  margin-top:
+    clamp(10px, 1.8vh, 20px);
+
+  padding-bottom:
+    clamp(3px, .5vh, 6px);
+
+  border-bottom:
+    1px solid
+    rgba(201,239,53,.42);
+
+  font-size:
+    clamp(14px, 2vw, 29px);
+
+  line-height: 1;
+
+}
+
+
+.header .via {
+
+  text-align: right;
+
+}
+
+
+
+/* ==================================================
+   LISTA
+================================================== */
+
+.departures {
+
+  flex: 1;
+
+  display: flex;
+
+  flex-direction: column;
+
+  min-height: 0;
+
+}
+
+
+
+/* ==================================================
+   PARTIDA
+================================================== */
+
+.departure {
+
+  display: grid;
+
+  grid-template-columns:
+    20% 64% 16%;
+
+  align-items: center;
+
+  flex:
+    1 1 0;
+
+  min-height: 0;
+
+  font-size:
+    clamp(21px, 3.25vw, 50px);
+
+  line-height: .84;
+
+  letter-spacing:
+    .01em;
+
+  text-shadow:
+    0 0 6px
+    rgba(200,239,53,.36);
+
+}
+
+
+.departure .time {
+
+  white-space: nowrap;
+
+}
+
+
+.departure .destination {
+
+  white-space: nowrap;
+
+  overflow: hidden;
+
+  text-overflow: clip;
+
+}
+
+
+.departure .platform {
+
+  text-align: right;
+
+  white-space: nowrap;
+
+}
+
+
+
+/* ==================================================
+   RODAPÉ
+================================================== */
+
+.footer {
+
+  height:
+    clamp(11px, 1.7vh, 20px);
+
+  margin-top:
+    clamp(2px, .4vh, 5px);
+
+  text-align: right;
+
+  font-size:
+    clamp(7px, .9vw, 12px);
+
+  line-height: 1;
+
+  opacity: .56;
+
+}
+
+
+
+/* ==================================================
+   FLICKER CRT
+================================================== */
+
+@keyframes flicker {
+
+  0% {
+    opacity: 1;
+  }
+
+  96% {
+    opacity: 1;
+  }
+
+  97% {
+    opacity: .992;
+  }
+
+  98% {
+    opacity: 1;
+  }
+
+  99% {
+    opacity: .986;
+  }
+
+  100% {
+    opacity: 1;
+  }
+
+}
+
+
+.crt {
+
+  animation:
+    flicker 7s infinite;
+
+}
+
+
+
+/* ==================================================
+   IPHONE LANDSCAPE
+================================================== */
+
+@media
+(max-height: 500px)
+and
+(orientation: landscape) {
+
+  .monitor {
+
+    width: 100vw;
+    height: 100vh;
+
+    padding:
+      7px 10px;
+
+    border: 0;
+
+    border-radius: 0;
+
+  }
+
+
+  .crt {
+
+    padding:
+      3.5% 6% 3%;
+
+    border-radius:
+      6% / 13%;
+
+  }
+
+
+  .station {
+
+    font-size:
+      clamp(20px, 4.2vw, 36px);
+
+  }
+
+
+  .title {
+
+    margin-top: 1px;
+
+    font-size:
+      clamp(12px, 2.3vw, 19px);
+
+  }
+
+
+  .header {
+
+    margin-top: 5px;
+
+    padding-bottom: 2px;
+
+    font-size:
+      clamp(10px, 1.8vw, 16px);
+
+  }
+
+
+  .departure {
+
+    font-size:
+      clamp(17px, 3.05vw, 27px);
+
+  }
+
+
+  .footer {
+
+    height: 8px;
+
+    margin-top: 1px;
+
+    font-size: 6px;
+
+  }
+
+}
+
+
+
+/* ==================================================
+   IPHONE PORTRAIT
+================================================== */
+
+@media
+(max-width: 700px)
+and
+(orientation: portrait) {
+
+  .monitor {
+
+    width: 96vw;
+    height: 80vh;
+
+    padding: 10px;
+
+  }
+
+
+  .crt {
+
+    padding:
+      9% 8% 7%;
+
+  }
+
+
+  .header,
+  .departure {
+
+    grid-template-columns:
+      23% 61% 16%;
+
+  }
+
+
+  .departure {
+
+    font-size:
+      clamp(20px, 6vw, 34px);
+
+  }
+
+}
+
+</style>
+
 </head>
+
 
 
 <body>
 
-  <div class="monitor">
 
-    <div class="screen">
+<div class="monitor">
 
-      <canvas id="board"></canvas>
 
-      <div class="reflection"></div>
+  <div class="crt">
+
+
+    <div class="content">
+
+
+      <div class="station">
+        AGUALVA-CACÉM
+      </div>
+
+
+      <div class="title">
+        PARTIDAS
+      </div>
+
+
+      <div class="header">
+
+
+        <div>
+          HORA
+        </div>
+
+
+        <div>
+          DESTINO
+        </div>
+
+
+        <div class="via">
+          VIA
+        </div>
+
+
+      </div>
+
+
+      <div
+        class="departures"
+        id="departures"
+      >
+      </div>
+
+
+      <div
+        class="footer"
+        id="footer"
+      >
+        A ACTUALIZAR
+      </div>
+
 
     </div>
+
 
   </div>
 
 
+</div>
+
+
+
 <script>
 
-  const API_URL = "/api/partidas";
+/* ==================================================
+   CONFIGURAÇÃO
+================================================== */
 
-  const MAX_PARTIDAS = 6;
+const API_URL =
+  "/api/partidas-todas";
 
-  const REFRESH_INTERVAL = 30000;
+
+const REFRESH_INTERVAL =
+  30000;
 
 
-  const FONT = {
+const CACHE_KEY =
+  "crt-partidas-agualva-v2";
 
-    "A":[
-      "01110",
-      "10001",
-      "10001",
-      "11111",
-      "10001",
-      "10001",
-      "10001"
-    ],
 
-    "B":[
-      "11110",
-      "10001",
-      "10001",
-      "11110",
-      "10001",
-      "10001",
-      "11110"
-    ],
+const CACHE_MAX_AGE =
+  5 * 60 * 1000;
 
-    "C":[
-      "01111",
-      "10000",
-      "10000",
-      "10000",
-      "10000",
-      "10000",
-      "01111"
-    ],
 
-    "D":[
-      "11110",
-      "10001",
-      "10001",
-      "10001",
-      "10001",
-      "10001",
-      "11110"
-    ],
 
-    "E":[
-      "11111",
-      "10000",
-      "10000",
-      "11110",
-      "10000",
-      "10000",
-      "11111"
-    ],
+/* ==================================================
+   NÚMERO DE PARTIDAS
+================================================== */
 
-    "F":[
-      "11111",
-      "10000",
-      "10000",
-      "11110",
-      "10000",
-      "10000",
-      "10000"
-    ],
+function numeroLinhas() {
 
-    "G":[
-      "01111",
-      "10000",
-      "10000",
-      "10111",
-      "10001",
-      "10001",
-      "01111"
-    ],
+  /*
+    iPhone deitado:
+    8 partidas.
 
-    "H":[
-      "10001",
-      "10001",
-      "10001",
-      "11111",
-      "10001",
-      "10001",
-      "10001"
-    ],
+    Ecrãs maiores:
+    10 partidas.
+  */
 
-    "I":[
-      "11111",
-      "00100",
-      "00100",
-      "00100",
-      "00100",
-      "00100",
-      "11111"
-    ],
+  if (
+    window.innerHeight < 500 &&
+    window.innerWidth > window.innerHeight
+  ) {
 
-    "J":[
-      "00111",
-      "00010",
-      "00010",
-      "00010",
-      "10010",
-      "10010",
-      "01100"
-    ],
+    return 8;
 
-    "K":[
-      "10001",
-      "10010",
-      "10100",
-      "11000",
-      "10100",
-      "10010",
-      "10001"
-    ],
+  }
 
-    "L":[
-      "10000",
-      "10000",
-      "10000",
-      "10000",
-      "10000",
-      "10000",
-      "11111"
-    ],
 
-    "M":[
-      "10001",
-      "11011",
-      "10101",
-      "10101",
-      "10001",
-      "10001",
-      "10001"
-    ],
+  return 10;
 
-    "N":[
-      "10001",
-      "11001",
-      "10101",
-      "10011",
-      "10001",
-      "10001",
-      "10001"
-    ],
+}
 
-    "O":[
-      "01110",
-      "10001",
-      "10001",
-      "10001",
-      "10001",
-      "10001",
-      "01110"
-    ],
 
-    "P":[
-      "11110",
-      "10001",
-      "10001",
-      "11110",
-      "10000",
-      "10000",
-      "10000"
-    ],
 
-    "Q":[
-      "01110",
-      "10001",
-      "10001",
-      "10001",
-      "10101",
-      "10010",
-      "01101"
-    ],
+/* ==================================================
+   NORMALIZAR DESTINO
+   Segurança extra caso a API devolva
+   o nome completo.
+================================================== */
 
-    "R":[
-      "11110",
-      "10001",
-      "10001",
-      "11110",
-      "10100",
-      "10010",
-      "10001"
-    ],
+function normalizarDestino(
+  destino
+) {
 
-    "S":[
-      "01111",
-      "10000",
-      "10000",
-      "01110",
-      "00001",
-      "00001",
-      "11110"
-    ],
+  if (!destino) {
+    return "--------";
+  }
 
-    "T":[
-      "11111",
-      "00100",
-      "00100",
-      "00100",
-      "00100",
-      "00100",
-      "00100"
-    ],
 
-    "U":[
-      "10001",
-      "10001",
-      "10001",
-      "10001",
-      "10001",
-      "10001",
-      "01110"
-    ],
+  const texto =
+    String(destino)
+      .toUpperCase()
+      .normalize("NFD")
+      .replace(
+        /[\u0300-\u036f]/g,
+        ""
+      )
+      .trim();
 
-    "V":[
-      "10001",
-      "10001",
-      "10001",
-      "10001",
-      "10001",
-      "01010",
-      "00100"
-    ],
 
-    "W":[
-      "10001",
-      "10001",
-      "10001",
-      "10101",
-      "10101",
-      "10101",
-      "01010"
-    ],
+  if (
+    texto.includes("ROSSIO")
+  ) {
 
-    "X":[
-      "10001",
-      "10001",
-      "01010",
-      "00100",
-      "01010",
-      "10001",
-      "10001"
-    ],
+    return "LIS-ROSSIO";
 
-    "Y":[
-      "10001",
-      "10001",
-      "01010",
-      "00100",
-      "00100",
-      "00100",
-      "00100"
-    ],
+  }
 
-    "Z":[
-      "11111",
-      "00001",
-      "00010",
-      "00100",
-      "01000",
-      "10000",
-      "11111"
-    ],
 
-    "0":[
-      "01110",
-      "10001",
-      "10011",
-      "10101",
-      "11001",
-      "10001",
-      "01110"
-    ],
+  if (
+    texto.includes("ORIENTE")
+  ) {
 
-    "1":[
-      "00100",
-      "01100",
-      "00100",
-      "00100",
-      "00100",
-      "00100",
-      "01110"
-    ],
+    return "LIS-ORIENTE";
 
-    "2":[
-      "01110",
-      "10001",
-      "00001",
-      "00010",
-      "00100",
-      "01000",
-      "11111"
-    ],
+  }
 
-    "3":[
-      "11110",
-      "00001",
-      "00001",
-      "01110",
-      "00001",
-      "00001",
-      "11110"
-    ],
 
-    "4":[
-      "00010",
-      "00110",
-      "01010",
-      "10010",
-      "11111",
-      "00010",
-      "00010"
-    ],
+  if (
+    texto.includes("SANTA APOLONIA") ||
+    texto.includes("S.APOLONIA") ||
+    texto.includes("S. APOLONIA")
+  ) {
 
-    "5":[
-      "11111",
-      "10000",
-      "10000",
-      "11110",
-      "00001",
-      "00001",
-      "11110"
-    ],
+    return "LIS-S.APOL";
 
-    "6":[
-      "01110",
-      "10000",
-      "10000",
-      "11110",
-      "10001",
-      "10001",
-      "01110"
-    ],
+  }
 
-    "7":[
-      "11111",
-      "00001",
-      "00010",
-      "00100",
-      "01000",
-      "01000",
-      "01000"
-    ],
 
-    "8":[
-      "01110",
-      "10001",
-      "10001",
-      "01110",
-      "10001",
-      "10001",
-      "01110"
-    ],
+  if (
+    texto.includes("MELECAS")
+  ) {
 
-    "9":[
-      "01110",
-      "10001",
-      "10001",
-      "01111",
-      "00001",
-      "00001",
-      "01110"
-    ],
+    return "MELEÇAS";
 
-    ":":[
-      "00000",
-      "00100",
-      "00100",
-      "00000",
-      "00100",
-      "00100",
-      "00000"
-    ],
+  }
 
-    "-":[
-      "00000",
-      "00000",
-      "00000",
-      "11111",
-      "00000",
-      "00000",
-      "00000"
-    ],
 
-    ".":[
-      "00000",
-      "00000",
-      "00000",
-      "00000",
-      "00000",
-      "00110",
-      "00110"
-    ],
+  if (
+    texto.includes("SINTRA")
+  ) {
 
-    " ":[
-      "00000",
-      "00000",
-      "00000",
-      "00000",
-      "00000",
-      "00000",
-      "00000"
-    ]
+    return "SINTRA";
+
+  }
+
+
+  if (
+    texto.includes("ALVERCA")
+  ) {
+
+    return "ALVERCA";
+
+  }
+
+
+  if (
+    texto.includes("CALDAS")
+  ) {
+
+    return "CALDAS RAINHA";
+
+  }
+
+
+  /*
+    Se a API já devolveu a abreviatura
+    correta, mantém como está.
+  */
+
+  return String(destino)
+    .toUpperCase();
+
+}
+
+
+
+/* ==================================================
+   VIA
+================================================== */
+
+function obterVia(
+  partida
+) {
+
+  /*
+    Se a API já enviar a via,
+    usamos esse valor.
+  */
+
+  if (
+    partida.via !== undefined &&
+    partida.via !== null &&
+    String(partida.via).trim() !== ""
+  ) {
+
+    return String(
+      partida.via
+    );
+
+  }
+
+
+  /*
+    Fallback baseado no destino.
+  */
+
+  const destino =
+    normalizarDestino(
+      partida.destino ||
+      partida.destinoOriginal
+    );
+
+
+  const vias = {
+
+    "SINTRA": "2",
+
+    "MELEÇAS": "1",
+
+    "LIS-ORIENTE": "3",
+
+    "ALVERCA": "3",
+
+    "LIS-ROSSIO": "4",
+
+    "LIS-S.APOL": "3",
+
+    "CALDAS RAINHA": "1"
 
   };
 
 
-  const canvas =
-    document.getElementById("board");
+  return vias[destino] || "-";
 
-  const ctx =
-    canvas.getContext("2d");
+}
 
 
-  let partidas = [];
 
-  let mensagem =
-    "SINCRONIZANDO";
+/* ==================================================
+   MOSTRAR PARTIDAS
+================================================== */
 
+function mostrarPartidas(
+  lista
+) {
 
-  const GREEN =
-    "#c8f52a";
-
-  const GREEN_DIM =
-    "rgba(200,245,42,0.16)";
-
-  const DARK =
-    "#10180c";
-
-
-  function normalizarDestino(destino) {
-
-    if (!destino) {
-      return "";
-    }
-
-    const texto =
-      String(destino)
-        .toUpperCase()
-        .normalize("NFD")
-        .replace(
-          /[\u0300-\u036f]/g,
-          ""
-        )
-        .trim();
-
-
-    if (
-      texto.includes("ORIENTE")
-    ) {
-      return "LISBOA-ORIENTE";
-    }
-
-
-    if (
-      texto.includes("ALVERCA")
-    ) {
-      return "ALVERCA";
-    }
-
-
-    if (
-      texto.includes("SANTA APOLONIA") ||
-      texto.includes("S.APOLONIA") ||
-      texto.includes("S. APOLONIA") ||
-      texto.includes("LISBOA-S.A")
-    ) {
-      return "LISBOA-S.A";
-    }
-
-
-    return "";
-  }
-
-
-  function obterLinha(destino) {
-
-    if (
-      destino === "LISBOA-S.A"
-    ) {
-      return "4";
-    }
-
-
-    if (
-      destino === "LISBOA-ORIENTE" ||
-      destino === "ALVERCA"
-    ) {
-      return "3";
-    }
-
-
-    return "";
-  }
-
-
-  function larguraTexto(
-    texto,
-    pixel,
-    gap = 1
-  ) {
-
-    const characterWidth =
-      (5 + gap) * pixel;
-
-
-    return (
-      texto.length *
-      characterWidth
-      -
-      gap * pixel
+  const container =
+    document.getElementById(
+      "departures"
     );
-  }
 
 
-  function desenharCaracter(
-    char,
-    x,
-    y,
-    pixel,
-    cor = GREEN,
-    glow = true
-  ) {
-
-    const pattern =
-      FONT[char] ||
-      FONT[" "];
+  container.innerHTML =
+    "";
 
 
-    ctx.save();
+  const limite =
+    numeroLinhas();
 
 
-    if (glow) {
-
-      ctx.shadowColor =
-        "rgba(200,245,42,.55)";
-
-      ctx.shadowBlur =
-        pixel * 1.15;
-    }
+  const partidas =
+    lista.slice(
+      0,
+      limite
+    );
 
 
-    ctx.fillStyle =
-      cor;
+  partidas.forEach(
+    partida => {
 
 
-    for (
-      let row = 0;
-      row < 7;
-      row++
-    ) {
-
-      for (
-        let col = 0;
-        col < 5;
-        col++
-      ) {
-
-        if (
-          pattern[row][col] === "1"
-        ) {
-
-          const inset =
-            Math.max(
-              .4,
-              pixel * .10
-            );
-
-
-          ctx.fillRect(
-
-            x +
-            col * pixel +
-            inset,
-
-            y +
-            row * pixel +
-            inset,
-
-            pixel -
-            inset * 2,
-
-            pixel -
-            inset * 2
-
-          );
-
-        }
-
-      }
-
-    }
-
-
-    ctx.restore();
-  }
-
-
-  function desenharTexto(
-    texto,
-    x,
-    y,
-    pixel,
-    options = {}
-  ) {
-
-    const {
-      color = GREEN,
-      glow = true,
-      gap = 1
-    } = options;
-
-
-    texto =
-      String(texto).toUpperCase();
-
-
-    let cursorX =
-      x;
-
-
-    for (
-      const char of texto
-    ) {
-
-      desenharCaracter(
-        char,
-        cursorX,
-        y,
-        pixel,
-        color,
-        glow
-      );
-
-
-      cursorX +=
-        (5 + gap) *
-        pixel;
-    }
-  }
-
-
-  function desenharCabecalho(
-    width,
-    top,
-    left,
-    right,
-    pixel
-  ) {
-
-    const barHeight =
-      9 * pixel;
-
-
-    for (
-      let y = top;
-      y < top + barHeight;
-      y += pixel
-    ) {
-
-      for (
-        let x = left;
-        x < width - right;
-        x += pixel
-      ) {
-
-        const inset =
-          Math.max(
-            .45,
-            pixel * .09
-          );
-
-
-        ctx.save();
-
-        ctx.fillStyle =
-          GREEN;
-
-        ctx.shadowColor =
-          "rgba(200,245,42,.40)";
-
-        ctx.shadowBlur =
-          pixel;
-
-
-        ctx.fillRect(
-          x + inset,
-          y + inset,
-          pixel - inset * 2,
-          pixel - inset * 2
+      const linha =
+        document.createElement(
+          "div"
         );
 
 
-        ctx.restore();
-      }
-    }
+      linha.className =
+        "departure";
 
 
-    const titulo =
-      "PARTIDAS";
+
+      /* HORA */
+
+      const hora =
+        document.createElement(
+          "div"
+        );
 
 
-    const titleWidth =
-      larguraTexto(
-        titulo,
-        pixel
+      hora.className =
+        "time";
+
+
+      hora.textContent =
+        partida.hora ||
+        "--:--";
+
+
+
+      /* DESTINO */
+
+      const destino =
+        document.createElement(
+          "div"
+        );
+
+
+      destino.className =
+        "destination";
+
+
+      destino.textContent =
+        normalizarDestino(
+          partida.destino ||
+          partida.destinoOriginal
+        );
+
+
+
+      /* VIA */
+
+      const via =
+        document.createElement(
+          "div"
+        );
+
+
+      via.className =
+        "platform";
+
+
+      via.textContent =
+        obterVia(
+          partida
+        );
+
+
+
+      linha.appendChild(
+        hora
       );
 
 
-    const titleX =
-      (width - titleWidth) / 2;
+      linha.appendChild(
+        destino
+      );
 
 
-    const titleY =
-      top + pixel;
+      linha.appendChild(
+        via
+      );
 
 
-    ctx.fillStyle =
-      GREEN;
+      container.appendChild(
+        linha
+      );
+
+    }
+  );
 
 
-    ctx.fillRect(
-      titleX - pixel,
-      titleY - pixel / 2,
-      titleWidth + pixel * 2,
-      pixel * 8
-    );
 
+  /*
+    Mantém sempre o mesmo número
+    visual de linhas.
+  */
 
-    desenharTexto(
-      titulo,
-      titleX,
-      titleY,
-      pixel,
-      {
-        color: DARK,
-        glow: false
-      }
-    );
-  }
-
-
-  function desenharMatrizFundo(
-    width,
-    height
+  for (
+    let i = partidas.length;
+    i < limite;
+    i++
   ) {
 
-    const spacing =
-      Math.max(
-        5,
-        width / 240
+
+    const linha =
+      document.createElement(
+        "div"
       );
 
 
-    ctx.save();
-
-    ctx.fillStyle =
-      GREEN_DIM;
+    linha.className =
+      "departure";
 
 
-    for (
-      let y = spacing;
-      y < height;
-      y += spacing
-    ) {
-
-      for (
-        let x = spacing;
-        x < width;
-        x += spacing
-      ) {
-
-        ctx.fillRect(
-          x,
-          y,
-          .55,
-          .55
-        );
-      }
-    }
+    linha.innerHTML =
+      `
+        <div></div>
+        <div></div>
+        <div></div>
+      `;
 
 
-    ctx.restore();
+    container.appendChild(
+      linha
+    );
+
   }
 
+}
 
-  function render() {
 
-    const rect =
-      canvas.getBoundingClientRect();
 
+/* ==================================================
+   CACHE
+================================================== */
 
-    const dpr =
-      Math.min(
-        window.devicePixelRatio || 1,
-        2
-      );
+function guardarCache(
+  lista
+) {
 
+  try {
 
-    canvas.width =
-      Math.round(
-        rect.width * dpr
-      );
 
+    localStorage.setItem(
 
-    canvas.height =
-      Math.round(
-        rect.height * dpr
-      );
+      CACHE_KEY,
 
+      JSON.stringify({
 
-    ctx.setTransform(
-      dpr,
-      0,
-      0,
-      dpr,
-      0,
-      0
-    );
-
-
-    const width =
-      rect.width;
-
-
-    const height =
-      rect.height;
-
-
-    ctx.clearRect(
-      0,
-      0,
-      width,
-      height
-    );
-
-
-    desenharMatrizFundo(
-      width,
-      height
-    );
-
-
-    const scale =
-      Math.min(
-        width / 1500,
-        height / 900
-      );
-
-
-    const isPhonePortrait =
-      width < 500 &&
-      height > width;
-
-
-    const marginX =
-      isPhonePortrait
-        ? width * .08
-        : Math.max(
-            35,
-            width * .085
-          );
-
-
-    /*
-    ==========================
-    CABEÇALHO
-    ==========================
-    */
-
-    const headerPixel =
-      isPhonePortrait
-        ? width / 92
-        : Math.max(
-            5,
-            8 * scale
-          );
-
-
-    const headerTop =
-      isPhonePortrait
-        ? height * .10
-        : height * .115;
-
-
-    desenharCabecalho(
-      width,
-      headerTop,
-      marginX,
-      marginX,
-      headerPixel
-    );
-
-
-    /*
-    ==========================
-    TAMANHO DAS LETRAS
-    ==========================
-    */
-
-    const textPixel =
-      isPhonePortrait
-        ? width / 110
-        : Math.max(
-            5.2,
-            7.2 * scale
-          );
-
-
-    const columnY =
-      headerTop +
-      headerPixel *
-      (
-        isPhonePortrait
-          ? 13
-          : 12
-      );
-
-
-    /*
-    ==========================
-    POSIÇÃO DAS COLUNAS
-    ==========================
-    */
-
-    const horaX =
-      isPhonePortrait
-        ? width * .07
-        : width * .10;
-
-
-    const destinoX =
-      isPhonePortrait
-        ? width * .30
-        : width * .30;
-
-
-    const linhaX =
-      isPhonePortrait
-        ? width * .865
-        : width * .86;
-
-
-    /*
-    ==========================
-    CABEÇALHOS
-    ==========================
-    */
-
-    desenharTexto(
-      "HORA",
-      horaX,
-      columnY,
-      textPixel
-    );
-
-
-    desenharTexto(
-      "DESTINO",
-      destinoX,
-      columnY,
-      textPixel
-    );
-
-
-    desenharTexto(
-      "LINHA",
-      linhaX,
-      columnY,
-      isPhonePortrait
-        ? textPixel * .75
-        : textPixel * .82
-    );
-
-
-    /*
-    ==========================
-    LINHAS DE PARTIDAS
-    ==========================
-    */
-
-    const firstRowY =
-      columnY +
-      textPixel *
-      (
-        isPhonePortrait
-          ? 11.5
-          : 11
-      );
-
-
-    const rowGap =
-      textPixel *
-      (
-        isPhonePortrait
-          ? 11
-          : 10.4
-      );
-
-
-    if (
-      partidas.length === 0
-    ) {
-
-      const messagePixel =
-        isPhonePortrait
-          ? textPixel * .72
-          : textPixel * .85;
-
-
-      desenharTexto(
-        mensagem,
-        destinoX,
-        firstRowY,
-        messagePixel
-      );
-
-      return;
-    }
-
-
-    partidas
-      .slice(
-        0,
-        MAX_PARTIDAS
-      )
-      .forEach(
-        (
-          comboio,
-          index
-        ) => {
-
-          const y =
-            firstRowY +
-            index * rowGap;
-
-
-          /*
-          HORA
-          */
-
-          desenharTexto(
-            comboio.hora ||
-            "--:--",
-            horaX,
-            y,
-            textPixel
-          );
-
-
-          /*
-          DESTINO
-          */
-
-          desenharTexto(
-            comboio.destinoPainel,
-            destinoX,
-            y,
-            isPhonePortrait
-              ? textPixel
-              : textPixel * .90
-          );
-
-
-          /*
-          LINHA
-          */
-
-          desenharTexto(
-            obterLinha(
-              comboio.destinoPainel
-            ),
-            linhaX,
-            y,
-            textPixel
-          );
-
-        }
-      );
-  }
-
-
-  async function carregarPartidas() {
-
-    try {
-
-      const response =
-        await fetch(
-          API_URL +
-          "?t=" +
+        guardadoEm:
           Date.now(),
-          {
-            cache: "no-store"
-          }
-        );
+
+        lista:
+          lista
+
+      })
+
+    );
 
 
-      if (
-        !response.ok
-      ) {
-
-        throw new Error(
-          "HTTP " +
-          response.status
-        );
-      }
-
-
-      const dados =
-        await response.json();
-
-
-      console.log(
-        "Resposta API:",
-        dados
-      );
-
-
-      const lista =
-        Array.isArray(dados)
-          ? dados
-          : dados.partidas || [];
-
-
-      partidas =
-        lista
-
-          .map(
-            comboio => {
-
-              const destino =
-                normalizarDestino(
-                  comboio.destino ||
-                  comboio.destination ||
-                  comboio.destinoOriginal
-                );
-
-
-              return {
-                ...comboio,
-                destinoPainel:
-                  destino
-              };
-
-            }
-          )
-
-          .filter(
-            comboio =>
-
-              comboio.destinoPainel ===
-                "LISBOA-ORIENTE"
-
-              ||
-
-              comboio.destinoPainel ===
-                "ALVERCA"
-
-              ||
-
-              comboio.destinoPainel ===
-                "LISBOA-S.A"
-          )
-
-          .slice(
-            0,
-            MAX_PARTIDAS
-          );
-
-
-      mensagem =
-        partidas.length
-          ? ""
-          : "SEM PARTIDAS";
-
-
-      render();
-
-    }
-
-    catch (erro) {
-
-      console.error(
-        "Erro ao carregar partidas:",
-        erro
-      );
-
-
-      partidas = [];
-
-      mensagem =
-        "SEM LIGACAO";
-
-
-      render();
-    }
   }
 
+  catch (
+    erro
+  ) {
 
-  window.addEventListener(
-    "resize",
-    render
-  );
+  }
+
+}
 
 
-  window.addEventListener(
-    "orientationchange",
-    function () {
-      setTimeout(
-        render,
-        250
+
+function carregarCache() {
+
+  try {
+
+
+    const bruto =
+      localStorage.getItem(
+        CACHE_KEY
       );
+
+
+    if (!bruto) {
+
+      return false;
+
     }
+
+
+    const cache =
+      JSON.parse(
+        bruto
+      );
+
+
+    if (
+      !cache ||
+      !Array.isArray(
+        cache.lista
+      ) ||
+      !cache.guardadoEm
+    ) {
+
+      return false;
+
+    }
+
+
+    const idade =
+      Date.now() -
+      cache.guardadoEm;
+
+
+    if (
+      idade >
+      CACHE_MAX_AGE
+    ) {
+
+      return false;
+
+    }
+
+
+    mostrarPartidas(
+      cache.lista
+    );
+
+
+    return true;
+
+
+  }
+
+  catch (
+    erro
+  ) {
+
+
+    return false;
+
+  }
+
+}
+
+
+
+/* ==================================================
+   CARREGAR API
+================================================== */
+
+async function carregarPartidas() {
+
+  const footer =
+    document.getElementById(
+      "footer"
+    );
+
+
+  try {
+
+
+    const response =
+      await fetch(
+        API_URL,
+        {
+          cache:
+            "no-store"
+        }
+      );
+
+
+    if (
+      !response.ok
+    ) {
+
+
+      throw new Error(
+        "HTTP " +
+        response.status
+      );
+
+
+    }
+
+
+    const dados =
+      await response.json();
+
+
+    const lista =
+      Array.isArray(
+        dados
+      )
+
+      ? dados
+
+      : (
+
+        Array.isArray(
+          dados.partidas
+        )
+
+        ? dados.partidas
+
+        : []
+
+      );
+
+
+    if (
+      lista.length > 0
+    ) {
+
+
+      mostrarPartidas(
+        lista
+      );
+
+
+      guardarCache(
+        lista
+      );
+
+
+      footer.textContent =
+        "INFORMAÇÃO EM TEMPO REAL";
+
+
+    }
+
+
+    else {
+
+
+      footer.textContent =
+        "SEM PARTIDAS";
+
+
+    }
+
+
+  }
+
+  catch (
+    erro
+  ) {
+
+
+    console.error(
+      "Erro:",
+      erro
+    );
+
+
+    footer.textContent =
+      "LIGAÇÃO TEMPORARIAMENTE INDISPONÍVEL";
+
+
+  }
+
+}
+
+
+
+/* ==================================================
+   ARRANQUE
+================================================== */
+
+const temCache =
+  carregarCache();
+
+
+if (
+  !temCache
+) {
+
+  mostrarPartidas(
+    []
   );
 
-
-  render();
-
-  carregarPartidas();
+}
 
 
-  setInterval(
-    carregarPartidas,
-    REFRESH_INTERVAL
-  );
+carregarPartidas();
+
+
+setInterval(
+  carregarPartidas,
+  REFRESH_INTERVAL
+);
+
+
+
+/*
+  Se rodarmos o iPhone,
+  recalcula o número de linhas.
+*/
+
+window.addEventListener(
+  "resize",
+  function () {
+
+    carregarPartidas();
+
+  }
+);
 
 </script>
+
 
 </body>
 </html>
