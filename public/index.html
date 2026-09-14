@@ -12,7 +12,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
-<meta name="theme-color" content="#020803">
+<meta name="theme-color" content="#000000">
 
 <title>Partidas</title>
 
@@ -26,6 +26,10 @@
 
 <style>
 
+/* ==================================================
+   RESET
+================================================== */
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -36,49 +40,74 @@ html,
 body {
   width: 100%;
   height: 100%;
+
   overflow: hidden;
-  background: #020302;
+
+  background: #000;
 }
 
 body {
   display: flex;
   align-items: center;
   justify-content: center;
+
   font-family: "VT323", monospace;
 }
 
 
 /* ==================================================
-   MONITOR
+   CARCAÇA VELEC
 ================================================== */
 
 .monitor {
   position: relative;
 
-  width: min(98vw, 1200px);
-  height: min(94vh, 760px);
+  width: min(96vw, 1000px);
 
-  padding: clamp(10px, 2vw, 26px);
+  aspect-ratio: 4 / 3;
+
+  padding: 3.4%;
 
   background:
     linear-gradient(
       145deg,
-      #151b18 0%,
-      #080b09 45%,
-      #030403 100%
+      #181916 0%,
+      #090a08 50%,
+      #181916 100%
     );
 
-  border: 2px solid #262d29;
-  border-radius: clamp(12px, 2vw, 28px);
+  border: 2px solid #252722;
+
+  border-radius: 2.5%;
 
   box-shadow:
-    0 35px 110px rgba(0,0,0,.95),
-    inset 0 0 30px rgba(255,255,255,.035);
+    0 25px 80px rgba(0,0,0,.95),
+    inset 0 0 20px rgba(255,255,255,.05);
 }
 
 
 /* ==================================================
-   CRT
+   MOLDURA INTERIOR
+================================================== */
+
+.monitor::before {
+  content: "";
+
+  position: absolute;
+
+  inset: 2%;
+
+  border-radius: 2%;
+
+  box-shadow:
+    inset 0 0 20px rgba(0,0,0,.95);
+
+  pointer-events: none;
+}
+
+
+/* ==================================================
+   TUBO CRT
 ================================================== */
 
 .crt {
@@ -89,69 +118,90 @@ body {
 
   overflow: hidden;
 
-  border-radius: 7% / 10%;
+  border-radius: 8% / 10%;
 
-  padding: 7% 7% 5%;
-
-  color: #c9ef35;
+  padding:
+    8% 9% 7%;
 
   background:
     radial-gradient(
-      ellipse at center,
-      #16361d 0%,
-      #0b2512 52%,
-      #020803 100%
+      ellipse at 48% 46%,
+      #4a5145 0%,
+      #30392f 38%,
+      #172018 72%,
+      #070a07 100%
     );
 
-  box-shadow:
-    inset 0 0 45px rgba(0,0,0,.92),
-    inset 0 0 110px rgba(0,0,0,.75);
+  color: #d8f34b;
 
-  animation: flicker 7s infinite;
+  box-shadow:
+    inset 0 0 38px rgba(0,0,0,.65),
+    inset 0 0 90px rgba(0,0,0,.72);
+
+  animation:
+    crtFlicker 7s infinite;
 }
 
 
-/* VINHETA */
+/* ==================================================
+   REFLEXO / VIDRO
+================================================== */
 
 .crt::before {
   content: "";
 
   position: absolute;
+
   inset: 0;
 
   z-index: 20;
+
   pointer-events: none;
 
   background:
+
+    linear-gradient(
+      108deg,
+      rgba(255,255,255,.04) 0%,
+      transparent 24%,
+      transparent 67%,
+      rgba(255,255,255,.025) 76%,
+      transparent 100%
+    ),
+
     radial-gradient(
       ellipse at center,
-      transparent 42%,
-      rgba(0,0,0,.10) 65%,
-      rgba(0,0,0,.60) 100%
+      transparent 40%,
+      rgba(0,0,0,.08) 65%,
+      rgba(0,0,0,.48) 100%
     );
 }
 
 
-/* SCANLINES */
+/* ==================================================
+   SCANLINES
+================================================== */
 
 .crt::after {
   content: "";
 
   position: absolute;
+
   inset: 0;
 
   z-index: 30;
+
   pointer-events: none;
 
-  opacity: .44;
+  opacity: .38;
 
   background:
     repeating-linear-gradient(
       to bottom,
-      rgba(255,255,255,.025) 0,
-      rgba(255,255,255,.025) 1px,
+      rgba(255,255,255,.035) 0,
+      rgba(255,255,255,.035) 1px,
       transparent 1px,
-      transparent 4px
+      transparent 3px
     );
 }
 
@@ -160,121 +210,229 @@ body {
    CONTEÚDO
 ================================================== */
 
-.content {
+.screen-content {
   position: relative;
+
   z-index: 5;
 
   width: 100%;
   height: 100%;
+
+  display: flex;
+  flex-direction: column;
+
+  filter:
+    blur(.15px);
 }
 
 
 /* ==================================================
-   TÍTULO
+   FAIXA PARTIDAS
 ================================================== */
 
-.title {
-  text-align: left;
+.title-bar {
+  width: 100%;
 
-  font-size: clamp(22px, 3.3vw, 48px);
+  height: 11%;
 
-  line-height: .9;
-  letter-spacing: .04em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
-  margin-bottom: clamp(7px, 1.2vh, 14px);
+  background: #d6ef45;
+
+  color: #29351d;
+
+  font-size:
+    clamp(24px, 4.2vw, 54px);
+
+  line-height: .8;
+
+  letter-spacing: .025em;
+
+  text-shadow: none;
+
+  box-shadow:
+    0 0 9px rgba(220,255,60,.35);
+}
+
+
+.title-text {
+  display: inline-block;
+
+  transform: scaleY(1.13);
+
+  transform-origin: center;
 }
 
 
 /* ==================================================
-   CABEÇALHO
+   CABEÇALHO HORA DESTINO VIA
 ================================================== */
 
-.header {
+.header-bar {
+  width: 100%;
+
+  height: 10%;
+
   display: grid;
 
   grid-template-columns:
-    23% 61% 16%;
+    24% 60% 16%;
 
   align-items: center;
 
-  padding-bottom: clamp(2px, .4vh, 5px);
+  padding:
+    0 2%;
 
-  border-bottom:
-    1px solid rgba(201,239,53,.42);
+  background: #d6ef45;
 
-  font-size: clamp(15px, 2.1vw, 31px);
+  color: #29351d;
 
-  line-height: 1;
+  font-size:
+    clamp(21px, 3.8vw, 48px);
+
+  line-height: .8;
+
+  box-shadow:
+    0 0 9px rgba(220,255,60,.30);
 }
 
-.header .via {
+
+.header-item {
+  display: inline-block;
+
+  transform: scaleY(1.12);
+
+  transform-origin: center;
+}
+
+
+.header-destination {
+  text-align: left;
+}
+
+
+.header-platform {
   text-align: right;
+}
+
+
+/* ==================================================
+   ESPAÇO ENTRE CABEÇALHO E PARTIDAS
+================================================== */
+
+.list-gap {
+  height: 2.2%;
+  flex: 0 0 auto;
 }
 
 
 /* ==================================================
    LISTA
-
-   IMPORTANTE:
-   já NÃO ocupa automaticamente toda a altura.
 ================================================== */
 
 .departures {
-  display: block;
-
   width: 100%;
 
-  padding-top:
-    clamp(5px, .8vh, 10px);
+  display: flex;
+  flex-direction: column;
+
+  align-items: stretch;
 }
 
 
 /* ==================================================
-   LINHAS
-
-   Agora ficam compactas, como no CRT verdadeiro.
+   LINHA INDIVIDUAL
 ================================================== */
 
 .departure {
+  width: 100%;
+
   display: grid;
 
   grid-template-columns:
-    23% 61% 16%;
+    24% 60% 16%;
 
-  align-items: baseline;
+  align-items: center;
 
-  width: 100%;
+  padding:
+    0 2%;
+
+  min-height: 8.7%;
 
   font-size:
-    clamp(23px, 3.5vw, 52px);
+    clamp(25px, 4.5vw, 58px);
 
-  line-height: .92;
+  line-height: .76;
 
-  letter-spacing: .005em;
+  letter-spacing: -.015em;
 
-  margin-bottom:
-    clamp(2px, .55vh, 7px);
+  color: #d4ef47;
 
   text-shadow:
-    0 0 6px rgba(200,239,53,.36);
+    0 0 4px rgba(211,239,71,.48);
 }
 
 
-.departure .time {
+/* ligeira irregularidade de CRT */
+
+.departure:nth-child(2n) {
+  opacity: .96;
+}
+
+.departure:nth-child(3n) {
+  opacity: .92;
+}
+
+
+/* ==================================================
+   HORA
+================================================== */
+
+.time {
   white-space: nowrap;
 }
 
 
-.departure .destination {
+/* ==================================================
+   DESTINO
+================================================== */
+
+.destination {
   white-space: nowrap;
+
   overflow: hidden;
+
   text-overflow: clip;
 }
 
 
-.departure .platform {
+/* ==================================================
+   VIA
+================================================== */
+
+.platform {
   text-align: right;
+
   white-space: nowrap;
+}
+
+
+/* ==================================================
+   LETRAS MAIS ALTAS COMO NO VELEC
+================================================== */
+
+.time span,
+.destination span,
+.platform span {
+  display: inline-block;
+
+  transform:
+    scaleY(1.16);
+
+  transform-origin:
+    left center;
 }
 
 
@@ -282,83 +440,37 @@ body {
    FLICKER
 ================================================== */
 
-@keyframes flicker {
+@keyframes crtFlicker {
 
-  0%   { opacity: 1; }
-  96%  { opacity: 1; }
-  97%  { opacity: .992; }
-  98%  { opacity: 1; }
-  99%  { opacity: .986; }
-  100% { opacity: 1; }
-
-}
-
-
-/* ==================================================
-   IPHONE LANDSCAPE
-================================================== */
-
-@media
-(max-height: 500px)
-and
-(orientation: landscape) {
-
-  .monitor {
-    width: 100vw;
-    height: 100vh;
-
-    padding: 7px 10px;
-
-    border: 0;
-    border-radius: 0;
+  0% {
+    opacity: 1;
   }
 
-
-  .crt {
-    padding: 5% 6% 4%;
-    border-radius: 6% / 13%;
+  94% {
+    opacity: 1;
   }
 
-
-  .title {
-    font-size:
-      clamp(18px, 3vw, 27px);
-
-    margin-bottom: 5px;
+  95% {
+    opacity: .988;
   }
 
-
-  .header {
-    font-size:
-      clamp(11px, 1.8vw, 16px);
-
-    grid-template-columns:
-      22% 62% 16%;
+  96% {
+    opacity: 1;
   }
 
-
-  .departure {
-    grid-template-columns:
-      22% 62% 16%;
-
-    font-size:
-      clamp(18px, 3vw, 27px);
-
-    line-height: .91;
-
-    margin-bottom: 2px;
+  98% {
+    opacity: .993;
   }
 
-
-  .departures {
-    padding-top: 4px;
+  100% {
+    opacity: 1;
   }
 
 }
 
 
 /* ==================================================
-   IPHONE PORTRAIT
+   IPHONE EM PÉ
 ================================================== */
 
 @media
@@ -367,10 +479,11 @@ and
 (orientation: portrait) {
 
   .monitor {
-    width: 96vw;
-    height: 80vh;
+    width: 97vw;
 
-    padding: 10px;
+    aspect-ratio: 4 / 3;
+
+    padding: 3%;
   }
 
 
@@ -380,61 +493,75 @@ and
   }
 
 
-  /*
-    Sem AGUALVA-CACÉM.
-    PARTIDAS fica mais perto do topo.
-  */
-
-  .title {
+  .title-bar {
     font-size:
-      clamp(22px, 6.7vw, 38px);
-
-    margin-bottom:
-      clamp(7px, 1vh, 11px);
+      clamp(24px, 7vw, 42px);
   }
 
 
-  /*
-    As colunas ficam mais próximas
-    do painel VELEC real.
-  */
-
-  .header {
-    grid-template-columns:
-      23% 62% 15%;
-
+  .header-bar {
     font-size:
-      clamp(13px, 3.8vw, 22px);
+      clamp(20px, 5.7vw, 34px);
+
+    grid-template-columns:
+      25% 59% 16%;
   }
 
 
   .departure {
     grid-template-columns:
-      23% 62% 15%;
-
-    /*
-      Letras grandes mas linhas juntas.
-    */
+      25% 59% 16%;
 
     font-size:
-      clamp(24px, 6.4vw, 38px);
+      clamp(24px, 7.2vw, 43px);
 
-    line-height: .90;
+    min-height: 8.6%;
+  }
 
-    /*
-      ESTE é o grande ajuste:
-      praticamente não existe o enorme
-      espaço vertical da versão anterior.
-    */
+}
 
-    margin-bottom:
-      clamp(2px, .5vh, 5px);
+
+/* ==================================================
+   IPHONE DEITADO
+================================================== */
+
+@media
+(max-height: 500px)
+and
+(orientation: landscape) {
+
+  .monitor {
+    height: 96vh;
+
+    width: auto;
+
+    aspect-ratio: 4 / 3;
+
+    padding: 2.5%;
   }
 
 
-  .departures {
-    padding-top:
-      clamp(7px, 1vh, 11px);
+  .crt {
+    padding:
+      7% 8% 6%;
+  }
+
+
+  .title-bar {
+    font-size:
+      clamp(20px, 4vw, 34px);
+  }
+
+
+  .header-bar {
+    font-size:
+      clamp(17px, 3vw, 27px);
+  }
+
+
+  .departure {
+    font-size:
+      clamp(20px, 4vw, 34px);
   }
 
 }
@@ -443,37 +570,62 @@ and
 
 </head>
 
-
 <body>
+
 
 <div class="monitor">
 
   <div class="crt">
 
-    <div class="content">
+    <div class="screen-content">
 
 
-      <div class="title">
-        PARTIDAS
-      </div>
+      <!-- PRIMEIRA FAIXA -->
 
+      <div class="title-bar">
 
-      <div class="header">
-
-        <div>
-          HORA
-        </div>
-
-        <div>
-          DESTINO
-        </div>
-
-        <div class="via">
-          VIA
-        </div>
+        <span class="title-text">
+          PARTIDAS
+        </span>
 
       </div>
 
+
+      <!-- SEGUNDA FAIXA -->
+
+      <div class="header-bar">
+
+        <div>
+          <span class="header-item">
+            HORA
+          </span>
+        </div>
+
+
+        <div class="header-destination">
+
+          <span class="header-item">
+            DESTINO
+          </span>
+
+        </div>
+
+
+        <div class="header-platform">
+
+          <span class="header-item">
+            VIA
+          </span>
+
+        </div>
+
+      </div>
+
+
+      <div class="list-gap"></div>
+
+
+      <!-- PARTIDAS -->
 
       <div
         class="departures"
@@ -503,31 +655,11 @@ const REFRESH_INTERVAL =
 
 
 const CACHE_KEY =
-  "crt-partidas-agualva-v3";
+  "velec-crt-geral-v4";
 
 
 const CACHE_MAX_AGE =
   5 * 60 * 1000;
-
-
-/* ==================================================
-   NÚMERO DE LINHAS
-================================================== */
-
-function numeroLinhas() {
-
-  if (
-    window.innerHeight < 500 &&
-    window.innerWidth > window.innerHeight
-  ) {
-
-    return 8;
-
-  }
-
-  return 10;
-
-}
 
 
 /* ==================================================
@@ -543,28 +675,36 @@ function normalizarDestino(
   }
 
 
-  const texto =
+  const original =
     String(destino)
       .toUpperCase()
+      .trim();
+
+
+  const texto =
+    original
       .normalize("NFD")
       .replace(
         /[\u0300-\u036f]/g,
         ""
-      )
-      .trim();
+      );
 
 
   if (
     texto.includes("ROSSIO")
   ) {
+
     return "LIS-ROSSIO";
+
   }
 
 
   if (
     texto.includes("ORIENTE")
   ) {
+
     return "LIS-ORIENTE";
+
   }
 
 
@@ -574,40 +714,49 @@ function normalizarDestino(
     texto.includes("S. APOLONIA") ||
     texto.includes("LIS-S.APOL")
   ) {
+
     return "LIS-S.APOL";
+
   }
 
 
   if (
     texto.includes("MELECAS")
   ) {
+
     return "MELEÇAS";
+
   }
 
 
   if (
     texto.includes("SINTRA")
   ) {
+
     return "SINTRA";
+
   }
 
 
   if (
     texto.includes("ALVERCA")
   ) {
+
     return "ALVERCA";
+
   }
 
 
   if (
     texto.includes("CALDAS")
   ) {
+
     return "CALDAS RAINHA";
+
   }
 
 
-  return String(destino)
-    .toUpperCase();
+  return original;
 
 }
 
@@ -620,53 +769,147 @@ function obterVia(
   partida
 ) {
 
+  let via = "";
+
+
   if (
     partida.via !== undefined &&
-    partida.via !== null &&
-    String(partida.via).trim() !== ""
+    partida.via !== null
   ) {
 
-    return String(
-      partida.via
-    );
+    via =
+      String(
+        partida.via
+      )
+      .trim();
 
   }
 
 
-  const destino =
-    normalizarDestino(
-      partida.destino ||
-      partida.destinoOriginal
+  if (!via) {
+
+    const destino =
+      normalizarDestino(
+        partida.destino ||
+        partida.destinoOriginal
+      );
+
+
+    const vias = {
+
+      "SINTRA":
+        "2",
+
+      "MELEÇAS":
+        "1",
+
+      "LIS-ORIENTE":
+        "3",
+
+      "ALVERCA":
+        "3",
+
+      "LIS-ROSSIO":
+        "4",
+
+      "LIS-S.APOL":
+        "3",
+
+      "CALDAS RAINHA":
+        "1"
+
+    };
+
+
+    via =
+      vias[destino] ||
+      "-";
+
+  }
+
+
+  /*
+    VELEC antigo:
+    01, 02, 03, 04
+  */
+
+  if (
+    /^\d+$/.test(via)
+  ) {
+
+    via =
+      via.padStart(
+        2,
+        "0"
+      );
+
+  }
+
+
+  return via;
+
+}
+
+
+/* ==================================================
+   HORA SEM :
+================================================== */
+
+function formatarHora(
+  hora
+) {
+
+  if (!hora) {
+
+    return "----";
+
+  }
+
+
+  return String(hora)
+    .replace(
+      ":",
+      ""
+    );
+
+}
+
+
+/* ==================================================
+   QUANTAS LINHAS
+================================================== */
+
+function numeroLinhas() {
+
+  /*
+    Como no painel real:
+    poucas linhas, agrupadas no topo.
+  */
+
+  return 7;
+
+}
+
+
+/* ==================================================
+   CRIAR SPAN
+================================================== */
+
+function textoCRT(
+  texto
+) {
+
+  const span =
+    document.createElement(
+      "span"
     );
 
 
-  const vias = {
-
-    "SINTRA":
-      "2",
-
-    "MELEÇAS":
-      "1",
-
-    "LIS-ORIENTE":
-      "3",
-
-    "ALVERCA":
-      "3",
-
-    "LIS-ROSSIO":
-      "4",
-
-    "LIS-S.APOL":
-      "3",
-
-    "CALDAS RAINHA":
-      "1"
-
-  };
+  span.textContent =
+    texto;
 
 
-  return vias[destino] || "-";
+  return span;
 
 }
 
@@ -689,14 +932,10 @@ function mostrarPartidas(
     "";
 
 
-  const limite =
-    numeroLinhas();
-
-
   const partidas =
     lista.slice(
       0,
-      limite
+      numeroLinhas()
     );
 
 
@@ -704,13 +943,13 @@ function mostrarPartidas(
     partida => {
 
 
-      const linha =
+      const row =
         document.createElement(
           "div"
         );
 
 
-      linha.className =
+      row.className =
         "departure";
 
 
@@ -726,9 +965,17 @@ function mostrarPartidas(
         "time";
 
 
-      hora.textContent =
-        partida.hora ||
-        "--:--";
+      hora.appendChild(
+
+        textoCRT(
+
+          formatarHora(
+            partida.hora
+          )
+
+        )
+
+      );
 
 
       /* DESTINO */
@@ -743,11 +990,18 @@ function mostrarPartidas(
         "destination";
 
 
-      destino.textContent =
-        normalizarDestino(
-          partida.destino ||
-          partida.destinoOriginal
-        );
+      destino.appendChild(
+
+        textoCRT(
+
+          normalizarDestino(
+            partida.destino ||
+            partida.destinoOriginal
+          )
+
+        )
+
+      );
 
 
       /* VIA */
@@ -762,29 +1016,36 @@ function mostrarPartidas(
         "platform";
 
 
-      via.textContent =
-        obterVia(
-          partida
-        );
+      via.appendChild(
+
+        textoCRT(
+
+          obterVia(
+            partida
+          )
+
+        )
+
+      );
 
 
-      linha.appendChild(
+      row.appendChild(
         hora
       );
 
 
-      linha.appendChild(
+      row.appendChild(
         destino
       );
 
 
-      linha.appendChild(
+      row.appendChild(
         via
       );
 
 
       container.appendChild(
-        linha
+        row
       );
 
     }
@@ -828,6 +1089,9 @@ function guardarCache(
 }
 
 
+/* ==================================================
+   CARREGAR CACHE
+================================================== */
 
 function carregarCache() {
 
@@ -840,7 +1104,9 @@ function carregarCache() {
 
 
     if (!bruto) {
+
       return false;
+
     }
 
 
@@ -902,7 +1168,7 @@ async function carregarPartidas() {
 
   try {
 
-    const response =
+    const resposta =
       await fetch(
         API_URL,
         {
@@ -913,19 +1179,19 @@ async function carregarPartidas() {
 
 
     if (
-      !response.ok
+      !resposta.ok
     ) {
 
       throw new Error(
         "HTTP " +
-        response.status
+        resposta.status
       );
 
     }
 
 
     const dados =
-      await response.json();
+      await resposta.json();
 
 
     const lista =
@@ -970,7 +1236,7 @@ async function carregarPartidas() {
   ) {
 
     console.error(
-      "Erro:",
+      "Erro API:",
       erro
     );
 
@@ -1004,12 +1270,6 @@ carregarPartidas();
 setInterval(
   carregarPartidas,
   REFRESH_INTERVAL
-);
-
-
-window.addEventListener(
-  "resize",
-  carregarPartidas
 );
 
 </script>
