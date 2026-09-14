@@ -10,14 +10,6 @@
 
 <title>Painel VELEC</title>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-<link
-  href="https://fonts.googleapis.com/css2?family=VT323&display=swap"
-  rel="stylesheet"
->
-
 <style>
 
 * {
@@ -30,8 +22,8 @@ html,
 body {
   width: 100%;
   height: 100%;
-  background: #050505;
   overflow: hidden;
+  background: #050505;
 }
 
 body {
@@ -44,7 +36,7 @@ body {
 
 /* ==================================================
    PAINEL
-   ================================================== */
+================================================== */
 
 .panel {
   position: relative;
@@ -73,11 +65,10 @@ body {
 
 /* ==================================================
    SUPORTES
-   ================================================== */
+================================================== */
 
 .mount {
   position: absolute;
-
   top: -14%;
 
   width: 5%;
@@ -117,32 +108,27 @@ body {
 
 /* ==================================================
    ECRÃS
-   ================================================== */
+================================================== */
 
 .screens {
   width: 100%;
   height: 100%;
 
   display: grid;
-
-  grid-template-columns:
-    64% 32%;
-
+  grid-template-columns: 64% 32%;
   gap: 4%;
 }
 
 
 /* ==================================================
    PAINEL ESQUERDO
-   ================================================== */
+================================================== */
 
 .left-display {
   position: relative;
-
   overflow: hidden;
 
   border: 8px solid #070a0b;
-
   border-radius: 5px;
 
   background:
@@ -158,16 +144,14 @@ body {
     inset 0 0 8px rgba(255,255,255,.15);
 }
 
-
 .left-display::after {
   content: "";
 
   position: absolute;
   inset: 0;
 
-  pointer-events: none;
-
   z-index: 20;
+  pointer-events: none;
 
   background:
     linear-gradient(
@@ -180,20 +164,17 @@ body {
 
 
 /* ==================================================
-   LABELS
-   ================================================== */
+   HORA / DESTINO
+================================================== */
 
 .hora-label,
 .destino-label {
   position: absolute;
-
   left: 7%;
 
   color: #dfdeb3;
 
-  font-size:
-    clamp(18px, 3vw, 54px);
-
+  font-size: clamp(18px, 3vw, 54px);
   font-weight: 700;
 
   letter-spacing: .02em;
@@ -212,7 +193,7 @@ body {
 
 /* ==================================================
    HORA FLIP-DOT
-   ================================================== */
+================================================== */
 
 .hora {
   position: absolute;
@@ -221,7 +202,6 @@ body {
   top: 24%;
 
   display: flex;
-
   align-items: center;
 
   gap: clamp(6px, .8vw, 16px);
@@ -229,78 +209,58 @@ body {
   z-index: 5;
 }
 
-
 .hora-grupo {
   display: flex;
-
   align-items: center;
 
   gap: clamp(2px, .25vw, 5px);
 
-  --dot:
-    clamp(2px, .55vw, 8px);
-
-  --dot-gap:
-    clamp(.6px, .08vw, 1.8px);
-
-  --char-gap:
-    clamp(2px, .18vw, 4px);
+  --dot: clamp(2px, .55vw, 8px);
+  --dot-gap: clamp(.6px, .08vw, 1.8px);
 }
-
 
 .h-separator {
   color: #dbd8b6;
 
-  font-size:
-    clamp(20px, 2.8vw, 47px);
+  font-size: clamp(20px, 2.8vw, 47px);
 
   font-family: Arial, sans-serif;
-
   font-weight: 400;
 }
 
 
 /* ==================================================
    DESTINO FLIP-DOT
-   ================================================== */
+================================================== */
 
 .destino {
   position: absolute;
 
   left: 7%;
-  right: 25%;
-
-  bottom: 10%;
-
-  z-index: 5;
+  right: 24%;
+  bottom: 9%;
 
   overflow: hidden;
-}
 
+  z-index: 5;
+}
 
 .destino-grupo {
   display: flex;
-
   align-items: center;
 
-  gap: var(--char-gap);
+  gap: clamp(1px, .12vw, 3px);
 
   width: 100%;
 
-  --dot:
-    clamp(1.2px, .35vw, 5px);
-
-  --dot-gap:
-    clamp(.4px, .055vw, 1.2px);
-
-  --char-gap:
-    clamp(1px, .12vw, 3px);
+  --dot: clamp(1.2px, .35vw, 5px);
+  --dot-gap: clamp(.4px, .055vw, 1.2px);
 }
 
 
 /* ==================================================
-   MÓDULO 5x7
-   ================================================== */
+   CARÁCTER FLIP-DOT 5x7
+================================================== */
 
 .dot-character {
   flex: 0 0 auto;
@@ -318,32 +278,32 @@ body {
   padding:
     calc(var(--dot-gap) * 1.3);
 
-  border-radius:
-    calc(var(--dot) * .45);
-
   background:
     linear-gradient(
       180deg,
-      #161b17,
+      #171c17,
       #080b08
     );
 
   border:
     1px solid rgba(0,0,0,.85);
 
+  border-radius:
+    calc(var(--dot) * .45);
+
   box-shadow:
     inset 0 0
-    calc(var(--dot) * .8)
-    rgba(0,0,0,.9),
+      calc(var(--dot) * .8)
+      rgba(0,0,0,.9),
 
     0
-    calc(var(--dot) * .25)
-    calc(var(--dot) * .45)
-    rgba(0,0,0,.65);
+      calc(var(--dot) * .25)
+      calc(var(--dot) * .45)
+      rgba(0,0,0,.65);
 }
 
 
-/* PONTO APAGADO */
+/* ponto desligado */
 
 .dot {
   width: var(--dot);
@@ -358,15 +318,10 @@ body {
       #141914 48%,
       #060806 100%
     );
-
-  box-shadow:
-    inset 0 0
-    calc(var(--dot) * .18)
-    rgba(255,255,255,.04);
 }
 
 
-/* PONTO ACESO */
+/* ponto ligado */
 
 .dot.on {
   background:
@@ -380,18 +335,14 @@ body {
 
   box-shadow:
     0 0
-    calc(var(--dot) * .8)
-    rgba(255,226,20,.45),
-
-    inset 0 0
-    calc(var(--dot) * .18)
-    rgba(255,255,255,.45);
+      calc(var(--dot) * .7)
+      rgba(255,226,20,.4);
 }
 
 
 /* ==================================================
-   VIA 3
-   ================================================== */
+   VIA
+================================================== */
 
 .via {
   position: absolute;
@@ -400,7 +351,6 @@ body {
   top: 12%;
 
   width: 20%;
-
   aspect-ratio: 1 / 1;
 
   border:
@@ -416,14 +366,10 @@ body {
 
   color: #d9f343;
 
-  font-family:
-    Arial,
-    sans-serif;
-
+  font-family: Arial, sans-serif;
   font-weight: 500;
 
-  font-size:
-    clamp(55px, 10vw, 170px);
+  font-size: clamp(55px, 10vw, 170px);
 
   line-height: 1;
 
@@ -441,7 +387,7 @@ body {
 
 /* ==================================================
    CRT
-   ================================================== */
+================================================== */
 
 .crt-frame {
   position: relative;
@@ -456,7 +402,6 @@ body {
     inset 0 0 18px #000;
 }
 
-
 .crt {
   position: relative;
 
@@ -467,8 +412,7 @@ body {
 
   border-radius: 10%;
 
-  padding:
-    7% 8% 5%;
+  padding: 7% 8% 5%;
 
   background:
     radial-gradient(
@@ -481,14 +425,15 @@ body {
   color: #c9ef35;
 
   font-family:
-    "VT323",
+    "Courier New",
     monospace;
+
+  font-weight: bold;
 
   box-shadow:
     inset 0 0 30px rgba(0,0,0,.95),
     inset 0 0 60px rgba(0,0,0,.6);
 }
-
 
 .crt::after {
   content: "";
@@ -503,19 +448,19 @@ body {
   background:
     repeating-linear-gradient(
       to bottom,
-      rgba(255,255,255,.03) 0px,
-      rgba(255,255,255,.03) 1px,
+      rgba(255,255,255,.025) 0,
+      rgba(255,255,255,.025) 1px,
       transparent 1px,
       transparent 3px
     );
 
-  opacity: .45;
+  opacity: .4;
 }
 
 
 /* ==================================================
    PARAGENS
-   ================================================== */
+================================================== */
 
 .stops {
   position: relative;
@@ -532,37 +477,31 @@ body {
   height: 75%;
 }
 
-
 .stop-column {
   display: flex;
-
   flex-direction: column;
-
-  gap: 0;
 }
-
 
 .stop {
   height: 10%;
 
   white-space: nowrap;
-
   overflow: hidden;
 
   font-size:
-    clamp(14px, 1.55vw, 31px);
+    clamp(11px, 1.25vw, 24px);
 
   line-height: 1;
 
   text-shadow:
-    0 0 4px
-    rgba(200,239,53,.28);
+    0 0 3px
+    rgba(200,239,53,.3);
 }
 
 
 /* ==================================================
    COMBOIO SEGUINTE
-   ================================================== */
+================================================== */
 
 .next-train {
   position: absolute;
@@ -583,32 +522,26 @@ body {
   column-gap: 5%;
 }
 
-
 .next-label {
   font-size:
-    clamp(9px, .8vw, 17px);
+    clamp(7px, .65vw, 13px);
 
   white-space: nowrap;
-
-  letter-spacing: .02em;
 }
-
 
 .next-destination,
 .next-time {
   font-size:
-    clamp(19px, 2vw, 39px);
+    clamp(15px, 1.6vw, 31px);
 
   white-space: nowrap;
 
   line-height: 1;
 }
 
-
 .next-destination {
   text-align: left;
 }
-
 
 .next-time {
   text-align: right;
@@ -617,7 +550,7 @@ body {
 
 /* ==================================================
    MOBILE
-   ================================================== */
+================================================== */
 
 @media (max-width: 700px) {
 
@@ -630,7 +563,6 @@ body {
     padding-right: 2%;
   }
 
-
   .screens {
     grid-template-columns:
       64% 34%;
@@ -638,59 +570,39 @@ body {
     gap: 2%;
   }
 
-
   .left-display {
     border-width: 3px;
   }
-
 
   .crt-frame {
     padding: 3%;
   }
 
-
   .hora-grupo {
-    --dot:
-      clamp(1.8px, .52vw, 3px);
-
-    --dot-gap:
-      clamp(.5px, .08vw, 1px);
-
-    --char-gap:
-      clamp(1px, .15vw, 2px);
+    --dot: clamp(1.8px, .52vw, 3px);
+    --dot-gap: clamp(.5px, .08vw, 1px);
   }
-
 
   .destino-grupo {
-    --dot:
-      clamp(1px, .32vw, 2px);
-
-    --dot-gap:
-      clamp(.35px, .05vw, .7px);
-
-    --char-gap:
-      clamp(.7px, .1vw, 1.5px);
+    --dot: clamp(1px, .32vw, 2px);
+    --dot-gap: clamp(.35px, .05vw, .7px);
   }
-
 
   .stop {
     font-size:
-      clamp(7px, 2.1vw, 15px);
+      clamp(5px, 1.45vw, 11px);
   }
-
 
   .next-label {
     font-size:
-      clamp(5px, 1.1vw, 9px);
+      clamp(4px, .8vw, 7px);
   }
-
 
   .next-destination,
   .next-time {
     font-size:
-      clamp(9px, 2.5vw, 18px);
+      clamp(7px, 1.7vw, 13px);
   }
-
 }
 
 </style>
@@ -705,18 +617,13 @@ body {
   <div class="mount center"></div>
   <div class="mount right"></div>
 
-
   <div class="screens">
-
-
-    <!-- PAINEL ESQUERDO -->
 
     <section class="left-display">
 
       <div class="hora-label">
         HORA
       </div>
-
 
       <div class="hora">
 
@@ -725,11 +632,9 @@ body {
           id="horaHoras"
         ></div>
 
-
         <span class="h-separator">
           h
         </span>
-
 
         <div
           class="hora-grupo"
@@ -738,11 +643,9 @@ body {
 
       </div>
 
-
       <div class="destino-label">
         DESTINO
       </div>
-
 
       <div class="destino">
 
@@ -753,16 +656,12 @@ body {
 
       </div>
 
-
       <div class="via">
         3
       </div>
 
     </section>
 
-
-
-    <!-- CRT -->
 
     <section class="crt-frame">
 
@@ -782,13 +681,11 @@ body {
 
         </div>
 
-
         <div class="next-train">
 
           <div class="next-label">
             COMB.SEGUINTE
           </div>
-
 
           <div
             class="next-destination"
@@ -796,7 +693,6 @@ body {
           >
             ----
           </div>
-
 
           <div
             class="next-time"
@@ -819,26 +715,32 @@ body {
 <script>
 
 /* ==================================================
-   API
-   ================================================== */
+   CONFIG
+================================================== */
 
 const API_URL =
-  "https://cmpainelcacem.vercel.app/api/partidas";
-
+  "/api/partidas";
 
 const REFRESH_INTERVAL =
   30000;
 
+const CACHE_KEY =
+  "velec-partidas-v2";
+
+const CACHE_MAX_AGE =
+  5 * 60 * 1000;
+
+let temDadosVisiveis =
+  false;
 
 
 /* ==================================================
    PARAGENS
-   ================================================== */
+================================================== */
 
 const PARAGENS = {
 
   "LISBOA-ORIENTE": [
-
     "MASSAMA",
     "MONTE ABRAÃO",
     "QUELUZ BELAS",
@@ -850,12 +752,9 @@ const PARAGENS = {
     "ENTRECAMPOS",
     "ROMA-AREEIRO",
     "BRAÇO PRATA"
-
   ],
 
-
   "ALVERCA": [
-
     "MASSAMA",
     "MONTE ABRAÃO",
     "QUELUZ BELAS",
@@ -873,24 +772,19 @@ const PARAGENS = {
     "BOBADELA",
     "S.IRIA",
     "PÓVOA"
-
   ],
 
-
   "LISBOA-S.A": [
-
     "SETE RIOS",
     "ENTRECAMPOS"
-
   ]
 
 };
 
 
-
 /* ==================================================
    MATRIZ 5x7
-   ================================================== */
+================================================== */
 
 const FONT = {
 
@@ -939,42 +833,40 @@ const FONT = {
 };
 
 
-
 /* ==================================================
    DESENHAR FLIP-DOT
-   ================================================== */
+================================================== */
 
 function desenharDotText(
   elemento,
   texto
 ) {
 
-  elemento.innerHTML = "";
+  const fragmento =
+    document.createDocumentFragment();
 
+  elemento.innerHTML =
+    "";
 
-  const textoFinal =
+  texto =
     String(texto)
       .toUpperCase();
 
-
   for (
-    const caracter of textoFinal
+    const caracter of texto
   ) {
 
     const pattern =
       FONT[caracter] ||
       FONT[" "];
 
-
     const character =
       document.createElement(
         "div"
       );
 
-
     character.className =
       "dot-character";
-
 
     for (
       let linha = 0;
@@ -993,21 +885,10 @@ function desenharDotText(
             "div"
           );
 
-
         dot.className =
-          "dot";
-
-
-        if (
           pattern[linha][coluna] === "1"
-        ) {
-
-          dot.classList.add(
-            "on"
-          );
-
-        }
-
+            ? "dot on"
+            : "dot";
 
         character.appendChild(
           dot
@@ -1017,20 +898,22 @@ function desenharDotText(
 
     }
 
-
-    elemento.appendChild(
+    fragmento.appendChild(
       character
     );
 
   }
 
-}
+  elemento.appendChild(
+    fragmento
+  );
 
+}
 
 
 /* ==================================================
    NORMALIZAR DESTINO
-   ================================================== */
+================================================== */
 
 function normalizarDestino(
   destino
@@ -1039,7 +922,6 @@ function normalizarDestino(
   if (!destino) {
     return "";
   }
-
 
   const texto =
     String(destino)
@@ -1051,24 +933,17 @@ function normalizarDestino(
       )
       .trim();
 
-
   if (
     texto.includes("ORIENTE")
   ) {
-
     return "LISBOA-ORIENTE";
-
   }
-
 
   if (
     texto.includes("ALVERCA")
   ) {
-
     return "ALVERCA";
-
   }
-
 
   if (
     texto.includes("SANTA APOLONIA") ||
@@ -1076,21 +951,17 @@ function normalizarDestino(
     texto.includes("S. APOLONIA") ||
     texto.includes("LISBOA-S.A")
   ) {
-
     return "LISBOA-S.A";
-
   }
-
 
   return "";
 
 }
 
 
-
 /* ==================================================
    HORA
-   ================================================== */
+================================================== */
 
 function mostrarHora(
   hora
@@ -1101,12 +972,10 @@ function mostrarHora(
       "horaHoras"
     );
 
-
   const minutos =
     document.getElementById(
       "horaMinutos"
     );
-
 
   if (!hora) {
 
@@ -1115,29 +984,23 @@ function mostrarHora(
       "--"
     );
 
-
     desenharDotText(
       minutos,
       "--"
     );
 
-
     return;
-
   }
-
 
   const partes =
     String(hora)
       .trim()
       .split(":");
 
-
   desenharDotText(
     horas,
     partes[0] || "--"
   );
-
 
   desenharDotText(
     minutos,
@@ -1147,6 +1010,498 @@ function mostrarHora(
 }
 
 
+/* ==================================================
+   CRT
+================================================== */
+
+function limitarCRT(
+  texto
+) {
+
+  return String(texto)
+    .toUpperCase()
+    .slice(0, 10);
+
+}
+
 
 /* ==================================================
-   CRT 
+   PARAGENS
+================================================== */
+
+function mostrarParagens(
+  destino
+) {
+
+  const lista =
+    PARAGENS[destino] || [];
+
+  const coluna1 =
+    document.getElementById(
+      "coluna1"
+    );
+
+  const coluna2 =
+    document.getElementById(
+      "coluna2"
+    );
+
+  coluna1.innerHTML =
+    "";
+
+  coluna2.innerHTML =
+    "";
+
+  const corte =
+    Math.ceil(
+      lista.length / 2
+    );
+
+  const esquerda =
+    lista.slice(
+      0,
+      corte
+    );
+
+  const direita =
+    lista.slice(
+      corte
+    );
+
+  esquerda.forEach(
+    paragem => {
+
+      const linha =
+        document.createElement(
+          "div"
+        );
+
+      linha.className =
+        "stop";
+
+      linha.textContent =
+        limitarCRT(
+          paragem
+        );
+
+      coluna1.appendChild(
+        linha
+      );
+
+    }
+  );
+
+  direita.forEach(
+    paragem => {
+
+      const linha =
+        document.createElement(
+          "div"
+        );
+
+      linha.className =
+        "stop";
+
+      linha.textContent =
+        limitarCRT(
+          paragem
+        );
+
+      coluna2.appendChild(
+        linha
+      );
+
+    }
+  );
+
+}
+
+
+/* ==================================================
+   ATUALIZAR PAINEL
+================================================== */
+
+function atualizarPainel(
+  lista
+) {
+
+  const comboios =
+    lista
+
+      .map(
+        comboio => {
+
+          const destino =
+            normalizarDestino(
+              comboio.destino ||
+              comboio.destination ||
+              comboio.destinoOriginal
+            );
+
+          return {
+            ...comboio,
+            destinoPainel:
+              destino
+          };
+
+        }
+      )
+
+      .filter(
+        comboio =>
+          comboio.destinoPainel
+      );
+
+
+  if (
+    comboios.length === 0
+  ) {
+
+    if (
+      !temDadosVisiveis
+    ) {
+
+      mostrarHora(
+        null
+      );
+
+      desenharDotText(
+        document.getElementById(
+          "destinoAtual"
+        ),
+        "SEM PARTIDAS"
+      );
+
+    }
+
+    return;
+  }
+
+
+  const atual =
+    comboios[0];
+
+
+  mostrarHora(
+    atual.hora
+  );
+
+
+  desenharDotText(
+    document.getElementById(
+      "destinoAtual"
+    ),
+    atual.destinoPainel
+  );
+
+
+  mostrarParagens(
+    atual.destinoPainel
+  );
+
+
+  const seguinte =
+    comboios[1];
+
+
+  if (
+    seguinte
+  ) {
+
+    document
+      .getElementById(
+        "proximoDestino"
+      )
+      .textContent =
+        seguinte.destinoPainel;
+
+
+    document
+      .getElementById(
+        "proximaHora"
+      )
+      .textContent =
+        seguinte.hora ||
+        "--:--";
+
+  }
+
+  else {
+
+    document
+      .getElementById(
+        "proximoDestino"
+      )
+      .textContent =
+        "----";
+
+
+    document
+      .getElementById(
+        "proximaHora"
+      )
+      .textContent =
+        "--:--";
+
+  }
+
+
+  temDadosVisiveis =
+    true;
+
+}
+
+
+/* ==================================================
+   CACHE LOCAL
+================================================== */
+
+function carregarCacheLocal() {
+
+  try {
+
+    const bruto =
+      localStorage.getItem(
+        CACHE_KEY
+      );
+
+
+    if (!bruto) {
+      return;
+    }
+
+
+    const cache =
+      JSON.parse(
+        bruto
+      );
+
+
+    if (
+      !cache ||
+      !Array.isArray(cache.lista) ||
+      !cache.guardadoEm
+    ) {
+      return;
+    }
+
+
+    const idade =
+      Date.now() -
+      cache.guardadoEm;
+
+
+    if (
+      idade >
+      CACHE_MAX_AGE
+    ) {
+
+      return;
+
+    }
+
+
+    atualizarPainel(
+      cache.lista
+    );
+
+  }
+
+  catch (erro) {
+
+    console.log(
+      "Cache ignorado"
+    );
+
+  }
+
+}
+
+
+function guardarCacheLocal(
+  lista
+) {
+
+  try {
+
+    localStorage.setItem(
+
+      CACHE_KEY,
+
+      JSON.stringify({
+        guardadoEm:
+          Date.now(),
+
+        lista:
+          lista
+      })
+
+    );
+
+  }
+
+  catch (erro) {
+
+    /* nada */
+
+  }
+
+}
+
+
+/* ==================================================
+   API
+================================================== */
+
+async function carregarPartidas() {
+
+  try {
+
+    /*
+      IMPORTANTE:
+
+      Não usamos Date.now() na URL.
+
+      Assim a Vercel pode reutilizar
+      a resposta em cache.
+    */
+
+    const resposta =
+      await fetch(
+        API_URL
+      );
+
+
+    if (
+      !resposta.ok
+    ) {
+
+      throw new Error(
+        "HTTP " +
+        resposta.status
+      );
+
+    }
+
+
+    const dados =
+      await resposta.json();
+
+
+    const lista =
+      Array.isArray(dados)
+        ? dados
+        : (
+            Array.isArray(
+              dados.partidas
+            )
+              ? dados.partidas
+              : []
+          );
+
+
+    if (
+      lista.length > 0
+    ) {
+
+      guardarCacheLocal(
+        lista
+      );
+
+    }
+
+
+    atualizarPainel(
+      lista
+    );
+
+  }
+
+  catch (erro) {
+
+    console.error(
+      "Erro API:",
+      erro
+    );
+
+
+    /*
+      Se já temos dados do cache,
+      não apagamos o painel.
+    */
+
+    if (
+      !temDadosVisiveis
+    ) {
+
+      mostrarHora(
+        null
+      );
+
+
+      desenharDotText(
+        document.getElementById(
+          "destinoAtual"
+        ),
+        "SEM LIGACAO"
+      );
+
+    }
+
+  }
+
+}
+
+
+/* ==================================================
+   ARRANQUE
+================================================== */
+
+/*
+  Primeiro tenta mostrar dados
+  guardados instantaneamente.
+*/
+
+carregarCacheLocal();
+
+
+/*
+  Se não houver cache,
+  mostramos placeholders.
+*/
+
+if (
+  !temDadosVisiveis
+) {
+
+  mostrarHora(
+    null
+  );
+
+
+  desenharDotText(
+    document.getElementById(
+      "destinoAtual"
+    ),
+    "----------"
+  );
+
+}
+
+
+/*
+  Depois atualiza em background.
+*/
+
+carregarPartidas();
+
+
+setInterval(
+  carregarPartidas,
+  REFRESH_INTERVAL
+);
+
+</script>
+
+</body>
+</html>
