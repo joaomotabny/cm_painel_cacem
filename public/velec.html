@@ -263,7 +263,7 @@ body {
   position: absolute;
 
   left: 7%;
-  right: 3%;
+  right: 2%;
 
   top: 63%;
 
@@ -278,13 +278,13 @@ body {
   align-items: center;
 
   --dot:
-    clamp(2px, .54vw, 8px);
+    clamp(1.9px, .51vw, 7.6px);
 
   --dot-gap:
-    clamp(.6px, .08vw, 1.8px);
+    clamp(.55px, .075vw, 1.7px);
 
   gap:
-    clamp(2px, .22vw, 5px);
+    clamp(1px, .18vw, 4px);
 
   width: 100%;
 
@@ -339,8 +339,6 @@ body {
 }
 
 
-/* DOT APAGADO */
-
 .dot {
   width: var(--dot);
   height: var(--dot);
@@ -356,8 +354,6 @@ body {
     );
 }
 
-
-/* DOT ACESO */
 
 .dot.on {
   background:
@@ -390,7 +386,6 @@ body {
   aspect-ratio: 1 / 1;
 
   display: flex;
-
   align-items: center;
   justify-content: center;
 
@@ -538,7 +533,7 @@ body {
 
 
 /* ==================================================
-   PARAGENS
+   PARAGENS CRT
 ================================================== */
 
 .stops {
@@ -551,9 +546,12 @@ body {
   grid-template-columns:
     1fr 1fr;
 
-  column-gap: 8%;
+  /*
+    Mais próximas como no CRT real.
+  */
+  column-gap: 6%;
 
-  height: 75%;
+  height: 74%;
 }
 
 
@@ -576,16 +574,19 @@ body {
 
   font-weight: 400;
 
+  /*
+    AUMENTADO
+  */
   font-size:
-    clamp(14px, 1.45vw, 29px);
+    clamp(16px, 1.70vw, 34px);
 
-  line-height: .9;
+  line-height: .86;
 
   letter-spacing: .01em;
 
   text-shadow:
     0 0 4px
-    rgba(200,239,53,.3);
+    rgba(200,239,53,.32);
 }
 
 
@@ -613,6 +614,10 @@ body {
 }
 
 
+/*
+  MANTIDO PEQUENO DE PROPÓSITO
+*/
+
 .next-label {
   font-family:
     "VT323",
@@ -621,13 +626,20 @@ body {
   font-weight: 400;
 
   font-size:
-    clamp(8px, .72vw, 15px);
+    clamp(7px, .65vw, 13px);
 
   line-height: 1;
 
   white-space: nowrap;
+
+  opacity: .9;
 }
 
+
+/*
+  DESTINO + HORA SEGUINTE
+  um pouco maiores
+*/
 
 .next-destination,
 .next-time {
@@ -638,7 +650,7 @@ body {
   font-weight: 400;
 
   font-size:
-    clamp(18px, 1.9vw, 36px);
+    clamp(20px, 2.10vw, 40px);
 
   line-height: .9;
 
@@ -694,7 +706,7 @@ body {
   }
 
 
-  /* HORA — FICA EXATAMENTE COMO ESTAVA */
+  /* HORA */
 
   .hora-grupo {
 
@@ -707,13 +719,7 @@ body {
   }
 
 
-  /*
-    DESTINO
-
-    ÚNICA ALTERAÇÃO DE TAMANHO:
-    ~5/6% menor que a hora,
-    mas SEM deformação horizontal.
-  */
+  /* DESTINO */
 
   .destino-grupo {
 
@@ -737,12 +743,6 @@ body {
   }
 
 
-  /*
-    ÚNICA ALTERAÇÃO DE POSIÇÃO:
-    um pouco mais baixo e
-    mais espaço até à direita.
-  */
-
   .destino {
     left: 7%;
     right: 2%;
@@ -751,22 +751,32 @@ body {
   }
 
 
+  /*
+    CRT MAIOR NO IPHONE
+  */
+
   .stop {
     font-size:
-      clamp(7px, 1.75vw, 14px);
+      clamp(8px, 2vw, 16px);
+
+    line-height: .84;
   }
 
 
+  /*
+    Continua discreto.
+  */
+
   .next-label {
     font-size:
-      clamp(5px, .95vw, 8px);
+      clamp(4.5px, .82vw, 7px);
   }
 
 
   .next-destination,
   .next-time {
     font-size:
-      clamp(10px, 2.15vw, 17px);
+      clamp(11px, 2.35vw, 18px);
   }
 
 
@@ -1268,7 +1278,7 @@ function limitarCRT(
 
 
 /* ==================================================
-   COMBOIO SEGUINTE - 11 CARACTERES
+   COMBOIO SEGUINTE
 ================================================== */
 
 function limitarProximoDestino(
@@ -1408,9 +1418,17 @@ function atualizarPainel(
 
           const destino =
             normalizarDestino(
-              comboio.destino ||
-              comboio.destination ||
+
+              comboio.destino
+
+              ||
+
+              comboio.destination
+
+              ||
+
               comboio.destinoOriginal
+
             );
 
 
@@ -1463,8 +1481,6 @@ function atualizarPainel(
   }
 
 
-  /* COMBOIO ATUAL */
-
   const atual =
     comboios[0];
 
@@ -1489,8 +1505,6 @@ function atualizarPainel(
     atual.destinoPainel
   );
 
-
-  /* COMBOIO SEGUINTE */
 
   const seguinte =
     comboios[1];
