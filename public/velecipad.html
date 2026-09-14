@@ -1,14 +1,8 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-
 <meta charset="UTF-8">
-
-<meta
-  name="viewport"
-  content="width=device-width, initial-scale=1.0, viewport-fit=cover"
->
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
 <meta name="theme-color" content="#050505">
@@ -17,11 +11,7 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-<link
-  href="https://fonts.googleapis.com/css2?family=VT323&display=swap"
-  rel="stylesheet"
->
+<link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
 
 <style>
 
@@ -35,6 +25,7 @@ html,
 body {
   width: 100%;
   height: 100%;
+  min-height: 100%;
   overflow: hidden;
   background: #050505;
 }
@@ -49,13 +40,21 @@ body {
 
 /* ==================================================
    PAINEL
+
+   Versão feita para iPad/Safari antigo:
+   - sem aspect-ratio
+   - sem clamp() nos elementos importantes
+   - sem min()
 ================================================== */
 
 .panel {
   position: relative;
 
-  width: min(98vw, 1500px);
-  aspect-ratio: 3.08 / 1;
+  width: 98vw;
+  height: 34vw;
+
+  max-width: 1500px;
+  max-height: 520px;
 
   background:
     linear-gradient(
@@ -72,7 +71,8 @@ body {
     0 30px 90px rgba(0,0,0,.92),
     inset 0 0 30px rgba(255,255,255,.025);
 
-  padding: 2.7% 4.2% 2.9%;
+  padding:
+    2.5% 2.2% 2.6%;
 }
 
 
@@ -96,7 +96,8 @@ body {
       #080a0c
     );
 
-  border-radius: 8px 8px 0 0;
+  border-radius:
+    8px 8px 0 0;
 }
 
 .mount.left {
@@ -131,9 +132,9 @@ body {
   display: grid;
 
   grid-template-columns:
-    65% 31%;
+    64% 34%;
 
-  gap: 4%;
+  grid-column-gap: 2%;
 }
 
 
@@ -146,7 +147,9 @@ body {
 
   overflow: hidden;
 
-  border: 7px solid #070a0b;
+  border:
+    4px solid #070a0b;
+
   border-radius: 5px;
 
   background:
@@ -162,6 +165,7 @@ body {
     inset 0 0 8px rgba(255,255,255,.14);
 }
 
+
 .left-display::after {
   content: "";
 
@@ -169,6 +173,7 @@ body {
   inset: 0;
 
   z-index: 20;
+
   pointer-events: none;
 
   background:
@@ -197,18 +202,19 @@ body {
   font-weight: 700;
   letter-spacing: .01em;
 
-  font-size:
-    clamp(18px, 2.8vw, 50px);
+  font-size: 3vw;
 
   z-index: 5;
 }
+
 
 .hora-label {
   top: 7%;
 }
 
+
 .destino-label {
-  top: 47%;
+  top: 46%;
 }
 
 
@@ -223,9 +229,8 @@ body {
   top: 23%;
 
   display: flex;
-  align-items: center;
 
-  gap: 12px;
+  align-items: center;
 
   z-index: 5;
 }
@@ -233,15 +238,12 @@ body {
 
 .hora-grupo {
   display: flex;
+
   align-items: center;
 
-  gap: 4px;
-
   /*
-    FALLBACK FIXO.
-
-    O iPad não fica dependente de
-    clamp() para desenhar os pontos.
+    Tamanho fixo dos dots para
+    funcionar corretamente no iPad.
   */
 
   --dot: 5px;
@@ -249,14 +251,26 @@ body {
 }
 
 
+.hora .hora-grupo:first-child {
+  margin-right: 10px;
+}
+
+
+.hora .hora-grupo:last-child {
+  margin-left: 10px;
+}
+
+
 .h-separator {
   color: #d8d5b3;
 
-  font-family: Arial, sans-serif;
+  font-family:
+    Arial,
+    sans-serif;
+
   font-weight: 400;
 
-  font-size:
-    clamp(20px, 2.7vw, 45px);
+  font-size: 3vw;
 }
 
 
@@ -280,20 +294,18 @@ body {
 
 .destino-grupo {
   display: flex;
+
   align-items: center;
 
   /*
-    FIXO para Safari/iPad
+    Ligeiramente menor do que
+    a hora para LISBOA-ORIENTE caber.
   */
 
   --dot: 4.2px;
   --dot-gap: .85px;
 
-  gap: 2.5px;
-
   width: 100%;
-
-  transform: none;
 }
 
 
@@ -307,21 +319,32 @@ body {
   display: grid;
 
   grid-template-columns:
-    repeat(5, var(--dot));
+    var(--dot)
+    var(--dot)
+    var(--dot)
+    var(--dot)
+    var(--dot);
 
   grid-template-rows:
-    repeat(7, var(--dot));
+    var(--dot)
+    var(--dot)
+    var(--dot)
+    var(--dot)
+    var(--dot)
+    var(--dot)
+    var(--dot);
 
-  gap: var(--dot-gap);
+  grid-gap:
+    var(--dot-gap);
 
-  padding:
-    calc(var(--dot-gap) * 1.25);
+  padding: 1px;
+
+  margin-right: 3px;
 
   border:
     1px solid rgba(0,0,0,.9);
 
-  border-radius:
-    calc(var(--dot) * .4);
+  border-radius: 2px;
 
   background:
     linear-gradient(
@@ -331,14 +354,22 @@ body {
     );
 
   box-shadow:
-    inset 0 0 calc(var(--dot) * .8)
-    rgba(0,0,0,.95),
-
-    0 calc(var(--dot) * .2)
-    calc(var(--dot) * .4)
-    rgba(0,0,0,.7);
+    inset 0 0 4px rgba(0,0,0,.95),
+    0 1px 2px rgba(0,0,0,.7);
 }
 
+
+.destino-grupo .dot-character {
+  margin-right: 2px;
+}
+
+
+.dot-character:last-child {
+  margin-right: 0;
+}
+
+
+/* DOT APAGADO */
 
 .dot {
   width: var(--dot);
@@ -356,6 +387,8 @@ body {
 }
 
 
+/* DOT ACESO */
+
 .dot.on {
   background:
     radial-gradient(
@@ -367,13 +400,15 @@ body {
     );
 
   box-shadow:
-    0 0 calc(var(--dot) * .75)
-    rgba(255,225,20,.45);
+    0 0 4px
+    rgba(255,225,20,.48);
 }
 
 
 /* ==================================================
    LINHA 3
+
+   Sem aspect-ratio para compatibilidade.
 ================================================== */
 
 .via {
@@ -383,25 +418,27 @@ body {
   top: 9%;
 
   width: 20%;
-  aspect-ratio: 1 / 1;
+  height: 42%;
 
   display: flex;
+
   align-items: center;
   justify-content: center;
 
   border:
-    clamp(3px,.5vw,8px)
-    solid #d9f343;
+    5px solid #d9f343;
 
   border-radius: 7%;
 
   color: #d9f343;
 
-  font-family: Arial, sans-serif;
+  font-family:
+    Arial,
+    sans-serif;
+
   font-weight: 500;
 
-  font-size:
-    clamp(55px,9.5vw,160px);
+  font-size: 10vw;
 
   line-height: 1;
 
@@ -431,7 +468,7 @@ body {
 
   border-radius: 6px;
 
-  padding: 4%;
+  padding: 3%;
 
   box-shadow:
     inset 0 0 20px #000;
@@ -452,7 +489,8 @@ body {
 
   border-radius: 10%;
 
-  padding: 6% 7% 5%;
+  padding:
+    6% 7% 5%;
 
   background:
     radial-gradient(
@@ -477,15 +515,21 @@ body {
     rgba(200,239,53,.34);
 
   box-shadow:
-    inset 0 0 30px rgba(0,0,0,.95),
-    inset 0 0 65px rgba(0,0,0,.65);
+    inset 0 0 30px
+    rgba(0,0,0,.95),
+
+    inset 0 0 65px
+    rgba(0,0,0,.65);
 }
 
+
+/* SOMBRA / CURVATURA */
 
 .crt::before {
   content: "";
 
   position: absolute;
+
   inset: 0;
 
   pointer-events: none;
@@ -502,10 +546,13 @@ body {
 }
 
 
+/* SCANLINES */
+
 .crt::after {
   content: "";
 
   position: absolute;
+
   inset: 0;
 
   z-index: 10;
@@ -539,7 +586,7 @@ body {
   grid-template-columns:
     1fr 1fr;
 
-  column-gap: 5%;
+  grid-column-gap: 5%;
 
   height: 76%;
 }
@@ -547,6 +594,7 @@ body {
 
 .stop-column {
   display: flex;
+
   flex-direction: column;
 }
 
@@ -555,6 +603,7 @@ body {
   height: 10%;
 
   white-space: nowrap;
+
   overflow: hidden;
 
   font-family:
@@ -563,8 +612,7 @@ body {
 
   font-weight: 400;
 
-  font-size:
-    clamp(19px,2.15vw,43px);
+  font-size: 2.35vw;
 
   line-height: .90;
 
@@ -576,13 +624,10 @@ body {
 }
 
 
-/*
-  ALVERCA — muitas paragens
-*/
+/* ALVERCA */
 
 .stops.muitas .stop {
-  font-size:
-    clamp(16px,1.75vw,34px);
+  font-size: 1.95vw;
 
   line-height: .88;
 }
@@ -606,9 +651,9 @@ body {
   grid-template-columns:
     auto minmax(0,1fr) auto;
 
-  align-items: baseline;
+  grid-column-gap: 3%;
 
-  column-gap: 4%;
+  align-items: baseline;
 }
 
 
@@ -619,8 +664,7 @@ body {
 
   font-weight: 400;
 
-  font-size:
-    clamp(7px,.65vw,13px);
+  font-size: .9vw;
 
   line-height: 1;
 
@@ -638,8 +682,7 @@ body {
 
   font-weight: 400;
 
-  font-size:
-    clamp(20px,2.05vw,40px);
+  font-size: 2.25vw;
 
   line-height: .9;
 
@@ -649,6 +692,7 @@ body {
 
 .next-destination {
   overflow: hidden;
+
   text-align: left;
 }
 
@@ -659,25 +703,90 @@ body {
 
 
 /* ==================================================
-   IPAD PORTRAIT
+   IPAD LANDSCAPE
 ================================================== */
 
-@media
-(min-width: 701px)
-and
-(max-width: 1400px)
-and
-(orientation: portrait) {
+@media (min-width: 900px) {
 
   .panel {
-    width: 100vw;
-    max-width: none;
+    width: 98vw;
+    height: 33vw;
+  }
 
-    aspect-ratio: 2.88 / 1;
 
-    border-radius: 0;
+  .hora-label,
+  .destino-label {
+    font-size: 2.8vw;
+  }
 
-    padding: 2.4% 2% 2.5%;
+
+  .h-separator {
+    font-size: 2.7vw;
+  }
+
+
+  .hora-grupo {
+    --dot: 6px;
+    --dot-gap: 1.2px;
+  }
+
+
+  .destino-grupo {
+    --dot: 5.3px;
+    --dot-gap: 1px;
+  }
+
+
+  .dot-character {
+    margin-right: 4px;
+  }
+
+
+  .destino-grupo .dot-character {
+    margin-right: 3px;
+  }
+
+
+  .stop {
+    font-size: 2.1vw;
+  }
+
+
+  .stops.muitas .stop {
+    font-size: 1.8vw;
+  }
+
+
+  .next-label {
+    font-size: .75vw;
+  }
+
+
+  .next-destination,
+  .next-time {
+    font-size: 2vw;
+  }
+
+
+  .via {
+    font-size: 9vw;
+  }
+
+}
+
+
+/* ==================================================
+   IPAD PORTRAIT / MAIS ESTREITO
+================================================== */
+
+@media (max-width: 899px) {
+
+  .panel {
+    width: 99vw;
+    height: 35vw;
+
+    padding:
+      2.3% 1.8% 2.4%;
   }
 
 
@@ -685,128 +794,46 @@ and
     grid-template-columns:
       64% 34%;
 
-    gap: 2%;
+    grid-column-gap: 2%;
   }
 
 
-  .left-display {
+  .hora-label,
+  .destino-label {
+    font-size: 3.2vw;
+  }
+
+
+  .h-separator {
+    font-size: 3.1vw;
+  }
+
+
+  .via {
     border-width: 4px;
-  }
 
-
-  .crt-frame {
-    padding: 3%;
-  }
-
-
-  /*
-    HORA — valores fixos
-  */
-
-  .hora-grupo {
-    --dot: 5px;
-    --dot-gap: 1px;
-
-    gap: 4px;
-  }
-
-
-  /*
-    DESTINO — ligeiramente menor
-    para LISBOA-ORIENTE caber.
-  */
-
-  .destino-grupo {
-    --dot: 4.2px;
-    --dot-gap: .85px;
-
-    gap: 2.5px;
-  }
-
-
-  .destino {
-    left: 7%;
-    right: 2%;
-    top: 63%;
+    font-size: 10vw;
   }
 
 
   .stop {
-    font-size:
-      clamp(13px,2.25vw,21px);
+    font-size: 2.55vw;
   }
 
 
   .stops.muitas .stop {
-    font-size:
-      clamp(11px,1.95vw,18px);
+    font-size: 2.1vw;
   }
 
 
   .next-label {
-    font-size:
-      clamp(5px,.85vw,8px);
+    font-size: 1vw;
   }
 
 
   .next-destination,
   .next-time {
-    font-size:
-      clamp(13px,2.15vw,21px);
-  }
-
-}
-
-
-/* ==================================================
-   IPAD LANDSCAPE
-================================================== */
-
-@media
-(min-width: 701px)
-and
-(max-width: 1400px)
-and
-(orientation: landscape) {
-
-  .panel {
-    width: 98vw;
-    max-width: none;
-
-    aspect-ratio: 3.08 / 1;
-  }
-
-
-  /*
-    Como temos muito mais largura,
-    podemos aumentar bastante os dots.
-  */
-
-  .hora-grupo {
-    --dot: 6px;
-    --dot-gap: 1.2px;
-
-    gap: 5px;
-  }
-
-
-  .destino-grupo {
-    --dot: 5.3px;
-    --dot-gap: 1.05px;
-
-    gap: 3px;
-  }
-
-
-  .stop {
-    font-size:
-      clamp(16px,2.1vw,28px);
-  }
-
-
-  .stops.muitas .stop {
-    font-size:
-      clamp(14px,1.8vw,24px);
+    font-size: 2.45vw;
   }
 
 }
@@ -817,17 +844,26 @@ and
 
 <body>
 
+
 <div class="panel">
 
+
   <div class="mount left"></div>
+
   <div class="mount center"></div>
+
   <div class="mount right"></div>
 
 
   <div class="screens">
 
 
+    <!-- ============================================
+         PAINEL ESQUERDO
+    ============================================= -->
+
     <section class="left-display">
+
 
       <div class="hora-label">
         HORA
@@ -836,19 +872,23 @@ and
 
       <div class="hora">
 
+
         <div
           class="hora-grupo"
           id="horaHoras"
         ></div>
 
+
         <span class="h-separator">
           h
         </span>
+
 
         <div
           class="hora-grupo"
           id="horaMinutos"
         ></div>
+
 
       </div>
 
@@ -860,10 +900,12 @@ and
 
       <div class="destino">
 
+
         <div
           class="destino-grupo"
           id="destinoAtual"
         ></div>
+
 
       </div>
 
@@ -872,11 +914,17 @@ and
         3
       </div>
 
+
     </section>
 
 
 
+    <!-- ============================================
+         CRT
+    ============================================= -->
+
     <section class="crt-frame">
+
 
       <div class="crt">
 
@@ -886,24 +934,29 @@ and
           id="stops"
         >
 
+
           <div
             class="stop-column"
             id="coluna1"
           ></div>
+
 
           <div
             class="stop-column"
             id="coluna2"
           ></div>
 
+
         </div>
 
 
         <div class="next-train">
 
+
           <div class="next-label">
             COMB.SEGUINTE
           </div>
+
 
           <div
             class="next-destination"
@@ -912,6 +965,7 @@ and
             ----
           </div>
 
+
           <div
             class="next-time"
             id="proximaHora"
@@ -919,17 +973,21 @@ and
             --:--
           </div>
 
+
         </div>
 
 
       </div>
+
 
     </section>
 
 
   </div>
 
+
 </div>
+
 
 
 <script>
@@ -938,8 +996,13 @@ and
    CONFIG
 ================================================== */
 
-const API_URL =
-  "/api/partidas";
+const API_URLS = [
+
+  "/api/partidas",
+
+  "/api/partidas-todas"
+
+];
 
 
 const REFRESH_INTERVAL =
@@ -947,15 +1010,16 @@ const REFRESH_INTERVAL =
 
 
 const CACHE_KEY =
-  "velec-ipad-partidas-v1";
+  "velec-ipad-partidas-v3";
 
 
 const CACHE_MAX_AGE =
-  5 * 60 * 1000;
+  10 * 60 * 1000;
 
 
 let temDadosVisiveis =
   false;
+
 
 
 /* ==================================================
@@ -964,18 +1028,29 @@ let temDadosVisiveis =
 
 const PARAGENS = {
 
+
   "LISBOA-ORIENTE": [
 
     "MASSAMA",
+
     "MONTE ABRAÃO",
+
     "QUELUZ BELAS",
+
     "AMADORA",
+
     "REBOLEIRA",
+
     "S.CR-DAMAIA",
+
     "BENFICA",
+
     "SETE RIOS",
+
     "ENTRECAMPOS",
+
     "ROMA-AREEIRO",
+
     "BRAÇO PRATA"
 
   ],
@@ -984,32 +1059,52 @@ const PARAGENS = {
   "ALVERCA": [
 
     "MASSAMA",
+
     "MONTE ABRAÃO",
+
     "QUELUZ BELAS",
+
     "AMADORA",
+
     "REBOLEIRA",
+
     "S.CR-DAMAIA",
+
     "BENFICA",
+
     "SETE RIOS",
+
     "ENTRECAMPOS",
+
     "ROMA-AREEIRO",
+
     "BRAÇO PRATA",
+
     "LISBOA-ORIENTE",
+
     "MOSCAVIDE",
+
     "SACAVEM",
+
     "BOBADELA",
+
     "S.IRIA",
+
     "PÓVOA"
 
   ],
 
 
   "LISBOA-S.A": [
+
     "SETE RIOS",
+
     "ENTRECAMPOS"
+
   ]
 
 };
+
 
 
 /* ==================================================
@@ -1018,59 +1113,437 @@ const PARAGENS = {
 
 const FONT = {
 
-"A":["01110","10001","10001","11111","10001","10001","10001"],
-"B":["11110","10001","10001","11110","10001","10001","11110"],
-"C":["01111","10000","10000","10000","10000","10000","01111"],
-"D":["11110","10001","10001","10001","10001","10001","11110"],
-"E":["11111","10000","10000","11110","10000","10000","11111"],
-"F":["11111","10000","10000","11110","10000","10000","10000"],
-"G":["01111","10000","10000","10111","10001","10001","01111"],
-"H":["10001","10001","10001","11111","10001","10001","10001"],
-"I":["11111","00100","00100","00100","00100","00100","11111"],
-"J":["00111","00010","00010","00010","10010","10010","01100"],
-"K":["10001","10010","10100","11000","10100","10010","10001"],
-"L":["10000","10000","10000","10000","10000","10000","11111"],
-"M":["10001","11011","10101","10101","10001","10001","10001"],
-"N":["10001","11001","10101","10011","10001","10001","10001"],
-"O":["01110","10001","10001","10001","10001","10001","01110"],
-"P":["11110","10001","10001","11110","10000","10000","10000"],
-"Q":["01110","10001","10001","10001","10101","10010","01101"],
-"R":["11110","10001","10001","11110","10100","10010","10001"],
-"S":["01111","10000","10000","01110","00001","00001","11110"],
-"T":["11111","00100","00100","00100","00100","00100","00100"],
-"U":["10001","10001","10001","10001","10001","10001","01110"],
-"V":["10001","10001","10001","10001","10001","01010","00100"],
-"W":["10001","10001","10001","10101","10101","10101","01010"],
-"X":["10001","10001","01010","00100","01010","10001","10001"],
-"Y":["10001","10001","01010","00100","00100","00100","00100"],
-"Z":["11111","00001","00010","00100","01000","10000","11111"],
 
-"0":["01110","10001","10011","10101","11001","10001","01110"],
-"1":["00100","01100","00100","00100","00100","00100","01110"],
-"2":["01110","10001","00001","00010","00100","01000","11111"],
-"3":["11110","00001","00001","01110","00001","00001","11110"],
-"4":["00010","00110","01010","10010","11111","00010","00010"],
-"5":["11111","10000","10000","11110","00001","00001","11110"],
-"6":["01110","10000","10000","11110","10001","10001","01110"],
-"7":["11111","00001","00010","00100","01000","01000","01000"],
-"8":["01110","10001","10001","01110","10001","10001","01110"],
-"9":["01110","10001","10001","01111","00001","00001","01110"],
+"A":[
+"01110",
+"10001",
+"10001",
+"11111",
+"10001",
+"10001",
+"10001"
+],
 
-"-":["00000","00000","00000","11111","00000","00000","00000"],
 
-" ":["00000","00000","00000","00000","00000","00000","00000"]
+"B":[
+"11110",
+"10001",
+"10001",
+"11110",
+"10001",
+"10001",
+"11110"
+],
+
+
+"C":[
+"01111",
+"10000",
+"10000",
+"10000",
+"10000",
+"10000",
+"01111"
+],
+
+
+"D":[
+"11110",
+"10001",
+"10001",
+"10001",
+"10001",
+"10001",
+"11110"
+],
+
+
+"E":[
+"11111",
+"10000",
+"10000",
+"11110",
+"10000",
+"10000",
+"11111"
+],
+
+
+"F":[
+"11111",
+"10000",
+"10000",
+"11110",
+"10000",
+"10000",
+"10000"
+],
+
+
+"G":[
+"01111",
+"10000",
+"10000",
+"10111",
+"10001",
+"10001",
+"01111"
+],
+
+
+"H":[
+"10001",
+"10001",
+"10001",
+"11111",
+"10001",
+"10001",
+"10001"
+],
+
+
+"I":[
+"11111",
+"00100",
+"00100",
+"00100",
+"00100",
+"00100",
+"11111"
+],
+
+
+"J":[
+"00111",
+"00010",
+"00010",
+"00010",
+"10010",
+"10010",
+"01100"
+],
+
+
+"K":[
+"10001",
+"10010",
+"10100",
+"11000",
+"10100",
+"10010",
+"10001"
+],
+
+
+"L":[
+"10000",
+"10000",
+"10000",
+"10000",
+"10000",
+"10000",
+"11111"
+],
+
+
+"M":[
+"10001",
+"11011",
+"10101",
+"10101",
+"10001",
+"10001",
+"10001"
+],
+
+
+"N":[
+"10001",
+"11001",
+"10101",
+"10011",
+"10001",
+"10001",
+"10001"
+],
+
+
+"O":[
+"01110",
+"10001",
+"10001",
+"10001",
+"10001",
+"10001",
+"01110"
+],
+
+
+"P":[
+"11110",
+"10001",
+"10001",
+"11110",
+"10000",
+"10000",
+"10000"
+],
+
+
+"Q":[
+"01110",
+"10001",
+"10001",
+"10001",
+"10101",
+"10010",
+"01101"
+],
+
+
+"R":[
+"11110",
+"10001",
+"10001",
+"11110",
+"10100",
+"10010",
+"10001"
+],
+
+
+"S":[
+"01111",
+"10000",
+"10000",
+"01110",
+"00001",
+"00001",
+"11110"
+],
+
+
+"T":[
+"11111",
+"00100",
+"00100",
+"00100",
+"00100",
+"00100",
+"00100"
+],
+
+
+"U":[
+"10001",
+"10001",
+"10001",
+"10001",
+"10001",
+"10001",
+"01110"
+],
+
+
+"V":[
+"10001",
+"10001",
+"10001",
+"10001",
+"10001",
+"01010",
+"00100"
+],
+
+
+"W":[
+"10001",
+"10001",
+"10001",
+"10101",
+"10101",
+"10101",
+"01010"
+],
+
+
+"X":[
+"10001",
+"10001",
+"01010",
+"00100",
+"01010",
+"10001",
+"10001"
+],
+
+
+"Y":[
+"10001",
+"10001",
+"01010",
+"00100",
+"00100",
+"00100",
+"00100"
+],
+
+
+"Z":[
+"11111",
+"00001",
+"00010",
+"00100",
+"01000",
+"10000",
+"11111"
+],
+
+
+"0":[
+"01110",
+"10001",
+"10011",
+"10101",
+"11001",
+"10001",
+"01110"
+],
+
+
+"1":[
+"00100",
+"01100",
+"00100",
+"00100",
+"00100",
+"00100",
+"01110"
+],
+
+
+"2":[
+"01110",
+"10001",
+"00001",
+"00010",
+"00100",
+"01000",
+"11111"
+],
+
+
+"3":[
+"11110",
+"00001",
+"00001",
+"01110",
+"00001",
+"00001",
+"11110"
+],
+
+
+"4":[
+"00010",
+"00110",
+"01010",
+"10010",
+"11111",
+"00010",
+"00010"
+],
+
+
+"5":[
+"11111",
+"10000",
+"10000",
+"11110",
+"00001",
+"00001",
+"11110"
+],
+
+
+"6":[
+"01110",
+"10000",
+"10000",
+"11110",
+"10001",
+"10001",
+"01110"
+],
+
+
+"7":[
+"11111",
+"00001",
+"00010",
+"00100",
+"01000",
+"01000",
+"01000"
+],
+
+
+"8":[
+"01110",
+"10001",
+"10001",
+"01110",
+"10001",
+"10001",
+"01110"
+],
+
+
+"9":[
+"01110",
+"10001",
+"10001",
+"01111",
+"00001",
+"00001",
+"01110"
+],
+
+
+"-":[
+"00000",
+"00000",
+"00000",
+"11111",
+"00000",
+"00000",
+"00000"
+],
+
+
+" ":[
+"00000",
+"00000",
+"00000",
+"00000",
+"00000",
+"00000",
+"00000"
+]
 
 };
 
 
+
 /* ==================================================
-   DESENHAR DOT MATRIX
+   DESENHAR MATRIZ
 ================================================== */
 
 function desenharDotText(
   elemento,
   texto
 ) {
+
 
   const fragmento =
     document.createDocumentFragment();
@@ -1086,8 +1559,15 @@ function desenharDotText(
 
 
   for (
-    const caracter of texto
+    let i = 0;
+    i < texto.length;
+    i++
   ) {
+
+
+    const caracter =
+      texto.charAt(i);
+
 
     const pattern =
       FONT[caracter] ||
@@ -1110,11 +1590,13 @@ function desenharDotText(
       linha++
     ) {
 
+
       for (
         let coluna = 0;
         coluna < 5;
         coluna++
       ) {
+
 
         const dot =
           document.createElement(
@@ -1123,14 +1605,18 @@ function desenharDotText(
 
 
         dot.className =
+
           pattern[linha][coluna] === "1"
-            ? "dot on"
-            : "dot";
+
+          ? "dot on"
+
+          : "dot";
 
 
         character.appendChild(
           dot
         );
+
 
       }
 
@@ -1140,6 +1626,7 @@ function desenharDotText(
     fragmento.appendChild(
       character
     );
+
 
   }
 
@@ -1151,57 +1638,80 @@ function desenharDotText(
 }
 
 
+
 /* ==================================================
-   DESTINO
+   NORMALIZAR DESTINO
 ================================================== */
 
 function normalizarDestino(
   destino
 ) {
 
+
   if (!destino) {
+
     return "";
+
   }
 
 
   const texto =
+
     String(destino)
+
       .toUpperCase()
+
       .normalize("NFD")
+
       .replace(
         /[\u0300-\u036f]/g,
         ""
       )
+
       .trim();
 
 
   if (
-    texto.includes("ORIENTE")
+    texto.indexOf("ORIENTE") !== -1
   ) {
+
     return "LISBOA-ORIENTE";
+
   }
 
 
   if (
-    texto.includes("ALVERCA")
+    texto.indexOf("ALVERCA") !== -1
   ) {
+
     return "ALVERCA";
+
   }
 
 
   if (
-    texto.includes("SANTA APOLONIA") ||
-    texto.includes("S.APOLONIA") ||
-    texto.includes("S. APOLONIA") ||
-    texto.includes("LISBOA-S.A")
+
+    texto.indexOf("SANTA APOLONIA") !== -1 ||
+
+    texto.indexOf("S.APOLONIA") !== -1 ||
+
+    texto.indexOf("S. APOLONIA") !== -1 ||
+
+    texto.indexOf("LISBOA-S.A") !== -1 ||
+
+    texto.indexOf("LIS-S.APOL") !== -1
+
   ) {
+
     return "LISBOA-S.A";
+
   }
 
 
   return "";
 
 }
+
 
 
 /* ==================================================
@@ -1211,6 +1721,7 @@ function normalizarDestino(
 function mostrarHora(
   hora
 ) {
+
 
   const horas =
     document.getElementById(
@@ -1226,6 +1737,7 @@ function mostrarHora(
 
   if (!hora) {
 
+
     desenharDotText(
       horas,
       "--"
@@ -1239,6 +1751,7 @@ function mostrarHora(
 
 
     return;
+
 
   }
 
@@ -1263,13 +1776,15 @@ function mostrarHora(
 }
 
 
+
 /* ==================================================
-   CRT
+   LIMITES CRT
 ================================================== */
 
 function limitarCRT(
   texto
 ) {
+
 
   return String(texto)
     .toUpperCase()
@@ -1281,9 +1796,11 @@ function limitarCRT(
 }
 
 
+
 function limitarProximoDestino(
   texto
 ) {
+
 
   return String(texto)
     .toUpperCase()
@@ -1295,6 +1812,7 @@ function limitarProximoDestino(
 }
 
 
+
 /* ==================================================
    PARAGENS
 ================================================== */
@@ -1302,6 +1820,7 @@ function limitarProximoDestino(
 function mostrarParagens(
   destino
 ) {
+
 
   const lista =
     PARAGENS[destino] || [];
@@ -1325,10 +1844,25 @@ function mostrarParagens(
     );
 
 
-  stops.classList.toggle(
-    "muitas",
+  if (
     lista.length > 12
-  );
+  ) {
+
+
+    stops.className =
+      "stops muitas";
+
+
+  }
+
+  else {
+
+
+    stops.className =
+      "stops";
+
+
+  }
 
 
   coluna1.innerHTML =
@@ -1359,7 +1893,10 @@ function mostrarParagens(
 
 
   esquerda.forEach(
-    paragem => {
+    function (
+      paragem
+    ) {
+
 
       const linha =
         document.createElement(
@@ -1381,12 +1918,16 @@ function mostrarParagens(
         linha
       );
 
+
     }
   );
 
 
   direita.forEach(
-    paragem => {
+    function (
+      paragem
+    ) {
+
 
       const linha =
         document.createElement(
@@ -1408,59 +1949,119 @@ function mostrarParagens(
         linha
       );
 
+
     }
   );
 
 }
 
 
+
 /* ==================================================
-   ATUALIZAR
+   PREPARAR COMBOIOS
+================================================== */
+
+function prepararComboios(
+  lista
+) {
+
+
+  return lista
+
+    .map(
+      function (
+        comboio
+      ) {
+
+
+        const destino =
+          normalizarDestino(
+
+            comboio.destino ||
+
+            comboio.destination ||
+
+            comboio.destinoOriginal
+
+          );
+
+
+        const copia =
+          {};
+
+
+        for (
+          const chave in comboio
+        ) {
+
+
+          copia[chave] =
+            comboio[chave];
+
+
+        }
+
+
+        copia.destinoPainel =
+          destino;
+
+
+        return copia;
+
+
+      }
+    )
+
+
+    .filter(
+      function (
+        comboio
+      ) {
+
+
+        return Boolean(
+          comboio.destinoPainel
+        );
+
+
+      }
+    );
+
+}
+
+
+
+/* ==================================================
+   ATUALIZAR PAINEL
 ================================================== */
 
 function atualizarPainel(
   lista
 ) {
 
+
   const comboios =
-    lista
-
-      .map(
-        comboio => {
-
-          const destino =
-            normalizarDestino(
-              comboio.destino ||
-              comboio.destination ||
-              comboio.destinoOriginal
-            );
-
-
-          return {
-
-            ...comboio,
-
-            destinoPainel:
-              destino
-
-          };
-
-        }
-      )
-
-      .filter(
-        comboio =>
-          comboio.destinoPainel
-      );
+    prepararComboios(
+      lista
+    );
 
 
   if (
     comboios.length === 0
   ) {
 
+
+    /*
+      Se já temos dados no ecrã,
+      NÃO apagamos o painel só
+      porque uma atualização veio vazia.
+    */
+
+
     if (
       !temDadosVisiveis
     ) {
+
 
       mostrarHora(
         null
@@ -1477,12 +2078,18 @@ function atualizarPainel(
 
       );
 
+
     }
 
 
-    return;
+    return false;
+
 
   }
+
+
+
+  /* COMBOIO ATUAL */
 
 
   const atual =
@@ -1510,6 +2117,10 @@ function atualizarPainel(
   );
 
 
+
+  /* COMBOIO SEGUINTE */
+
+
   const seguinte =
     comboios[1];
 
@@ -1518,11 +2129,13 @@ function atualizarPainel(
     seguinte
   ) {
 
+
     document
       .getElementById(
         "proximoDestino"
       )
       .textContent =
+
         limitarProximoDestino(
           seguinte.destinoPainel
         );
@@ -1533,13 +2146,16 @@ function atualizarPainel(
         "proximaHora"
       )
       .textContent =
+
         seguinte.hora ||
+
         "--:--";
+
 
   }
 
-
   else {
+
 
     document
       .getElementById(
@@ -1556,22 +2172,29 @@ function atualizarPainel(
       .textContent =
         "--:--";
 
+
   }
 
 
   temDadosVisiveis =
     true;
 
+
+  return true;
+
 }
 
 
+
 /* ==================================================
-   CACHE
+   CACHE LOCAL
 ================================================== */
 
 function carregarCacheLocal() {
 
+
   try {
+
 
     const bruto =
       localStorage.getItem(
@@ -1580,7 +2203,9 @@ function carregarCacheLocal() {
 
 
     if (!bruto) {
-      return;
+
+      return false;
+
     }
 
 
@@ -1591,14 +2216,20 @@ function carregarCacheLocal() {
 
 
     if (
+
       !cache ||
+
       !Array.isArray(
         cache.lista
       ) ||
+
       !cache.guardadoEm
+
     ) {
 
-      return;
+
+      return false;
+
 
     }
 
@@ -1613,14 +2244,17 @@ function carregarCacheLocal() {
       CACHE_MAX_AGE
     ) {
 
-      return;
+
+      return false;
+
 
     }
 
 
-    atualizarPainel(
+    return atualizarPainel(
       cache.lista
     );
+
 
   }
 
@@ -1628,20 +2262,23 @@ function carregarCacheLocal() {
     erro
   ) {
 
-    console.log(
-      "Cache ignorado"
-    );
+
+    return false;
+
 
   }
 
 }
 
 
+
 function guardarCacheLocal(
   lista
 ) {
 
+
   try {
+
 
     localStorage.setItem(
 
@@ -1659,79 +2296,6 @@ function guardarCacheLocal(
 
     );
 
-  }
-
-  catch (
-    erro
-  ) {}
-
-}
-
-
-/* ==================================================
-   API
-================================================== */
-
-async function carregarPartidas() {
-
-  try {
-
-    const resposta =
-      await fetch(
-        API_URL
-      );
-
-
-    if (
-      !resposta.ok
-    ) {
-
-      throw new Error(
-        "HTTP " +
-        resposta.status
-      );
-
-    }
-
-
-    const dados =
-      await resposta.json();
-
-
-    const lista =
-      Array.isArray(
-        dados
-      )
-
-      ? dados
-
-      : (
-
-        Array.isArray(
-          dados.partidas
-        )
-
-        ? dados.partidas
-
-        : []
-
-      );
-
-
-    if (
-      lista.length > 0
-    ) {
-
-      guardarCacheLocal(
-        lista
-      );
-
-    }
-
-
-    atualizarPainel(
-      lista
-    );
 
   }
 
@@ -1739,36 +2303,247 @@ async function carregarPartidas() {
     erro
   ) {
 
-    console.error(
-      "Erro API:",
+  }
+
+}
+
+
+
+/* ==================================================
+   OBTER LISTA DA RESPOSTA
+================================================== */
+
+function obterLista(
+  dados
+) {
+
+
+  if (
+    Array.isArray(
+      dados
+    )
+  ) {
+
+
+    return dados;
+
+
+  }
+
+
+  if (
+
+    dados &&
+
+    Array.isArray(
+      dados.partidas
+    )
+
+  ) {
+
+
+    return dados.partidas;
+
+
+  }
+
+
+  return [];
+
+}
+
+
+
+/* ==================================================
+   CARREGAR PARTIDAS
+
+   Primeiro tenta:
+   /api/partidas
+
+   Se falhar ou vier vazio:
+   /api/partidas-todas
+================================================== */
+
+async function carregarPartidas() {
+
+
+  let encontrou =
+    false;
+
+
+  for (
+    let i = 0;
+    i < API_URLS.length;
+    i++
+  ) {
+
+
+    try {
+
+
+      const resposta =
+        await fetch(
+
+          API_URLS[i] +
+          "?t=" +
+          Date.now(),
+
+          {
+            cache:
+              "no-store"
+          }
+
+        );
+
+
+      if (
+        !resposta.ok
+      ) {
+
+
+        continue;
+
+
+      }
+
+
+      const dados =
+        await resposta.json();
+
+
+      const lista =
+        obterLista(
+          dados
+        );
+
+
+      if (
+        lista.length === 0
+      ) {
+
+
+        continue;
+
+
+      }
+
+
+      if (
+        atualizarPainel(
+          lista
+        )
+      ) {
+
+
+        guardarCacheLocal(
+          lista
+        );
+
+
+        encontrou =
+          true;
+
+
+        break;
+
+
+      }
+
+
+    }
+
+    catch (
       erro
+    ) {
+
+
+      console.log(
+
+        "Falha em " +
+        API_URLS[i],
+
+        erro
+
+      );
+
+
+    }
+
+
+  }
+
+
+
+  /*
+    Só mostra SEM PARTIDAS se:
+
+    - nenhuma API devolveu dados
+    - não temos cache válida
+    - ainda não existem dados visíveis
+  */
+
+
+  if (
+
+    !encontrou &&
+
+    !temDadosVisiveis
+
+  ) {
+
+
+    mostrarHora(
+      null
     );
 
 
-    if (
-      !temDadosVisiveis
-    ) {
+    desenharDotText(
 
-      mostrarHora(
-        null
-      );
+      document.getElementById(
+        "destinoAtual"
+      ),
+
+      "SEM PARTIDAS"
+
+    );
 
 
-      desenharDotText(
+    document
+      .getElementById(
+        "coluna1"
+      )
+      .innerHTML =
+        "";
 
-        document.getElementById(
-          "destinoAtual"
-        ),
 
-        "SEM LIGACAO"
+    document
+      .getElementById(
+        "coluna2"
+      )
+      .innerHTML =
+        "";
 
-      );
 
-    }
+    document
+      .getElementById(
+        "proximoDestino"
+      )
+      .textContent =
+        "----";
+
+
+    document
+      .getElementById(
+        "proximaHora"
+      )
+      .textContent =
+        "--:--";
+
 
   }
 
 }
+
 
 
 /* ==================================================
@@ -1782,6 +2557,7 @@ if (
   !temDadosVisiveis
 ) {
 
+
   mostrarHora(
     null
   );
@@ -1793,9 +2569,10 @@ if (
       "destinoAtual"
     ),
 
-    "----------"
+    "A CARREGAR"
 
   );
+
 
 }
 
@@ -1804,8 +2581,11 @@ carregarPartidas();
 
 
 setInterval(
+
   carregarPartidas,
+
   REFRESH_INTERVAL
+
 );
 
 </script>
