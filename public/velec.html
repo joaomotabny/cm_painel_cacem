@@ -1,747 +1,648 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-  <meta charset="UTF-8">
+<meta charset="UTF-8">
+
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+>
 
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
-  >
-
-  <title>Painel VELEC</title>
-
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-  <link
-    href="https://fonts.googleapis.com/css2?family=VT323&display=swap"
-    rel="stylesheet"
-  >
+<title>Painel VELEC</title>
 
-  <style>
+<style>
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
-    html,
-    body {
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      background: #050505;
-    }
+html,
+body {
+  width: 100%;
+  height: 100%;
+  background: #050505;
+  overflow: hidden;
+}
 
-    body {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: Arial, sans-serif;
-    }
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: Arial, sans-serif;
+}
 
 
-    /* ==================================================
-       PAINEL
-       ================================================== */
+/* ==================================================
+   PAINEL
+   ================================================== */
 
-    .panel {
-      position: relative;
+.panel {
+  position: relative;
 
-      width: min(98vw, 1500px);
-      aspect-ratio: 2.65 / 1;
+  width: min(98vw, 1500px);
+  aspect-ratio: 2.65 / 1;
 
-      background:
-        linear-gradient(
-          145deg,
-          #16202a,
-          #0c1117 55%,
-          #18212a
-        );
+  background:
+    linear-gradient(
+      145deg,
+      #16202a,
+      #0c1117 55%,
+      #18212a
+    );
 
-      border: 2px solid #29343c;
-      border-radius: 8px;
+  border: 2px solid #29343c;
+  border-radius: 8px;
 
-      box-shadow:
-        0 30px 90px rgba(0,0,0,.9),
-        inset 0 0 30px rgba(255,255,255,.025);
+  box-shadow:
+    0 30px 90px rgba(0,0,0,.9),
+    inset 0 0 30px rgba(255,255,255,.025);
 
-      padding: 4.8% 5.5% 5.5%;
-    }
+  padding: 4.8% 5.5% 5.5%;
+}
 
 
-    /* ==================================================
-       SUPORTES
-       ================================================== */
+/* ==================================================
+   SUPORTES
+   ================================================== */
 
-    .mount {
-      position: absolute;
+.mount {
+  position: absolute;
 
-      top: -14%;
+  top: -14%;
 
-      width: 5%;
-      height: 15%;
+  width: 5%;
+  height: 15%;
 
-      background:
-        linear-gradient(
-          90deg,
-          #090b0d,
-          #333b41,
-          #090b0d
-        );
+  background:
+    linear-gradient(
+      90deg,
+      #090b0d,
+      #333b41,
+      #090b0d
+    );
 
-      border-radius: 8px 8px 0 0;
-    }
+  border-radius: 8px 8px 0 0;
+}
 
-    .mount.left {
-      left: 23%;
-    }
+.mount.left {
+  left: 23%;
+}
 
-    .mount.center {
-      left: 48%;
+.mount.center {
+  left: 48%;
 
-      background:
-        linear-gradient(
-          90deg,
-          #777,
-          #d0cbc0,
-          #888
-        );
-    }
+  background:
+    linear-gradient(
+      90deg,
+      #777,
+      #d0cbc0,
+      #888
+    );
+}
 
-    .mount.right {
-      right: 18%;
-    }
+.mount.right {
+  right: 18%;
+}
 
 
-    /* ==================================================
-       ECRÃS
-       ================================================== */
+/* ==================================================
+   ECRÃS
+   ================================================== */
 
-    .screens {
-      width: 100%;
-      height: 100%;
+.screens {
+  width: 100%;
+  height: 100%;
 
-      display: grid;
+  display: grid;
 
-      grid-template-columns:
-        64% 32%;
+  grid-template-columns:
+    64% 32%;
 
-      gap: 4%;
-    }
+  gap: 4%;
+}
 
 
-    /* ==================================================
-       PAINEL ESQUERDO
-       ================================================== */
+/* ==================================================
+   PAINEL ESQUERDO
+   ================================================== */
 
-    .left-display {
-      position: relative;
+.left-display {
+  position: relative;
 
-      overflow: hidden;
+  overflow: hidden;
 
-      border: 8px solid #070a0b;
+  border: 8px solid #070a0b;
 
-      border-radius: 5px;
+  border-radius: 5px;
 
-      background:
-        linear-gradient(
-          180deg,
-          #334a49 0%,
-          #20312f 30%,
-          #111c1a 100%
-        );
+  background:
+    linear-gradient(
+      180deg,
+      #334a49 0%,
+      #20312f 30%,
+      #111c1a 100%
+    );
 
-      box-shadow:
-        inset 0 0 35px rgba(0,0,0,.85),
-        inset 0 0 8px rgba(255,255,255,.15);
-    }
+  box-shadow:
+    inset 0 0 35px rgba(0,0,0,.85),
+    inset 0 0 8px rgba(255,255,255,.15);
+}
 
 
-    .left-display::after {
-      content: "";
+.left-display::after {
+  content: "";
 
-      position: absolute;
-      inset: 0;
+  position: absolute;
+  inset: 0;
 
-      pointer-events: none;
+  pointer-events: none;
 
-      z-index: 20;
+  z-index: 20;
 
-      background:
-        linear-gradient(
-          110deg,
-          transparent 35%,
-          rgba(255,255,255,.08) 48%,
-          transparent 58%
-        );
-    }
+  background:
+    linear-gradient(
+      110deg,
+      transparent 35%,
+      rgba(255,255,255,.07) 48%,
+      transparent 58%
+    );
+}
 
 
-    /* ==================================================
-       LABELS
-       ================================================== */
+/* ==================================================
+   LABELS
+   ================================================== */
 
-    .hora-label,
-    .destino-label {
-      position: absolute;
+.hora-label,
+.destino-label {
+  position: absolute;
 
-      left: 7%;
+  left: 7%;
 
-      color: #dfdeb3;
+  color: #dfdeb3;
 
-      font-size:
-        clamp(18px, 3vw, 54px);
+  font-size:
+    clamp(18px, 3vw, 54px);
 
-      font-weight: 700;
+  font-weight: 700;
 
-      letter-spacing: .02em;
-    }
+  letter-spacing: .02em;
+}
 
-    .hora-label {
-      top: 8%;
-    }
+.hora-label {
+  top: 8%;
+}
 
-    .destino-label {
-      top: 48%;
-    }
+.destino-label {
+  top: 48%;
+}
 
 
-    /* ==================================================
-       HORA FLIPDOT
-       ================================================== */
+/* ==================================================
+   HORA
+   ================================================== */
 
-    .hora {
-      position: absolute;
+.hora {
+  position: absolute;
 
-      left: 7%;
-      top: 23%;
+  left: 7%;
+  top: 23%;
 
-      height: 22%;
+  display: flex;
 
-      display: flex;
+  align-items: center;
 
-      align-items: center;
+  gap: .5em;
+}
 
-      gap: 1.5%;
-    }
 
+.flip-group {
+  display: flex;
 
-    .flip-group {
-      display: flex;
+  gap: .08em;
+}
 
-      align-items: center;
 
-      gap: .06em;
-    }
+/* ==================================================
+   MÓDULO FLIP-DOT LEVE
+   ================================================== */
 
+.flip-char {
+  display: flex;
 
-    /*
-       Cada carácter é um módulo independente.
-    */
+  align-items: center;
+  justify-content: center;
 
-    .flip-char {
-      position: relative;
+  width: .72em;
+  height: 1em;
 
-      display: inline-flex;
+  color: #f4df18;
 
-      justify-content: center;
-      align-items: center;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      #151a15 0px,
+      #151a15 4px,
+      #0a0d0a 4px,
+      #0a0d0a 6px
+    );
 
-      width: .72em;
-      height: 1em;
+  border:
+    1px solid #050705;
 
-      overflow: hidden;
+  border-radius:
+    .05em;
 
-      border:
-        1px solid rgba(0,0,0,.85);
+  box-shadow:
+    inset 0 0 .08em #000,
+    0 .035em .06em rgba(0,0,0,.8);
 
-      border-radius:
-        .06em;
+  font-family:
+    "Courier New",
+    monospace;
 
-      background:
-        radial-gradient(
-          circle,
-          rgba(55,62,50,.65) 0 14%,
-          transparent 16%
-        );
+  font-weight:
+    900;
 
-      background-size:
-        .14em .14em;
+  font-size:
+    clamp(38px, 5.7vw, 94px);
 
-      background-color:
-        #111711;
+  line-height: 1;
 
-      box-shadow:
-        inset 0 0 .08em #000,
-        0 .03em .05em rgba(0,0,0,.8);
+  text-shadow:
+    0 0 3px rgba(255,225,20,.45);
+}
 
-      font-family:
-        "VT323",
-        monospace;
 
-      font-size:
-        clamp(43px, 6vw, 100px);
+.flip-char.space {
+  color: transparent;
+}
 
-      line-height: 1;
-    }
 
+/* H */
 
-    /*
-       O carácter iluminado também é feito de pontos.
-    */
+.h-separator {
+  color: #d8d4ae;
 
-    .flip-char .lit {
-      position: relative;
+  font-size:
+    clamp(20px, 2.7vw, 44px);
 
-      z-index: 2;
+  font-weight:
+    400;
+}
 
-      color: transparent;
 
-      background:
-        radial-gradient(
-          circle,
-          #ffea19 0 35%,
-          #d6bf00 38% 52%,
-          transparent 55%
-        );
+/* ==================================================
+   DESTINO
+   ================================================== */
 
-      background-size:
-        .13em .13em;
+.destino {
+  position: absolute;
 
-      -webkit-background-clip: text;
-      background-clip: text;
+  left: 7%;
+  right: 25%;
 
-      filter:
-        drop-shadow(
-          0 0 2px rgba(255,225,0,.35)
-        );
-    }
+  bottom: 9%;
 
+  display: flex;
 
-    .hora .h {
-      color: #dbd8b6;
+  align-items: center;
 
-      font-size:
-        clamp(21px, 2.8vw, 47px);
+  overflow: hidden;
+}
 
-      margin:
-        0 .12em;
 
-      font-family:
-        Arial,
-        sans-serif;
+.destino .flip-group {
+  width: 100%;
 
-      font-weight:
-        400;
-    }
+  gap: .025em;
+}
 
 
-    /* ==================================================
-       DESTINO FLIPDOT
-       ================================================== */
+.destino .flip-char {
+  flex: 1 1 0;
 
-    .destino {
-      position: absolute;
+  min-width: 0;
 
-      left: 7%;
-      right: 25%;
+  max-width: .74em;
 
-      bottom: 9%;
+  font-size:
+    clamp(25px, 4vw, 67px);
+}
 
-      display: flex;
 
-      align-items: center;
+/* ==================================================
+   VIA
+   ================================================== */
 
-      height: 23%;
+.via {
+  position: absolute;
 
-      overflow: hidden;
-    }
+  right: 5%;
+  top: 12%;
 
+  width: 20%;
 
-    .destino .flip-group {
-      width: 100%;
+  aspect-ratio:
+    1 / 1;
 
-      gap: .025em;
-    }
+  border:
+    clamp(3px, .5vw, 8px)
+    solid #d9f343;
 
+  border-radius: 8%;
 
-    .destino .flip-char {
-      flex:
-        1 1 0;
+  display: flex;
 
-      min-width:
-        0;
+  justify-content: center;
+  align-items: center;
 
-      max-width:
-        .76em;
+  color: #d9f343;
 
-      font-size:
-        clamp(27px, 4.2vw, 71px);
-    }
+  font-family:
+    Arial,
+    sans-serif;
 
+  font-weight: 500;
 
-    /*
-       Para espaços também mostramos
-       um módulo apagado.
-    */
+  font-size:
+    clamp(55px, 10vw, 170px);
 
-    .flip-char.space .lit {
-      visibility: hidden;
-    }
+  line-height: 1;
 
+  text-shadow:
+    0 0 12px rgba(200,255,50,.35);
 
-    /* ==================================================
-       VIA
-       ================================================== */
+  box-shadow:
+    inset 0 0 15px rgba(190,255,50,.07),
+    0 0 6px rgba(190,255,50,.15);
+}
 
-    .via {
-      position: absolute;
 
-      right: 5%;
-      top: 12%;
+/* ==================================================
+   CRT
+   ================================================== */
 
-      width: 20%;
+.crt-frame {
+  position: relative;
 
-      aspect-ratio:
-        1 / 1;
+  background: #050606;
 
-      border:
-        clamp(3px, .5vw, 8px)
-        solid #d9f343;
+  border-radius: 6px;
 
-      border-radius:
-        8%;
+  padding: 5%;
 
-      display: flex;
+  box-shadow:
+    inset 0 0 18px #000;
+}
 
-      justify-content: center;
-      align-items: center;
 
-      color: #d9f343;
+.crt {
+  position: relative;
 
-      font-family:
-        Arial,
-        sans-serif;
+  width: 100%;
+  height: 100%;
 
-      font-weight:
-        500;
+  overflow: hidden;
 
-      font-size:
-        clamp(55px, 10vw, 170px);
+  border-radius: 10%;
 
-      line-height:
-        1;
+  padding:
+    7% 8% 5%;
 
-      text-shadow:
-        0 0 12px
-        rgba(200,255,50,.35);
+  background:
+    radial-gradient(
+      ellipse at center,
+      #17301c 0%,
+      #0c2011 55%,
+      #030904 100%
+    );
 
-      box-shadow:
-        inset 0 0 15px rgba(190,255,50,.07),
-        0 0 6px rgba(190,255,50,.15);
-    }
+  color: #c9ef35;
 
+  font-family:
+    "Courier New",
+    monospace;
 
-    /* ==================================================
-       CRT DIREITO
-       ================================================== */
+  font-weight: 700;
 
-    .crt-frame {
-      position: relative;
+  box-shadow:
+    inset 0 0 30px rgba(0,0,0,.95),
+    inset 0 0 60px rgba(0,0,0,.6);
+}
 
-      background:
-        #050606;
 
-      border-radius:
-        6px;
+.crt::after {
+  content: "";
 
-      padding:
-        5%;
+  position: absolute;
 
-      box-shadow:
-        inset 0 0 18px #000;
-    }
+  inset: 0;
 
+  pointer-events: none;
 
-    .crt {
-      position: relative;
+  z-index: 10;
 
-      width: 100%;
-      height: 100%;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      rgba(255,255,255,.025) 0px,
+      rgba(255,255,255,.025) 1px,
+      transparent 1px,
+      transparent 3px
+    );
 
-      overflow: hidden;
+  opacity: .35;
+}
 
-      border-radius:
-        10%;
 
-      padding:
-        7% 8% 5%;
+/* ==================================================
+   PARAGENS
+   ================================================== */
 
-      background:
-        radial-gradient(
-          ellipse at center,
-          #17301c 0%,
-          #0c2011 55%,
-          #030904 100%
-        );
+.stops {
+  position: relative;
 
-      color:
-        #c9ef35;
+  z-index: 2;
 
-      font-family:
-        "VT323",
-        monospace;
+  display: grid;
 
-      box-shadow:
-        inset 0 0 30px rgba(0,0,0,.95),
-        inset 0 0 60px rgba(0,0,0,.6);
-    }
+  grid-template-columns:
+    1fr 1fr;
 
+  column-gap: 8%;
 
-    .crt::before {
-      content: "";
+  height: 75%;
+}
 
-      position: absolute;
 
-      inset: 0;
+.stop-column {
+  display: flex;
 
-      pointer-events: none;
+  flex-direction: column;
 
-      z-index: 5;
+  gap: 0;
+}
 
-      background:
-        radial-gradient(
-          ellipse at center,
-          transparent 50%,
-          rgba(0,0,0,.18) 78%,
-          rgba(0,0,0,.5) 100%
-        );
-    }
 
+.stop {
+  height: 10%;
 
-    .crt::after {
-      content: "";
+  white-space: nowrap;
 
-      position: absolute;
-      inset: 0;
+  overflow: hidden;
 
-      pointer-events: none;
+  font-size:
+    clamp(11px, 1.25vw, 24px);
 
-      z-index: 6;
+  line-height: 1;
 
-      background:
-        repeating-linear-gradient(
-          to bottom,
-          rgba(255,255,255,.03) 0px,
-          rgba(255,255,255,.03) 1px,
-          transparent 1px,
-          transparent 3px
-        );
+  text-shadow:
+    0 0 3px rgba(200,239,53,.25);
+}
 
-      opacity:
-        .45;
-    }
 
+/* ==================================================
+   COMBOIO SEGUINTE
+   ================================================== */
 
-    /* ==================================================
-       PARAGENS
-       ================================================== */
+.next-train {
+  position: absolute;
 
-    .stops {
-      position: relative;
+  z-index: 3;
 
-      z-index: 2;
+  left: 8%;
+  right: 8%;
 
-      display: grid;
+  bottom: 7%;
 
-      grid-template-columns:
-        1fr 1fr;
+  display: grid;
 
-      column-gap:
-        8%;
+  grid-template-columns:
+    auto 1fr auto;
 
-      height:
-        75%;
-    }
+  align-items: baseline;
 
+  column-gap: 5%;
+}
 
-    .stop-column {
-      display: flex;
 
-      flex-direction: column;
+.next-label {
+  font-size:
+    clamp(7px, .65vw, 13px);
 
-      gap: 0;
-    }
+  white-space: nowrap;
 
+  font-weight: 700;
+}
 
-    .stop {
-      height: 10%;
 
-      white-space:
-        nowrap;
+.next-destination,
+.next-time {
+  font-size:
+    clamp(15px, 1.6vw, 31px);
 
-      overflow:
-        hidden;
+  white-space: nowrap;
 
-      font-size:
-        clamp(14px, 1.55vw, 31px);
+  line-height: 1;
+}
 
-      line-height:
-        1;
 
-      text-shadow:
-        0 0 4px
-        rgba(200,239,53,.28);
-    }
+.next-destination {
+  text-align: left;
+}
 
 
-    /* ==================================================
-       COMBOIO SEGUINTE
-       ================================================== */
+.next-time {
+  text-align: right;
+}
 
-    .next-train {
-      position: absolute;
 
-      z-index: 3;
+/* ==================================================
+   MOBILE
+   ================================================== */
 
-      left: 8%;
-      right: 8%;
-      bottom: 7%;
+@media (max-width: 700px) {
 
-      display: grid;
+  .panel {
+    width: 100vw;
 
-      grid-template-columns:
-        auto 1fr auto;
+    border-radius: 0;
 
-      align-items:
-        baseline;
+    padding-left: 2%;
+    padding-right: 2%;
+  }
 
-      column-gap:
-        5%;
-    }
 
+  .screens {
+    grid-template-columns:
+      64% 34%;
 
-    .next-label {
-      font-size:
-        clamp(9px, .8vw, 17px);
+    gap: 2%;
+  }
 
-      white-space:
-        nowrap;
 
-      letter-spacing:
-        .02em;
-    }
+  .left-display {
+    border-width: 3px;
+  }
 
 
-    .next-destination,
-    .next-time {
-      font-size:
-        clamp(19px, 2vw, 39px);
+  .crt-frame {
+    padding: 3%;
+  }
 
-      white-space:
-        nowrap;
 
-      line-height:
-        1;
-    }
+  .hora {
+    gap: .25em;
+  }
 
 
-    .next-destination {
-      text-align:
-        left;
-    }
+  .flip-char {
+    font-size:
+      clamp(20px, 5.7vw, 40px);
+  }
 
-    .next-time {
-      text-align:
-        right;
-    }
 
+  .h-separator {
+    font-size:
+      clamp(11px, 2.8vw, 20px);
+  }
 
-    /* ==================================================
-       MOBILE
-       ================================================== */
 
-    @media (max-width: 700px) {
+  .destino .flip-char {
+    font-size:
+      clamp(13px, 3.8vw, 27px);
+  }
 
-      .panel {
-        width: 100vw;
 
-        border-radius:
-          0;
+  .stop {
+    font-size:
+      clamp(5px, 1.45vw, 11px);
+  }
 
-        padding-left:
-          2%;
 
-        padding-right:
-          2%;
-      }
+  .next-label {
+    font-size:
+      clamp(4px, .8vw, 7px);
+  }
 
 
-      .screens {
-        grid-template-columns:
-          64% 34%;
+  .next-destination,
+  .next-time {
+    font-size:
+      clamp(7px, 1.7vw, 13px);
+  }
 
-        gap:
-          2%;
-      }
+}
 
-
-      .left-display {
-        border-width:
-          3px;
-      }
-
-
-      .crt-frame {
-        padding:
-          3%;
-      }
-
-
-      .stop {
-        font-size:
-          clamp(7px, 2.1vw, 15px);
-      }
-
-
-      .next-label {
-        font-size:
-          clamp(5px, 1.1vw, 9px);
-      }
-
-
-      .next-destination,
-      .next-time {
-        font-size:
-          clamp(9px, 2.5vw, 18px);
-      }
-
-
-      .destino .flip-char {
-        font-size:
-          clamp(14px, 4vw, 28px);
-      }
-
-
-      .hora .flip-char {
-        font-size:
-          clamp(23px, 6vw, 42px);
-      }
-
-
-      .hora .h {
-        font-size:
-          clamp(12px, 3vw, 22px);
-      }
-    }
-
-  </style>
+</style>
 </head>
 
 
 <body>
+
 
 <div class="panel">
 
@@ -755,888 +656,6 @@
   <div class="screens">
 
 
-    <!-- ==================================================
-         PAINEL ESQUERDO
-         ================================================== -->
+    <!-- ESQUERDA -->
 
-    <section class="left-display">
-
-      <div class="hora-label">
-        HORA
-      </div>
-
-
-      <div class="hora">
-
-        <div
-          class="flip-group"
-          id="horaHoras"
-        ></div>
-
-        <span class="h">
-          h
-        </span>
-
-        <div
-          class="flip-group"
-          id="horaMinutos"
-        ></div>
-
-      </div>
-
-
-      <div class="destino-label">
-        DESTINO
-      </div>
-
-
-      <div class="destino">
-
-        <div
-          class="flip-group"
-          id="destinoAtual"
-        ></div>
-
-      </div>
-
-
-      <div class="via">
-        3
-      </div>
-
-    </section>
-
-
-
-    <!-- ==================================================
-         CRT
-         ================================================== -->
-
-    <section class="crt-frame">
-
-      <div class="crt">
-
-        <div class="stops">
-
-          <div
-            class="stop-column"
-            id="coluna1"
-          ></div>
-
-          <div
-            class="stop-column"
-            id="coluna2"
-          ></div>
-
-        </div>
-
-
-        <div class="next-train">
-
-          <div class="next-label">
-            COMB.SEGUINTE
-          </div>
-
-
-          <div
-            class="next-destination"
-            id="proximoDestino"
-          >
-            ----
-          </div>
-
-
-          <div
-            class="next-time"
-            id="proximaHora"
-          >
-            --:--
-          </div>
-
-        </div>
-
-      </div>
-
-    </section>
-
-  </div>
-
-</div>
-
-
-<script>
-
-  const API_URL =
-    "https://cmpainelcacem.vercel.app/api/partidas";
-
-
-  const REFRESH_INTERVAL =
-    30000;
-
-
-
-  /* ==================================================
-     PARAGENS
-     ================================================== */
-
-  const PARAGENS = {
-
-    "LISBOA-ORIENTE": [
-
-      "MASSAMA",
-      "MONTE ABRAÃO",
-      "QUELUZ BELAS",
-      "AMADORA",
-      "REBOLEIRA",
-      "S.CR-DAMAIA",
-
-      "BENFICA",
-      "SETE RIOS",
-      "ENTRECAMPOS",
-      "ROMA-AREEIRO",
-      "BRAÇO PRATA"
-
-    ],
-
-
-    "ALVERCA": [
-
-      "MASSAMA",
-      "MONTE ABRAÃO",
-      "QUELUZ BELAS",
-      "AMADORA",
-      "REBOLEIRA",
-      "S.CR-DAMAIA",
-
-      "BENFICA",
-      "SETE RIOS",
-      "ENTRECAMPOS",
-      "ROMA-AREEIRO",
-      "BRAÇO PRATA",
-
-      "LISBOA-ORIENTE",
-      "MOSCAVIDE",
-      "SACAVEM",
-      "BOBADELA",
-      "S.IRIA",
-      "PÓVOA"
-
-    ],
-
-
-    "LISBOA-S.A": [
-
-      "SETE RIOS",
-      "ENTRECAMPOS"
-
-    ]
-
-  };
-
-
-
-  /* ==================================================
-     NORMALIZAR DESTINO
-     ================================================== */
-
-  function normalizarDestino(
-    destino
-  ) {
-
-    if (!destino) {
-      return "";
-    }
-
-
-    const texto =
-      String(destino)
-        .toUpperCase()
-        .normalize("NFD")
-        .replace(
-          /[\u0300-\u036f]/g,
-          ""
-        )
-        .trim();
-
-
-    if (
-      texto.includes(
-        "ORIENTE"
-      )
-    ) {
-
-      return "LISBOA-ORIENTE";
-
-    }
-
-
-    if (
-      texto.includes(
-        "ALVERCA"
-      )
-    ) {
-
-      return "ALVERCA";
-
-    }
-
-
-    if (
-      texto.includes(
-        "SANTA APOLONIA"
-      )
-
-      ||
-
-      texto.includes(
-        "S.APOLONIA"
-      )
-
-      ||
-
-      texto.includes(
-        "S. APOLONIA"
-      )
-
-      ||
-
-      texto.includes(
-        "LISBOA-S.A"
-      )
-    ) {
-
-      return "LISBOA-S.A";
-
-    }
-
-
-    return "";
-
-  }
-
-
-
-  /* ==================================================
-     FLIPDOT
-     ================================================== */
-
-  function desenharFlipdot(
-    elemento,
-    texto
-  ) {
-
-    elemento.innerHTML =
-      "";
-
-
-    texto =
-      String(texto)
-        .toUpperCase();
-
-
-    for (
-      const caracter of texto
-    ) {
-
-      const modulo =
-        document.createElement(
-          "span"
-        );
-
-
-      modulo.className =
-        "flip-char";
-
-
-      if (
-        caracter === " "
-      ) {
-
-        modulo.classList.add(
-          "space"
-        );
-
-      }
-
-
-      const aceso =
-        document.createElement(
-          "span"
-        );
-
-
-      aceso.className =
-        "lit";
-
-
-      aceso.textContent =
-        caracter === " "
-          ? " "
-          : caracter;
-
-
-      modulo.appendChild(
-        aceso
-      );
-
-
-      elemento.appendChild(
-        modulo
-      );
-
-    }
-
-  }
-
-
-
-  /* ==================================================
-     HORA
-     ================================================== */
-
-  function mostrarHora(
-    hora
-  ) {
-
-    const horas =
-      document.getElementById(
-        "horaHoras"
-      );
-
-
-    const minutos =
-      document.getElementById(
-        "horaMinutos"
-      );
-
-
-    if (!hora) {
-
-      desenharFlipdot(
-        horas,
-        "--"
-      );
-
-
-      desenharFlipdot(
-        minutos,
-        "--"
-      );
-
-
-      return;
-
-    }
-
-
-    const partes =
-      String(hora)
-        .trim()
-        .split(":");
-
-
-    desenharFlipdot(
-      horas,
-      partes[0] || "--"
-    );
-
-
-    desenharFlipdot(
-      minutos,
-      partes[1] || "--"
-    );
-
-  }
-
-
-
-  /* ==================================================
-     LIMITE CRT
-     ================================================== */
-
-  function limitarCRT(
-    texto
-  ) {
-
-    return String(texto)
-      .toUpperCase()
-      .slice(
-        0,
-        10
-      );
-
-  }
-
-
-
-  /* ==================================================
-     PARAGENS
-     ================================================== */
-
-  function mostrarParagens(
-    destino
-  ) {
-
-    const lista =
-      PARAGENS[destino] || [];
-
-
-    const coluna1 =
-      document.getElementById(
-        "coluna1"
-      );
-
-
-    const coluna2 =
-      document.getElementById(
-        "coluna2"
-      );
-
-
-    coluna1.innerHTML =
-      "";
-
-
-    coluna2.innerHTML =
-      "";
-
-
-    const corte =
-      Math.ceil(
-        lista.length / 2
-      );
-
-
-    const esquerda =
-      lista.slice(
-        0,
-        corte
-      );
-
-
-    const direita =
-      lista.slice(
-        corte
-      );
-
-
-    esquerda.forEach(
-      paragem => {
-
-        const linha =
-          document.createElement(
-            "div"
-          );
-
-
-        linha.className =
-          "stop";
-
-
-        linha.textContent =
-          limitarCRT(
-            paragem
-          );
-
-
-        coluna1.appendChild(
-          linha
-        );
-
-      }
-    );
-
-
-    direita.forEach(
-      paragem => {
-
-        const linha =
-          document.createElement(
-            "div"
-          );
-
-
-        linha.className =
-          "stop";
-
-
-        linha.textContent =
-          limitarCRT(
-            paragem
-          );
-
-
-        coluna2.appendChild(
-          linha
-        );
-
-      }
-    );
-
-  }
-
-
-
-  /* ==================================================
-     ATUALIZAR PAINEL
-     ================================================== */
-
-  function atualizarPainel(
-    lista
-  ) {
-
-    const comboios =
-      lista
-
-        .map(
-          comboio => {
-
-            const destino =
-              normalizarDestino(
-
-                comboio.destino
-
-                ||
-
-                comboio.destination
-
-                ||
-
-                comboio.destinoOriginal
-
-              );
-
-
-            return {
-
-              ...comboio,
-
-              destinoPainel:
-                destino
-
-            };
-
-          }
-        )
-
-        .filter(
-          comboio =>
-            comboio.destinoPainel
-        );
-
-
-    if (
-      comboios.length === 0
-    ) {
-
-      mostrarHora(
-        null
-      );
-
-
-      desenharFlipdot(
-
-        document.getElementById(
-          "destinoAtual"
-        ),
-
-        "SEM PARTIDAS"
-
-      );
-
-
-      document
-        .getElementById(
-          "coluna1"
-        )
-        .innerHTML =
-          "";
-
-
-      document
-        .getElementById(
-          "coluna2"
-        )
-        .innerHTML =
-          "";
-
-
-      document
-        .getElementById(
-          "proximoDestino"
-        )
-        .textContent =
-          "----";
-
-
-      document
-        .getElementById(
-          "proximaHora"
-        )
-        .textContent =
-          "--:--";
-
-
-      return;
-
-    }
-
-
-
-    /* ==================================================
-       COMBOIO ATUAL
-       ================================================== */
-
-    const atual =
-      comboios[0];
-
-
-    mostrarHora(
-      atual.hora
-    );
-
-
-    desenharFlipdot(
-
-      document.getElementById(
-        "destinoAtual"
-      ),
-
-      atual.destinoPainel
-
-    );
-
-
-    mostrarParagens(
-      atual.destinoPainel
-    );
-
-
-
-    /* ==================================================
-       COMBOIO SEGUINTE
-       ================================================== */
-
-    const seguinte =
-      comboios[1];
-
-
-    if (
-      seguinte
-    ) {
-
-      document
-        .getElementById(
-          "proximoDestino"
-        )
-        .textContent =
-          seguinte.destinoPainel;
-
-
-      document
-        .getElementById(
-          "proximaHora"
-        )
-        .textContent =
-          seguinte.hora ||
-          "--:--";
-
-    }
-
-    else {
-
-      document
-        .getElementById(
-          "proximoDestino"
-        )
-        .textContent =
-          "----";
-
-
-      document
-        .getElementById(
-          "proximaHora"
-        )
-        .textContent =
-          "--:--";
-
-    }
-
-  }
-
-
-
-  /* ==================================================
-     API
-     ================================================== */
-
-  async function carregarPartidas() {
-
-    try {
-
-      const resposta =
-        await fetch(
-
-          API_URL +
-          "?t=" +
-          Date.now(),
-
-          {
-            method:
-              "GET",
-
-            cache:
-              "no-store",
-
-            headers: {
-
-              "Accept":
-                "application/json"
-
-            }
-          }
-
-        );
-
-
-      if (
-        !resposta.ok
-      ) {
-
-        throw new Error(
-          "HTTP " +
-          resposta.status
-        );
-
-      }
-
-
-      const dados =
-        await resposta.json();
-
-
-      let lista =
-        [];
-
-
-      if (
-        Array.isArray(
-          dados
-        )
-      ) {
-
-        lista =
-          dados;
-
-      }
-
-
-      else if (
-        Array.isArray(
-          dados.partidas
-        )
-      ) {
-
-        lista =
-          dados.partidas;
-
-      }
-
-
-      else if (
-        Array.isArray(
-          dados.data
-        )
-      ) {
-
-        lista =
-          dados.data;
-
-      }
-
-
-      else if (
-        Array.isArray(
-          dados.results
-        )
-      ) {
-
-        lista =
-          dados.results;
-
-      }
-
-
-      atualizarPainel(
-        lista
-      );
-
-    }
-
-
-    catch (
-      erro
-    ) {
-
-      console.error(
-        "ERRO API:",
-        erro
-      );
-
-
-      mostrarHora(
-        null
-      );
-
-
-      desenharFlipdot(
-
-        document.getElementById(
-          "destinoAtual"
-        ),
-
-        "SEM LIGACAO"
-
-      );
-
-    }
-
-  }
-
-
-
-  /* ==================================================
-     ARRANQUE
-     ================================================== */
-
-  mostrarHora(
-    null
-  );
-
-
-  desenharFlipdot(
-
-    document.getElementById(
-      "destinoAtual"
-    ),
-
-    "----------"
-
-  );
-
-
-  carregarPartidas();
-
-
-  setInterval(
-
-    carregarPartidas,
-
-    REFRESH_INTERVAL
-
-  );
-
-</script>
-
-</body>
-</html>
+    <section class
