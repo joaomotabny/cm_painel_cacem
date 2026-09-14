@@ -2,7 +2,6 @@
 <html lang="pt">
 <head>
   <meta charset="UTF-8">
-
   <meta
     name="viewport"
     content="width=device-width, initial-scale=1.0, viewport-fit=cover"
@@ -40,12 +39,6 @@
       font-family: Arial, sans-serif;
     }
 
-    /*
-    ==================================================
-    PAINEL COMPLETO
-    ==================================================
-    */
-
     .panel {
       position: relative;
 
@@ -70,10 +63,6 @@
       padding: 4.8% 5.5% 5.5%;
     }
 
-    /*
-    Suspensões
-    */
-
     .mount {
       position: absolute;
       top: -14%;
@@ -97,6 +86,7 @@
 
     .mount.center {
       left: 48%;
+
       background:
         linear-gradient(
           90deg,
@@ -110,29 +100,14 @@
       right: 18%;
     }
 
-    /*
-    ==================================================
-    ZONA DOS DOIS ECRÃS
-    ==================================================
-    */
-
     .screens {
       width: 100%;
       height: 100%;
 
       display: grid;
-
-      grid-template-columns:
-        64% 32%;
-
+      grid-template-columns: 64% 32%;
       gap: 4%;
     }
-
-    /*
-    ==================================================
-    PAINEL ESQUERDO
-    ==================================================
-    */
 
     .left-display {
       position: relative;
@@ -171,10 +146,6 @@
         );
     }
 
-    /*
-    HORA
-    */
-
     .hora-label,
     .destino-label {
       position: absolute;
@@ -194,10 +165,6 @@
     .destino-label {
       top: 48%;
     }
-
-    /*
-    Número da hora
-    */
 
     .hora {
       position: absolute;
@@ -230,10 +197,6 @@
       margin: 0 .08em;
     }
 
-    /*
-    Destino
-    */
-
     .destino {
       position: absolute;
 
@@ -243,25 +206,20 @@
       width: 72%;
 
       white-space: nowrap;
-
       overflow: hidden;
 
       color: #f3df16;
 
       font-family: "VT323", monospace;
 
-      font-size: clamp(32px, 5vw, 85px);
+      font-size: clamp(32px, 4.7vw, 78px);
       line-height: 1;
 
-      letter-spacing: .025em;
+      letter-spacing: .015em;
 
       text-shadow:
         0 0 4px rgba(255,230,0,.3);
     }
-
-    /*
-    VIA
-    */
 
     .via {
       position: absolute;
@@ -279,7 +237,6 @@
       border-radius: 8%;
 
       display: flex;
-
       justify-content: center;
       align-items: center;
 
@@ -299,12 +256,6 @@
         inset 0 0 15px rgba(190,255,50,.07),
         0 0 6px rgba(190,255,50,.15);
     }
-
-    /*
-    ==================================================
-    CRT DIREITO
-    ==================================================
-    */
 
     .crt-frame {
       position: relative;
@@ -350,10 +301,6 @@
         inset 0 0 60px rgba(0,0,0,.6);
     }
 
-    /*
-    scanlines CRT
-    */
-
     .crt::after {
       content: "";
 
@@ -374,22 +321,13 @@
       opacity: .45;
     }
 
-    /*
-    ==================================================
-    PARAGENS
-    ==================================================
-    */
-
     .stops {
       position: relative;
 
       z-index: 2;
 
       display: grid;
-
-      grid-template-columns:
-        1fr 1fr;
-
+      grid-template-columns: 1fr 1fr;
       column-gap: 8%;
 
       height: 75%;
@@ -398,7 +336,6 @@
     .stop-column {
       display: flex;
       flex-direction: column;
-
       gap: 0;
     }
 
@@ -406,7 +343,6 @@
       height: 10%;
 
       white-space: nowrap;
-
       overflow: hidden;
 
       font-size: clamp(14px, 1.55vw, 31px);
@@ -415,12 +351,6 @@
       text-shadow:
         0 0 4px rgba(200,239,53,.28);
     }
-
-    /*
-    ==================================================
-    COMBOIO SEGUINTE
-    ==================================================
-    */
 
     .next-train {
       position: absolute;
@@ -466,18 +396,7 @@
       text-align: right;
     }
 
-    /*
-    ==================================================
-    MOBILE
-    ==================================================
-    */
-
     @media (max-width: 700px) {
-
-      body {
-        align-items: center;
-      }
-
       .panel {
         width: 100vw;
 
@@ -488,9 +407,7 @@
       }
 
       .screens {
-        grid-template-columns:
-          64% 34%;
-
+        grid-template-columns: 64% 34%;
         gap: 2%;
       }
 
@@ -515,10 +432,8 @@
         font-size: clamp(9px, 2.5vw, 18px);
       }
     }
-
   </style>
 </head>
-
 
 <body>
 
@@ -528,10 +443,7 @@
   <div class="mount center"></div>
   <div class="mount right"></div>
 
-
   <div class="screens">
-
-    <!-- PAINEL ESQUERDO -->
 
     <section class="left-display">
 
@@ -540,9 +452,15 @@
       </div>
 
       <div class="hora">
+
         <span id="horaHoras">--</span>
-        <span class="h">h</span>
+
+        <span class="h">
+          h
+        </span>
+
         <span id="horaMinutos">--</span>
+
       </div>
 
       <div class="destino-label">
@@ -562,9 +480,6 @@
 
     </section>
 
-
-    <!-- CRT DIREITO -->
-
     <section class="crt-frame">
 
       <div class="crt">
@@ -582,7 +497,6 @@
           ></div>
 
         </div>
-
 
         <div class="next-train">
 
@@ -617,9 +531,11 @@
 
 <script>
 
-const API_URL = "/api/partidas";
+const API_URL =
+  "/api/partidas";
 
-const REFRESH_INTERVAL = 30000;
+const REFRESH_INTERVAL =
+  30000;
 
 
 /*
@@ -638,7 +554,6 @@ const PARAGENS = {
     "AMADORA",
     "REBOLEIRA",
     "S.CR-DAMAIA",
-
     "BENFICA",
     "SETE RIOS",
     "ENTRECAMPOS",
@@ -656,13 +571,11 @@ const PARAGENS = {
     "AMADORA",
     "REBOLEIRA",
     "S.CR-DAMAIA",
-
     "BENFICA",
     "SETE RIOS",
     "ENTRECAMPOS",
     "ROMA-AREEIRO",
     "BRAÇO PRATA",
-
     "LISBOA-ORIENTE",
     "MOSCAVIDE",
     "SACAVEM",
@@ -685,77 +598,7 @@ const PARAGENS = {
 
 /*
 ==================================================
-NORMALIZAÇÃO
-==================================================
-*/
-
-function normalizarDestino(destino) {
-
-  if (!destino) {
-    return "";
-  }
-
-
-  const texto =
-    String(destino)
-      .toUpperCase()
-      .normalize("NFD")
-      .replace(
-        /[\u0300-\u036f]/g,
-        ""
-      )
-      .trim();
-
-
-  if (
-    texto.includes("ORIENTE")
-  ) {
-
-    return "LISBOA-ORIENTE";
-
-  }
-
-
-  if (
-    texto.includes("ALVERCA")
-  ) {
-
-    return "ALVERCA";
-
-  }
-
-
-  if (
-
-    texto.includes("SANTA APOLONIA")
-
-    ||
-
-    texto.includes("S.APOLONIA")
-
-    ||
-
-    texto.includes("S. APOLONIA")
-
-    ||
-
-    texto.includes("LISBOA-S.A")
-
-  ) {
-
-    return "LISBOA-S.A";
-
-  }
-
-
-  return "";
-
-}
-
-
-/*
-==================================================
-CRT: LIMITE 10 CARACTERES
+MÁXIMO DE 10 CARACTERES NO CRT
 ==================================================
 */
 
@@ -770,7 +613,49 @@ function limitarCRT(texto) {
 
 /*
 ==================================================
-MOSTRAR PARAGENS
+HORA
+==================================================
+*/
+
+function mostrarHora(hora) {
+
+  if (!hora) {
+
+    document
+      .getElementById("horaHoras")
+      .textContent = "--";
+
+    document
+      .getElementById("horaMinutos")
+      .textContent = "--";
+
+    return;
+  }
+
+
+  const partes =
+    String(hora)
+      .trim()
+      .split(":");
+
+
+  document
+    .getElementById("horaHoras")
+    .textContent =
+      partes[0] || "--";
+
+
+  document
+    .getElementById("horaMinutos")
+    .textContent =
+      partes[1] || "--";
+
+}
+
+
+/*
+==================================================
+PARAGENS
 ==================================================
 */
 
@@ -797,11 +682,16 @@ function mostrarParagens(destino) {
 
 
   /*
-  Divide aproximadamente a lista
-  em duas colunas.
+  Duas colunas.
+
+  Oriente:
+  6 esquerda + 5 direita.
+
+  Alverca:
+  9 esquerda + 8 direita.
   */
 
-  const primeiraColuna =
+  const corte =
     Math.ceil(
       lista.length / 2
     );
@@ -810,37 +700,34 @@ function mostrarParagens(destino) {
   const esquerda =
     lista.slice(
       0,
-      primeiraColuna
+      corte
     );
 
 
   const direita =
     lista.slice(
-      primeiraColuna
+      corte
     );
 
 
   esquerda.forEach(
     paragem => {
 
-      const div =
+      const linha =
         document.createElement(
           "div"
         );
 
-
-      div.className =
+      linha.className =
         "stop";
 
-
-      div.textContent =
+      linha.textContent =
         limitarCRT(
           paragem
         );
 
-
       coluna1.appendChild(
-        div
+        linha
       );
 
     }
@@ -850,24 +737,21 @@ function mostrarParagens(destino) {
   direita.forEach(
     paragem => {
 
-      const div =
+      const linha =
         document.createElement(
           "div"
         );
 
-
-      div.className =
+      linha.className =
         "stop";
 
-
-      div.textContent =
+      linha.textContent =
         limitarCRT(
           paragem
         );
 
-
       coluna2.appendChild(
-        div
+        linha
       );
 
     }
@@ -878,87 +762,90 @@ function mostrarParagens(destino) {
 
 /*
 ==================================================
-HORA
+PAINEL
 ==================================================
 */
 
-function mostrarHora(hora) {
+function atualizarPainel(partidas) {
 
-  if (!hora) {
-    return;
-  }
-
-
-  const partes =
-    String(hora)
-      .split(":");
-
-
-  document
-    .getElementById(
-      "horaHoras"
-    )
-    .textContent =
-      partes[0] || "--";
-
-
-  document
-    .getElementById(
-      "horaMinutos"
-    )
-    .textContent =
-      partes[1] || "--";
-
-}
-
-
-/*
-==================================================
-RENDER DO PAINEL
-==================================================
-*/
-
-function atualizarPainel(lista) {
+  /*
+  A API já devolve apenas:
+  LISBOA-ORIENTE
+  ALVERCA
+  LISBOA-S.A
+  */
 
   const comboios =
-    lista
+    partidas.filter(
+      comboio =>
 
-      .map(
-        comboio => {
+        comboio.destino ===
+          "LISBOA-ORIENTE"
 
-          return {
+        ||
 
-            ...comboio,
+        comboio.destino ===
+          "ALVERCA"
 
-            destinoPainel:
-              normalizarDestino(
-                comboio.destino ||
-                comboio.destination ||
-                comboio.destinoOriginal
-              )
+        ||
 
-          };
-
-        }
-      )
-
-      .filter(
-        comboio =>
-          comboio.destinoPainel
-      );
+        comboio.destino ===
+          "LISBOA-S.A"
+    );
 
 
   if (
     comboios.length === 0
   ) {
 
-    return;
+    mostrarHora(null);
 
+    document
+      .getElementById(
+        "destinoAtual"
+      )
+      .textContent =
+        "SEM PARTIDAS";
+
+
+    document
+      .getElementById(
+        "coluna1"
+      )
+      .innerHTML = "";
+
+
+    document
+      .getElementById(
+        "coluna2"
+      )
+      .innerHTML = "";
+
+
+    document
+      .getElementById(
+        "proximoDestino"
+      )
+      .textContent =
+        "----";
+
+
+    document
+      .getElementById(
+        "proximaHora"
+      )
+      .textContent =
+        "--:--";
+
+
+    return;
   }
 
 
   /*
-  Primeiro comboio
+  ==================================================
+  COMBOIO ATUAL
+  ==================================================
   */
 
   const atual =
@@ -975,32 +862,32 @@ function atualizarPainel(lista) {
       "destinoAtual"
     )
     .textContent =
-      atual.destinoPainel;
+      atual.destino;
 
 
   mostrarParagens(
-    atual.destinoPainel
+    atual.destino
   );
 
 
   /*
-  Segundo comboio
+  ==================================================
+  COMBOIO SEGUINTE
+  ==================================================
   */
 
   const seguinte =
     comboios[1];
 
 
-  if (
-    seguinte
-  ) {
+  if (seguinte) {
 
     document
       .getElementById(
         "proximoDestino"
       )
       .textContent =
-        seguinte.destinoPainel;
+        seguinte.destino;
 
 
     document
@@ -1008,7 +895,26 @@ function atualizarPainel(lista) {
         "proximaHora"
       )
       .textContent =
-        seguinte.hora || "--:--";
+        seguinte.hora;
+
+  }
+
+  else {
+
+    document
+      .getElementById(
+        "proximoDestino"
+      )
+      .textContent =
+        "----";
+
+
+    document
+      .getElementById(
+        "proximaHora"
+      )
+      .textContent =
+        "--:--";
 
   }
 
@@ -1017,7 +923,7 @@ function atualizarPainel(lista) {
 
 /*
 ==================================================
-API
+CARREGAR SAÍDAS DE AGUALVA-CACÉM
 ==================================================
 */
 
@@ -1027,22 +933,17 @@ async function carregarPartidas() {
 
     const resposta =
       await fetch(
-
         API_URL +
         "?t=" +
         Date.now(),
-
         {
           cache:
             "no-store"
         }
-
       );
 
 
-    if (
-      !resposta.ok
-    ) {
+    if (!resposta.ok) {
 
       throw new Error(
         "HTTP " +
@@ -1056,26 +957,52 @@ async function carregarPartidas() {
       await resposta.json();
 
 
-    const lista =
-      Array.isArray(dados)
-        ? dados
-        : dados.partidas || [];
+    console.log(
+      "API AGUALVA-CACÉM:",
+      dados
+    );
+
+
+    /*
+    A API responde:
+
+    {
+      estacao: "AGUALVA-CACÉM",
+      partidas: [...]
+    }
+    */
+
+    const partidas =
+      Array.isArray(
+        dados.partidas
+      )
+        ? dados.partidas
+        : [];
 
 
     atualizarPainel(
-      lista
+      partidas
     );
 
   }
 
-
-  catch (
-    erro
-  ) {
+  catch (erro) {
 
     console.error(
+      "Erro API:",
       erro
     );
+
+
+    mostrarHora(null);
+
+
+    document
+      .getElementById(
+        "destinoAtual"
+      )
+      .textContent =
+        "SEM LIGACAO";
 
   }
 
@@ -1092,15 +1019,11 @@ carregarPartidas();
 
 
 setInterval(
-
   carregarPartidas,
-
   REFRESH_INTERVAL
-
 );
 
 </script>
-
 
 </body>
 </html>
