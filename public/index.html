@@ -39,23 +39,15 @@
         );
     }
 
-    /*
-    ==============================
-    MOLDURA EXTERIOR
-    ==============================
-    */
-
     .monitor {
       position: relative;
 
       width: min(96vw, 1600px);
       height: min(94vh, 1000px);
 
-      padding:
-        clamp(20px, 2.2vw, 45px);
+      padding: clamp(20px, 2.2vw, 45px);
 
-      border-radius:
-        clamp(35px, 5vw, 90px);
+      border-radius: clamp(35px, 5vw, 90px);
 
       background:
         linear-gradient(
@@ -75,12 +67,6 @@
         inset 0 0 35px rgba(255,255,255,.02);
     }
 
-    /*
-    ==============================
-    VIDRO / CRT
-    ==============================
-    */
-
     .screen {
       position: relative;
 
@@ -89,8 +75,7 @@
 
       overflow: hidden;
 
-      border-radius:
-        clamp(28px, 4vw, 70px);
+      border-radius: clamp(28px, 4vw, 70px);
 
       background:
         radial-gradient(
@@ -101,18 +86,15 @@
           #010201 100%
         );
 
-      border:
-        2px solid rgba(255,255,255,.055);
+      border: 2px solid rgba(255,255,255,.055);
 
       box-shadow:
         inset 0 0 30px rgba(0,0,0,.95),
         inset 0 0 100px rgba(0,0,0,.70),
         inset 0 0 8px rgba(190,255,35,.05);
-    }
 
-    /*
-    scanlines
-    */
+      animation: crtFlicker 7s infinite;
+    }
 
     .screen::before {
       content: "";
@@ -135,10 +117,6 @@
       opacity: .45;
     }
 
-    /*
-    vidro + vinheta
-    */
-
     .screen::after {
       content: "";
 
@@ -157,12 +135,6 @@
         );
     }
 
-    /*
-    ==============================
-    CANVAS
-    ==============================
-    */
-
     #board {
       position: absolute;
       inset: 0;
@@ -174,12 +146,6 @@
 
       image-rendering: pixelated;
     }
-
-    /*
-    ==============================
-    REFLEXO MUITO SUAVE
-    ==============================
-    */
 
     .reflection {
       position: absolute;
@@ -207,53 +173,20 @@
       filter: blur(10px);
     }
 
-    /*
-    ==============================
-    FLICKER
-    ==============================
-    */
-
-    .screen {
-      animation:
-        crtFlicker 7s infinite;
-    }
-
     @keyframes crtFlicker {
-      0% {
-        filter: brightness(1);
-      }
-
-      48% {
-        filter: brightness(1);
-      }
-
-      49% {
-        filter: brightness(.985);
-      }
-
-      50% {
-        filter: brightness(1.015);
-      }
-
-      51% {
-        filter: brightness(1);
-      }
-
-      100% {
-        filter: brightness(1);
-      }
+      0%   { filter: brightness(1); }
+      48%  { filter: brightness(1); }
+      49%  { filter: brightness(.985); }
+      50%  { filter: brightness(1.015); }
+      51%  { filter: brightness(1); }
+      100% { filter: brightness(1); }
     }
-
-    /*
-    ==============================
-    MOBILE
-    ==============================
-    */
 
     @media (max-width: 700px) {
       .monitor {
         width: 100vw;
         height: 100vh;
+        height: 100svh;
 
         padding: 10px;
 
@@ -266,6 +199,7 @@
     }
   </style>
 </head>
+
 
 <body>
 
@@ -282,1260 +216,1240 @@
   </div>
 
 
-  <script>
-
-    /*
-    ==========================================================
-    CONFIGURAÇÃO
-    ==========================================================
-    */
-
-    const API_URL = "/api/partidas";
-
-    const MAX_PARTIDAS = 6;
-
-    const REFRESH_INTERVAL = 30000;
-
-
-    /*
-    ==========================================================
-    MATRIZ 5x7
-    ==========================================================
-
-    Cada carácter é realmente desenhado
-    através de pequenos quadrados.
-
-    Não estamos a utilizar uma font.
-    */
-
-    const FONT = {
-
-      "A": [
-        "01110",
-        "10001",
-        "10001",
-        "11111",
-        "10001",
-        "10001",
-        "10001"
-      ],
-
-      "B": [
-        "11110",
-        "10001",
-        "10001",
-        "11110",
-        "10001",
-        "10001",
-        "11110"
-      ],
-
-      "C": [
-        "01111",
-        "10000",
-        "10000",
-        "10000",
-        "10000",
-        "10000",
-        "01111"
-      ],
-
-      "D": [
-        "11110",
-        "10001",
-        "10001",
-        "10001",
-        "10001",
-        "10001",
-        "11110"
-      ],
-
-      "E": [
-        "11111",
-        "10000",
-        "10000",
-        "11110",
-        "10000",
-        "10000",
-        "11111"
-      ],
-
-      "F": [
-        "11111",
-        "10000",
-        "10000",
-        "11110",
-        "10000",
-        "10000",
-        "10000"
-      ],
-
-      "G": [
-        "01111",
-        "10000",
-        "10000",
-        "10111",
-        "10001",
-        "10001",
-        "01111"
-      ],
-
-      "H": [
-        "10001",
-        "10001",
-        "10001",
-        "11111",
-        "10001",
-        "10001",
-        "10001"
-      ],
-
-      "I": [
-        "11111",
-        "00100",
-        "00100",
-        "00100",
-        "00100",
-        "00100",
-        "11111"
-      ],
-
-      "J": [
-        "00111",
-        "00010",
-        "00010",
-        "00010",
-        "10010",
-        "10010",
-        "01100"
-      ],
-
-      "K": [
-        "10001",
-        "10010",
-        "10100",
-        "11000",
-        "10100",
-        "10010",
-        "10001"
-      ],
-
-      "L": [
-        "10000",
-        "10000",
-        "10000",
-        "10000",
-        "10000",
-        "10000",
-        "11111"
-      ],
-
-      "M": [
-        "10001",
-        "11011",
-        "10101",
-        "10101",
-        "10001",
-        "10001",
-        "10001"
-      ],
-
-      "N": [
-        "10001",
-        "11001",
-        "10101",
-        "10011",
-        "10001",
-        "10001",
-        "10001"
-      ],
-
-      "O": [
-        "01110",
-        "10001",
-        "10001",
-        "10001",
-        "10001",
-        "10001",
-        "01110"
-      ],
-
-      "P": [
-        "11110",
-        "10001",
-        "10001",
-        "11110",
-        "10000",
-        "10000",
-        "10000"
-      ],
-
-      "Q": [
-        "01110",
-        "10001",
-        "10001",
-        "10001",
-        "10101",
-        "10010",
-        "01101"
-      ],
-
-      "R": [
-        "11110",
-        "10001",
-        "10001",
-        "11110",
-        "10100",
-        "10010",
-        "10001"
-      ],
-
-      "S": [
-        "01111",
-        "10000",
-        "10000",
-        "01110",
-        "00001",
-        "00001",
-        "11110"
-      ],
-
-      "T": [
-        "11111",
-        "00100",
-        "00100",
-        "00100",
-        "00100",
-        "00100",
-        "00100"
-      ],
-
-      "U": [
-        "10001",
-        "10001",
-        "10001",
-        "10001",
-        "10001",
-        "10001",
-        "01110"
-      ],
-
-      "V": [
-        "10001",
-        "10001",
-        "10001",
-        "10001",
-        "10001",
-        "01010",
-        "00100"
-      ],
-
-      "W": [
-        "10001",
-        "10001",
-        "10001",
-        "10101",
-        "10101",
-        "10101",
-        "01010"
-      ],
-
-      "X": [
-        "10001",
-        "10001",
-        "01010",
-        "00100",
-        "01010",
-        "10001",
-        "10001"
-      ],
-
-      "Y": [
-        "10001",
-        "10001",
-        "01010",
-        "00100",
-        "00100",
-        "00100",
-        "00100"
-      ],
-
-      "Z": [
-        "11111",
-        "00001",
-        "00010",
-        "00100",
-        "01000",
-        "10000",
-        "11111"
-      ],
-
-
-      "0": [
-        "01110",
-        "10001",
-        "10011",
-        "10101",
-        "11001",
-        "10001",
-        "01110"
-      ],
-
-      "1": [
-        "00100",
-        "01100",
-        "00100",
-        "00100",
-        "00100",
-        "00100",
-        "01110"
-      ],
-
-      "2": [
-        "01110",
-        "10001",
-        "00001",
-        "00010",
-        "00100",
-        "01000",
-        "11111"
-      ],
-
-      "3": [
-        "11110",
-        "00001",
-        "00001",
-        "01110",
-        "00001",
-        "00001",
-        "11110"
-      ],
-
-      "4": [
-        "00010",
-        "00110",
-        "01010",
-        "10010",
-        "11111",
-        "00010",
-        "00010"
-      ],
-
-      "5": [
-        "11111",
-        "10000",
-        "10000",
-        "11110",
-        "00001",
-        "00001",
-        "11110"
-      ],
-
-      "6": [
-        "01110",
-        "10000",
-        "10000",
-        "11110",
-        "10001",
-        "10001",
-        "01110"
-      ],
-
-      "7": [
-        "11111",
-        "00001",
-        "00010",
-        "00100",
-        "01000",
-        "01000",
-        "01000"
-      ],
-
-      "8": [
-        "01110",
-        "10001",
-        "10001",
-        "01110",
-        "10001",
-        "10001",
-        "01110"
-      ],
-
-      "9": [
-        "01110",
-        "10001",
-        "10001",
-        "01111",
-        "00001",
-        "00001",
-        "01110"
-      ],
-
-
-      ":": [
-        "00000",
-        "00100",
-        "00100",
-        "00000",
-        "00100",
-        "00100",
-        "00000"
-      ],
-
-      "-": [
-        "00000",
-        "00000",
-        "00000",
-        "11111",
-        "00000",
-        "00000",
-        "00000"
-      ],
-
-      ".": [
-        "00000",
-        "00000",
-        "00000",
-        "00000",
-        "00000",
-        "00110",
-        "00110"
-      ],
-
-      " ": [
-        "00000",
-        "00000",
-        "00000",
-        "00000",
-        "00000",
-        "00000",
-        "00000"
-      ]
-
-    };
-
-
-    /*
-    ==========================================================
-    CANVAS
-    ==========================================================
-    */
-
-    const canvas =
-      document.getElementById("board");
-
-    const ctx =
-      canvas.getContext("2d");
-
-
-    let partidas = [];
-
-    let mensagem = "SINCRONIZANDO";
-
-
-    /*
-    ==========================================================
-    CORES
-    ==========================================================
-    */
-
-    const GREEN =
-      "#c8f52a";
-
-    const GREEN_DIM =
-      "rgba(200,245,42,0.16)";
-
-    const DARK =
-      "#10180c";
-
-
-    /*
-    ==========================================================
-    NORMALIZAÇÃO
-    ==========================================================
-    */
-
-    function normalizarDestino(destino) {
-
-      if (!destino) {
-        return "";
-      }
-
-      const texto =
-        destino
-          .toUpperCase()
-          .normalize("NFD")
-          .replace(
-            /[\u0300-\u036f]/g,
-            ""
-          )
-          .trim();
-
-
-      if (
-        texto.includes("ORIENTE")
-      ) {
-        return "LISBOA-ORIENTE";
-      }
-
-
-      if (
-        texto.includes("ALVERCA")
-      ) {
-        return "ALVERCA";
-      }
-
-
-      if (
-        texto.includes("SANTA APOLONIA") ||
-        texto.includes("S.APOLONIA") ||
-        texto.includes("S. APOLONIA") ||
-        texto.includes("LISBOA-S.A")
-      ) {
-        return "LISBOA-S.A";
-      }
-
-
-      return "";
-
-    }
-
-
-    /*
-    ==========================================================
-    LINHA
-    ==========================================================
-
-    Oriente       -> 3
-    Alverca        -> 3
-    Santa Apolónia -> 4
-    */
-
-    function obterLinha(destino) {
-
-      if (
-        destino === "LISBOA-S.A"
-      ) {
-        return "4";
-      }
-
-      if (
-        destino === "LISBOA-ORIENTE" ||
-        destino === "ALVERCA"
-      ) {
-        return "3";
-      }
-
+<script>
+
+  const API_URL = "/api/partidas";
+
+  const MAX_PARTIDAS = 6;
+
+  const REFRESH_INTERVAL = 30000;
+
+
+  const FONT = {
+
+    "A":[
+      "01110",
+      "10001",
+      "10001",
+      "11111",
+      "10001",
+      "10001",
+      "10001"
+    ],
+
+    "B":[
+      "11110",
+      "10001",
+      "10001",
+      "11110",
+      "10001",
+      "10001",
+      "11110"
+    ],
+
+    "C":[
+      "01111",
+      "10000",
+      "10000",
+      "10000",
+      "10000",
+      "10000",
+      "01111"
+    ],
+
+    "D":[
+      "11110",
+      "10001",
+      "10001",
+      "10001",
+      "10001",
+      "10001",
+      "11110"
+    ],
+
+    "E":[
+      "11111",
+      "10000",
+      "10000",
+      "11110",
+      "10000",
+      "10000",
+      "11111"
+    ],
+
+    "F":[
+      "11111",
+      "10000",
+      "10000",
+      "11110",
+      "10000",
+      "10000",
+      "10000"
+    ],
+
+    "G":[
+      "01111",
+      "10000",
+      "10000",
+      "10111",
+      "10001",
+      "10001",
+      "01111"
+    ],
+
+    "H":[
+      "10001",
+      "10001",
+      "10001",
+      "11111",
+      "10001",
+      "10001",
+      "10001"
+    ],
+
+    "I":[
+      "11111",
+      "00100",
+      "00100",
+      "00100",
+      "00100",
+      "00100",
+      "11111"
+    ],
+
+    "J":[
+      "00111",
+      "00010",
+      "00010",
+      "00010",
+      "10010",
+      "10010",
+      "01100"
+    ],
+
+    "K":[
+      "10001",
+      "10010",
+      "10100",
+      "11000",
+      "10100",
+      "10010",
+      "10001"
+    ],
+
+    "L":[
+      "10000",
+      "10000",
+      "10000",
+      "10000",
+      "10000",
+      "10000",
+      "11111"
+    ],
+
+    "M":[
+      "10001",
+      "11011",
+      "10101",
+      "10101",
+      "10001",
+      "10001",
+      "10001"
+    ],
+
+    "N":[
+      "10001",
+      "11001",
+      "10101",
+      "10011",
+      "10001",
+      "10001",
+      "10001"
+    ],
+
+    "O":[
+      "01110",
+      "10001",
+      "10001",
+      "10001",
+      "10001",
+      "10001",
+      "01110"
+    ],
+
+    "P":[
+      "11110",
+      "10001",
+      "10001",
+      "11110",
+      "10000",
+      "10000",
+      "10000"
+    ],
+
+    "Q":[
+      "01110",
+      "10001",
+      "10001",
+      "10001",
+      "10101",
+      "10010",
+      "01101"
+    ],
+
+    "R":[
+      "11110",
+      "10001",
+      "10001",
+      "11110",
+      "10100",
+      "10010",
+      "10001"
+    ],
+
+    "S":[
+      "01111",
+      "10000",
+      "10000",
+      "01110",
+      "00001",
+      "00001",
+      "11110"
+    ],
+
+    "T":[
+      "11111",
+      "00100",
+      "00100",
+      "00100",
+      "00100",
+      "00100",
+      "00100"
+    ],
+
+    "U":[
+      "10001",
+      "10001",
+      "10001",
+      "10001",
+      "10001",
+      "10001",
+      "01110"
+    ],
+
+    "V":[
+      "10001",
+      "10001",
+      "10001",
+      "10001",
+      "10001",
+      "01010",
+      "00100"
+    ],
+
+    "W":[
+      "10001",
+      "10001",
+      "10001",
+      "10101",
+      "10101",
+      "10101",
+      "01010"
+    ],
+
+    "X":[
+      "10001",
+      "10001",
+      "01010",
+      "00100",
+      "01010",
+      "10001",
+      "10001"
+    ],
+
+    "Y":[
+      "10001",
+      "10001",
+      "01010",
+      "00100",
+      "00100",
+      "00100",
+      "00100"
+    ],
+
+    "Z":[
+      "11111",
+      "00001",
+      "00010",
+      "00100",
+      "01000",
+      "10000",
+      "11111"
+    ],
+
+    "0":[
+      "01110",
+      "10001",
+      "10011",
+      "10101",
+      "11001",
+      "10001",
+      "01110"
+    ],
+
+    "1":[
+      "00100",
+      "01100",
+      "00100",
+      "00100",
+      "00100",
+      "00100",
+      "01110"
+    ],
+
+    "2":[
+      "01110",
+      "10001",
+      "00001",
+      "00010",
+      "00100",
+      "01000",
+      "11111"
+    ],
+
+    "3":[
+      "11110",
+      "00001",
+      "00001",
+      "01110",
+      "00001",
+      "00001",
+      "11110"
+    ],
+
+    "4":[
+      "00010",
+      "00110",
+      "01010",
+      "10010",
+      "11111",
+      "00010",
+      "00010"
+    ],
+
+    "5":[
+      "11111",
+      "10000",
+      "10000",
+      "11110",
+      "00001",
+      "00001",
+      "11110"
+    ],
+
+    "6":[
+      "01110",
+      "10000",
+      "10000",
+      "11110",
+      "10001",
+      "10001",
+      "01110"
+    ],
+
+    "7":[
+      "11111",
+      "00001",
+      "00010",
+      "00100",
+      "01000",
+      "01000",
+      "01000"
+    ],
+
+    "8":[
+      "01110",
+      "10001",
+      "10001",
+      "01110",
+      "10001",
+      "10001",
+      "01110"
+    ],
+
+    "9":[
+      "01110",
+      "10001",
+      "10001",
+      "01111",
+      "00001",
+      "00001",
+      "01110"
+    ],
+
+    ":":[
+      "00000",
+      "00100",
+      "00100",
+      "00000",
+      "00100",
+      "00100",
+      "00000"
+    ],
+
+    "-":[
+      "00000",
+      "00000",
+      "00000",
+      "11111",
+      "00000",
+      "00000",
+      "00000"
+    ],
+
+    ".":[
+      "00000",
+      "00000",
+      "00000",
+      "00000",
+      "00000",
+      "00110",
+      "00110"
+    ],
+
+    " ":[
+      "00000",
+      "00000",
+      "00000",
+      "00000",
+      "00000",
+      "00000",
+      "00000"
+    ]
+
+  };
+
+
+  const canvas =
+    document.getElementById("board");
+
+  const ctx =
+    canvas.getContext("2d");
+
+
+  let partidas = [];
+
+  let mensagem =
+    "SINCRONIZANDO";
+
+
+  const GREEN =
+    "#c8f52a";
+
+  const GREEN_DIM =
+    "rgba(200,245,42,0.16)";
+
+  const DARK =
+    "#10180c";
+
+
+  function normalizarDestino(destino) {
+
+    if (!destino) {
       return "";
     }
 
+    const texto =
+      String(destino)
+        .toUpperCase()
+        .normalize("NFD")
+        .replace(
+          /[\u0300-\u036f]/g,
+          ""
+        )
+        .trim();
 
-    /*
-    ==========================================================
-    DIMENSÕES DE TEXTO
-    ==========================================================
-    */
 
-    function larguraTexto(texto, pixel, gap = 1) {
-
-      const characterWidth =
-        (5 + gap) * pixel;
-
-      return (
-        texto.length * characterWidth
-        -
-        gap * pixel
-      );
-
+    if (
+      texto.includes("ORIENTE")
+    ) {
+      return "LISBOA-ORIENTE";
     }
 
 
-    /*
-    ==========================================================
-    DESENHA UM CARÁCTER
-    ==========================================================
-    */
-
-    function desenharCaracter(
-      char,
-      x,
-      y,
-      pixel,
-      cor = GREEN,
-      glow = true
+    if (
+      texto.includes("ALVERCA")
     ) {
-
-      const pattern =
-        FONT[char] || FONT[" "];
-
-
-      ctx.save();
-
-
-      if (glow) {
-
-        ctx.shadowColor =
-          "rgba(200,245,42,.55)";
-
-        ctx.shadowBlur =
-          pixel * 1.15;
-
-      }
-
-
-      ctx.fillStyle = cor;
-
-
-      for (
-        let row = 0;
-        row < 7;
-        row++
-      ) {
-
-        for (
-          let col = 0;
-          col < 5;
-          col++
-        ) {
-
-          if (
-            pattern[row][col] === "1"
-          ) {
-
-            const inset =
-              Math.max(
-                .4,
-                pixel * .10
-              );
-
-
-            ctx.fillRect(
-
-              x +
-              col * pixel +
-              inset,
-
-              y +
-              row * pixel +
-              inset,
-
-              pixel -
-              inset * 2,
-
-              pixel -
-              inset * 2
-
-            );
-
-          }
-
-        }
-
-      }
-
-
-      ctx.restore();
-
+      return "ALVERCA";
     }
 
 
-    /*
-    ==========================================================
-    DESENHA TEXTO
-    ==========================================================
-    */
-
-    function desenharTexto(
-      texto,
-      x,
-      y,
-      pixel,
-      options = {}
+    if (
+      texto.includes("SANTA APOLONIA") ||
+      texto.includes("S.APOLONIA") ||
+      texto.includes("S. APOLONIA") ||
+      texto.includes("LISBOA-S.A")
     ) {
-
-      const {
-        color = GREEN,
-        glow = true,
-        gap = 1
-      } = options;
-
-
-      texto =
-        texto.toUpperCase();
-
-
-      let cursorX = x;
-
-
-      for (
-        const char of texto
-      ) {
-
-        desenharCaracter(
-          char,
-          cursorX,
-          y,
-          pixel,
-          color,
-          glow
-        );
-
-
-        cursorX +=
-          (5 + gap) * pixel;
-
-      }
-
+      return "LISBOA-S.A";
     }
 
 
-    /*
-    ==========================================================
-    BARRA PARTIDAS
-    ==========================================================
-    */
+    return "";
+  }
 
-    function desenharCabecalho(
-      width,
-      top,
-      left,
-      right,
-      pixel
+
+  function obterLinha(destino) {
+
+    if (
+      destino === "LISBOA-S.A"
+    ) {
+      return "4";
+    }
+
+
+    if (
+      destino === "LISBOA-ORIENTE" ||
+      destino === "ALVERCA"
+    ) {
+      return "3";
+    }
+
+
+    return "";
+  }
+
+
+  function larguraTexto(
+    texto,
+    pixel,
+    gap = 1
+  ) {
+
+    const characterWidth =
+      (5 + gap) * pixel;
+
+
+    return (
+      texto.length *
+      characterWidth
+      -
+      gap * pixel
+    );
+  }
+
+
+  function desenharCaracter(
+    char,
+    x,
+    y,
+    pixel,
+    cor = GREEN,
+    glow = true
+  ) {
+
+    const pattern =
+      FONT[char] ||
+      FONT[" "];
+
+
+    ctx.save();
+
+
+    if (glow) {
+
+      ctx.shadowColor =
+        "rgba(200,245,42,.55)";
+
+      ctx.shadowBlur =
+        pixel * 1.15;
+    }
+
+
+    ctx.fillStyle =
+      cor;
+
+
+    for (
+      let row = 0;
+      row < 7;
+      row++
     ) {
 
-      const barHeight =
-        9 * pixel;
-
-
       for (
-        let y = top;
-        y < top + barHeight;
-        y += pixel
+        let col = 0;
+        col < 5;
+        col++
       ) {
 
-        for (
-          let x = left;
-          x < width - right;
-          x += pixel
+        if (
+          pattern[row][col] === "1"
         ) {
 
           const inset =
             Math.max(
-              .45,
-              pixel * .09
+              .4,
+              pixel * .10
             );
 
 
-          ctx.save();
-
-          ctx.fillStyle =
-            GREEN;
-
-          ctx.shadowColor =
-            "rgba(200,245,42,.40)";
-
-          ctx.shadowBlur =
-            pixel;
-
-
           ctx.fillRect(
-            x + inset,
-            y + inset,
-            pixel - inset * 2,
-            pixel - inset * 2
-          );
 
-          ctx.restore();
+            x +
+            col * pixel +
+            inset,
+
+            y +
+            row * pixel +
+            inset,
+
+            pixel -
+            inset * 2,
+
+            pixel -
+            inset * 2
+
+          );
 
         }
 
       }
 
-
-      const titulo =
-        "PARTIDAS";
-
-      const tituloPixel =
-        pixel;
-
-
-      const titleWidth =
-        larguraTexto(
-          titulo,
-          tituloPixel
-        );
-
-
-      const titleX =
-        (width - titleWidth) / 2;
-
-
-      const titleY =
-        top + pixel;
-
-
-      ctx.fillStyle = GREEN;
-
-      ctx.fillRect(
-        titleX - pixel,
-        titleY - pixel / 2,
-        titleWidth + pixel * 2,
-        pixel * 8
-      );
-
-
-      desenharTexto(
-        titulo,
-        titleX,
-        titleY,
-        tituloPixel,
-        {
-          color: DARK,
-          glow: false
-        }
-      );
-
     }
 
 
-    /*
-    ==========================================================
-    FUNDO EM MATRIZ QUASE INVISÍVEL
-    ==========================================================
-    */
+    ctx.restore();
+  }
 
-    function desenharMatrizFundo(
-      width,
-      height
+
+  function desenharTexto(
+    texto,
+    x,
+    y,
+    pixel,
+    options = {}
+  ) {
+
+    const {
+      color = GREEN,
+      glow = true,
+      gap = 1
+    } = options;
+
+
+    texto =
+      String(texto).toUpperCase();
+
+
+    let cursorX =
+      x;
+
+
+    for (
+      const char of texto
     ) {
 
-      const spacing =
-        Math.max(
-          5,
-          width / 240
+      desenharCaracter(
+        char,
+        cursorX,
+        y,
+        pixel,
+        color,
+        glow
+      );
+
+
+      cursorX +=
+        (5 + gap) *
+        pixel;
+    }
+  }
+
+
+  function desenharCabecalho(
+    width,
+    top,
+    left,
+    right,
+    pixel
+  ) {
+
+    const barHeight =
+      9 * pixel;
+
+
+    for (
+      let y = top;
+      y < top + barHeight;
+      y += pixel
+    ) {
+
+      for (
+        let x = left;
+        x < width - right;
+        x += pixel
+      ) {
+
+        const inset =
+          Math.max(
+            .45,
+            pixel * .09
+          );
+
+
+        ctx.save();
+
+        ctx.fillStyle =
+          GREEN;
+
+        ctx.shadowColor =
+          "rgba(200,245,42,.40)";
+
+        ctx.shadowBlur =
+          pixel;
+
+
+        ctx.fillRect(
+          x + inset,
+          y + inset,
+          pixel - inset * 2,
+          pixel - inset * 2
         );
 
 
-      ctx.save();
-
-      ctx.fillStyle =
-        GREEN_DIM;
-
-
-      for (
-        let y = spacing;
-        y < height;
-        y += spacing
-      ) {
-
-        for (
-          let x = spacing;
-          x < width;
-          x += spacing
-        ) {
-
-          ctx.fillRect(
-            x,
-            y,
-            .55,
-            .55
-          );
-
-        }
-
+        ctx.restore();
       }
-
-
-      ctx.restore();
-
     }
 
 
-    /*
-    ==========================================================
-    DESENHO COMPLETO DO PAINEL
-    ==========================================================
-    */
-
-    function render() {
-
-      const rect =
-        canvas.getBoundingClientRect();
+    const titulo =
+      "PARTIDAS";
 
 
-      const dpr =
-        window.devicePixelRatio || 1;
-
-
-      canvas.width =
-        Math.round(
-          rect.width * dpr
-        );
-
-      canvas.height =
-        Math.round(
-          rect.height * dpr
-        );
-
-
-      ctx.setTransform(
-        dpr,
-        0,
-        0,
-        dpr,
-        0,
-        0
+    const titleWidth =
+      larguraTexto(
+        titulo,
+        pixel
       );
 
 
-      const width =
-        rect.width;
-
-      const height =
-        rect.height;
+    const titleX =
+      (width - titleWidth) / 2;
 
 
-      ctx.clearRect(
-        0,
-        0,
-        width,
-        height
+    const titleY =
+      top + pixel;
+
+
+    ctx.fillStyle =
+      GREEN;
+
+
+    ctx.fillRect(
+      titleX - pixel,
+      titleY - pixel / 2,
+      titleWidth + pixel * 2,
+      pixel * 8
+    );
+
+
+    desenharTexto(
+      titulo,
+      titleX,
+      titleY,
+      pixel,
+      {
+        color: DARK,
+        glow: false
+      }
+    );
+  }
+
+
+  function desenharMatrizFundo(
+    width,
+    height
+  ) {
+
+    const spacing =
+      Math.max(
+        5,
+        width / 240
       );
 
 
-      desenharMatrizFundo(
-        width,
-        height
-      );
+    ctx.save();
+
+    ctx.fillStyle =
+      GREEN_DIM;
 
 
-      const scale =
-        Math.min(
-          width / 1500,
-          height / 900
-        );
+    for (
+      let y = spacing;
+      y < height;
+      y += spacing
+    ) {
 
-
-      const marginX =
-        Math.max(
-          45,
-          width * .105
-        );
-
-
-      /*
-      ==========================
-      PARTIDAS
-      ==========================
-      */
-
-      const headerPixel =
-        Math.max(
-          5,
-          8 * scale
-        );
-
-
-      const headerTop =
-        height * .115;
-
-
-      desenharCabecalho(
-        width,
-        headerTop,
-        marginX,
-        marginX,
-        headerPixel
-      );
-
-
-      /*
-      ==========================
-      COLUNAS
-      ==========================
-      */
-
-      const textPixel =
-        Math.max(
-          5.5,
-          7.2 * scale
-        );
-
-
-      const columnY =
-        headerTop +
-        headerPixel * 12;
-
-
-      const horaX =
-        width * .13;
-
-      const destinoX =
-        width * .345;
-
-      const linhaX =
-        width * .77;
-
-
-      desenharTexto(
-        "HORA",
-        horaX,
-        columnY,
-        textPixel
-      );
-
-
-      desenharTexto(
-        "DESTINO",
-        destinoX,
-        columnY,
-        textPixel
-      );
-
-
-      desenharTexto(
-        "LINHA",
-        linhaX,
-        columnY,
-        textPixel
-      );
-
-
-      /*
-      ==========================
-      PARTIDAS
-      ==========================
-      */
-
-      const firstRowY =
-        columnY +
-        textPixel * 11;
-
-
-      const rowGap =
-        textPixel * 10.4;
-
-
-      if (
-        partidas.length === 0
+      for (
+        let x = spacing;
+        x < width;
+        x += spacing
       ) {
 
-        desenharTexto(
-          mensagem,
-          destinoX,
-          firstRowY,
-          textPixel * .85
+        ctx.fillRect(
+          x,
+          y,
+          .55,
+          .55
         );
-
-        return;
-
       }
+    }
 
 
-      partidas
-        .slice(
-          0,
-          MAX_PARTIDAS
-        )
-        .forEach(
-          (
-            comboio,
-            index
-          ) => {
-
-            const y =
-              firstRowY +
-              index * rowGap;
+    ctx.restore();
+  }
 
 
-            desenharTexto(
-              comboio.hora ||
-              "--:--",
+  function render() {
 
-              horaX,
-              y,
-              textPixel
-            );
+    const rect =
+      canvas.getBoundingClientRect();
 
 
-            desenharTexto(
-              comboio.destinoPainel,
-
-              destinoX,
-              y,
-              textPixel
-            );
+    const dpr =
+      Math.min(
+        window.devicePixelRatio || 1,
+        2
+      );
 
 
-            desenharTexto(
-              obterLinha(
-                comboio.destinoPainel
-              ),
+    canvas.width =
+      Math.round(
+        rect.width * dpr
+      );
 
-              linhaX +
-              textPixel * 3,
 
-              y,
-              textPixel
-            );
+    canvas.height =
+      Math.round(
+        rect.height * dpr
+      );
 
+
+    ctx.setTransform(
+      dpr,
+      0,
+      0,
+      dpr,
+      0,
+      0
+    );
+
+
+    const width =
+      rect.width;
+
+
+    const height =
+      rect.height;
+
+
+    ctx.clearRect(
+      0,
+      0,
+      width,
+      height
+    );
+
+
+    desenharMatrizFundo(
+      width,
+      height
+    );
+
+
+    const scale =
+      Math.min(
+        width / 1500,
+        height / 900
+      );
+
+
+    const isPhonePortrait =
+      width < 500 &&
+      height > width;
+
+
+    const marginX =
+      isPhonePortrait
+        ? width * .08
+        : Math.max(
+            35,
+            width * .085
+          );
+
+
+    /*
+    ==========================
+    CABEÇALHO
+    ==========================
+    */
+
+    const headerPixel =
+      isPhonePortrait
+        ? width / 92
+        : Math.max(
+            5,
+            8 * scale
+          );
+
+
+    const headerTop =
+      isPhonePortrait
+        ? height * .10
+        : height * .115;
+
+
+    desenharCabecalho(
+      width,
+      headerTop,
+      marginX,
+      marginX,
+      headerPixel
+    );
+
+
+    /*
+    ==========================
+    TAMANHO DAS LETRAS
+    ==========================
+    */
+
+    const textPixel =
+      isPhonePortrait
+        ? width / 110
+        : Math.max(
+            5.2,
+            7.2 * scale
+          );
+
+
+    const columnY =
+      headerTop +
+      headerPixel *
+      (
+        isPhonePortrait
+          ? 13
+          : 12
+      );
+
+
+    /*
+    ==========================
+    POSIÇÃO DAS COLUNAS
+    ==========================
+    */
+
+    const horaX =
+      isPhonePortrait
+        ? width * .07
+        : width * .10;
+
+
+    const destinoX =
+      isPhonePortrait
+        ? width * .30
+        : width * .30;
+
+
+    const linhaX =
+      isPhonePortrait
+        ? width * .865
+        : width * .86;
+
+
+    /*
+    ==========================
+    CABEÇALHOS
+    ==========================
+    */
+
+    desenharTexto(
+      "HORA",
+      horaX,
+      columnY,
+      textPixel
+    );
+
+
+    desenharTexto(
+      "DESTINO",
+      destinoX,
+      columnY,
+      textPixel
+    );
+
+
+    desenharTexto(
+      "LINHA",
+      linhaX,
+      columnY,
+      isPhonePortrait
+        ? textPixel * .75
+        : textPixel * .82
+    );
+
+
+    /*
+    ==========================
+    LINHAS DE PARTIDAS
+    ==========================
+    */
+
+    const firstRowY =
+      columnY +
+      textPixel *
+      (
+        isPhonePortrait
+          ? 11.5
+          : 11
+      );
+
+
+    const rowGap =
+      textPixel *
+      (
+        isPhonePortrait
+          ? 11
+          : 10.4
+      );
+
+
+    if (
+      partidas.length === 0
+    ) {
+
+      const messagePixel =
+        isPhonePortrait
+          ? textPixel * .72
+          : textPixel * .85;
+
+
+      desenharTexto(
+        mensagem,
+        destinoX,
+        firstRowY,
+        messagePixel
+      );
+
+      return;
+    }
+
+
+    partidas
+      .slice(
+        0,
+        MAX_PARTIDAS
+      )
+      .forEach(
+        (
+          comboio,
+          index
+        ) => {
+
+          const y =
+            firstRowY +
+            index * rowGap;
+
+
+          /*
+          HORA
+          */
+
+          desenharTexto(
+            comboio.hora ||
+            "--:--",
+            horaX,
+            y,
+            textPixel
+          );
+
+
+          /*
+          DESTINO
+          */
+
+          desenharTexto(
+            comboio.destinoPainel,
+            destinoX,
+            y,
+            isPhonePortrait
+              ? textPixel
+              : textPixel * .90
+          );
+
+
+          /*
+          LINHA
+          */
+
+          desenharTexto(
+            obterLinha(
+              comboio.destinoPainel
+            ),
+            linhaX,
+            y,
+            textPixel
+          );
+
+        }
+      );
+  }
+
+
+  async function carregarPartidas() {
+
+    try {
+
+      const response =
+        await fetch(
+          API_URL +
+          "?t=" +
+          Date.now(),
+          {
+            cache: "no-store"
           }
         );
 
-    }
+
+      if (
+        !response.ok
+      ) {
+
+        throw new Error(
+          "HTTP " +
+          response.status
+        );
+      }
 
 
-    /*
-    ==========================================================
-    DADOS DA API
-    ==========================================================
-    */
+      const dados =
+        await response.json();
 
-    async function carregarPartidas() {
 
-      try {
+      console.log(
+        "Resposta API:",
+        dados
+      );
 
-        const response =
-          await fetch(
-            API_URL +
-            "?t=" +
-            Date.now(),
-            {
-              cache: "no-store"
+
+      const lista =
+        Array.isArray(dados)
+          ? dados
+          : dados.partidas || [];
+
+
+      partidas =
+        lista
+
+          .map(
+            comboio => {
+
+              const destino =
+                normalizarDestino(
+                  comboio.destino ||
+                  comboio.destination ||
+                  comboio.destinoOriginal
+                );
+
+
+              return {
+                ...comboio,
+                destinoPainel:
+                  destino
+              };
+
             }
+          )
+
+          .filter(
+            comboio =>
+
+              comboio.destinoPainel ===
+                "LISBOA-ORIENTE"
+
+              ||
+
+              comboio.destinoPainel ===
+                "ALVERCA"
+
+              ||
+
+              comboio.destinoPainel ===
+                "LISBOA-S.A"
+          )
+
+          .slice(
+            0,
+            MAX_PARTIDAS
           );
 
 
-        if (!response.ok) {
-
-          throw new Error(
-            "HTTP " +
-            response.status
-          );
-
-        }
+      mensagem =
+        partidas.length
+          ? ""
+          : "SEM PARTIDAS";
 
 
-        const dados =
-          await response.json();
-
-
-        console.log(
-          "Resposta API:",
-          dados
-        );
-
-
-        const lista =
-          Array.isArray(dados)
-            ? dados
-            : dados.partidas || [];
-
-
-        partidas =
-          lista
-
-            .map(
-              comboio => {
-
-                const destino =
-                  normalizarDestino(
-                    comboio.destino ||
-                    comboio.destination ||
-                    comboio.destinoOriginal
-                  );
-
-
-                return {
-
-                  ...comboio,
-
-                  destinoPainel:
-                    destino
-
-                };
-
-              }
-            )
-
-            .filter(
-              comboio =>
-
-                comboio.destinoPainel ===
-                  "LISBOA-ORIENTE"
-
-                ||
-
-                comboio.destinoPainel ===
-                  "ALVERCA"
-
-                ||
-
-                comboio.destinoPainel ===
-                  "LISBOA-S.A"
-
-            )
-
-            .slice(
-              0,
-              MAX_PARTIDAS
-            );
-
-
-        mensagem =
-          partidas.length
-            ? ""
-            : "SEM PARTIDAS";
-
-
-        render();
-
-      }
-
-      catch (erro) {
-
-        console.error(
-          "Erro ao carregar partidas:",
-          erro
-        );
-
-
-        partidas = [];
-
-        mensagem =
-          "SEM LIGACAO";
-
-
-        render();
-
-      }
+      render();
 
     }
 
+    catch (erro) {
 
-    /*
-    ==========================================================
-    ARRANQUE
-    ==========================================================
-    */
-
-    window.addEventListener(
-      "resize",
-      render
-    );
+      console.error(
+        "Erro ao carregar partidas:",
+        erro
+      );
 
 
-    render();
+      partidas = [];
 
-    carregarPartidas();
+      mensagem =
+        "SEM LIGACAO";
 
 
-    setInterval(
-      carregarPartidas,
-      REFRESH_INTERVAL
-    );
+      render();
+    }
+  }
 
-  </script>
+
+  window.addEventListener(
+    "resize",
+    render
+  );
+
+
+  window.addEventListener(
+    "orientationchange",
+    function () {
+      setTimeout(
+        render,
+        250
+      );
+    }
+  );
+
+
+  render();
+
+  carregarPartidas();
+
+
+  setInterval(
+    carregarPartidas,
+    REFRESH_INTERVAL
+  );
+
+</script>
 
 </body>
 </html>
