@@ -1,48 +1,132 @@
+import AdmZip from "adm-zip";
+
+
 /* ==================================================
-   VELEC — PARTIDAS AGUALVA-CACÉM
-
-   Fonte:
-   CP station/trains
-
-   Estação CP:
-   Agualva-Cacém = 94-61002
+   CONFIGURAÇÃO
 ================================================== */
 
+const GTFS_URL =
+  "https://publico.cp.pt/gtfs/gtfs.zip";
 
-const STATION_ID =
-  "94-61002";
+
+const STOP_ID =
+  "94_61002";
 
 
-const CP_URL =
-  `https://www.cp.pt/sites/spring/station/trains?stationId=${STATION_ID}`;
+const TIME_ZONE =
+  "Europe/Lisbon";
+
+
+const CACHE_KEY =
+  "__cp_gtfs_agualva_v1";
+
+
+const CACHE_MAX_AGE =
+  6 * 60 * 60 * 1000;
 
 
 /* ==================================================
-   HEADERS
+   CSV
 ================================================== */
 
-const HEADERS = {
+function parseCSVLine(line) {
 
-  "User-Agent":
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0 Safari/537.36",
+  const values = [];
 
-  "Accept":
-    "application/json, text/plain, */*",
+  let value = "";
+  let quoted = false;
 
-  "Accept-Language":
-    "pt-PT,pt;q=0.9,en;q=0.7",
 
-  "Referer":
-    "https://www.cp.pt/",
+  for (
+    let i = 0;
+    i < line.length;
+    i++
+  ) {
 
-  "Origin":
-    "https://www.cp.pt"
+    const char =
+      line[i];
 
-};
+
+    if (
+      char === '"'
+    ) {
+
+      if (
+        quoted &&
+        line[i + 1] === '"'
+      ) {
+
+        value += '"';
+
+        i++;
+
+      }
+
+      else {
+
+        quoted =
+          !quoted;
+
+      }
+
+    }
+
+    else if (
+      char === "," &&
+      !quoted
+    ) {
+
+      values.push(
+        value
+      );
+
+      value = "";
+
+    }
+
+    else {
+
+      value +=
+        char;
+
+    }
+
+  }
+
+
+  values.push(
+    value
+  );
+
+
+  return values;
+
+}
+
+
+function linhasCSV(texto) {
+
+  return String(texto)
+
+    .replace(
+      /^\uFEFF/,
+      ""
+    )
+
+    .split(
+      /\r?\n/
+    )
+
+    .filter(
+      linha =>
+        linha.trim() !== ""
+    );
+
+}
 
 
 /* ==================================================
-   RETIRAR ACENTOS
+   TEXTO
 ================================================== */
 
 function normalizarTexto(
@@ -66,10 +150,1261 @@ function normalizarTexto(
 
 
 /* ==================================================
-   DESTINOS DO VELEC
+   ZIP
 ================================================== */
 
-function normalizarDestino(
+function lerFicheiro(
+  zip,
+  nome,
+  opcional = false
+) {
+
+  const entry =
+    zip.getEntry(
+      nome
+    );
+
+
+  if (
+    !entry
+  ) {
+
+    if (
+      opcional
+    ) {
+
+      return "";
+
+    }
+
+
+    throw new Error(
+      `GTFS sem ${nome}`
+    );
+
+  }
+
+
+  return entry
+    .getData()
+    .toString(
+      "utf8"
+    );
+
+}
+
+
+/* ==================================================
+   STOP TIMES
+================================================== */
+
+function parseStopTimes(
+  texto
+) {
+
+  const linhas =
+    linhasCSV(
+      texto
+    );
+
+
+  if (
+    linhas.length === 0
+  ) {
+
+    return [];
+
+  }
+
+
+  const header =
+    parseCSVLine(
+      linhas[0]
+    );
+
+
+  const tripIndex =
+    header.indexOf(
+      "trip_id"
+    );
+
+
+  const stopIndex =
+    header.indexOf(
+      "stop_id"
+    );
+
+
+  const departureIndex =
+    header.indexOf(
+      "departure_time"
+    );
+
+
+  const arrivalIndex =
+    header.indexOf(
+      "arrival_time"
+    );
+
+
+  const pickupIndex =
+    header.indexOf(
+      "pickup_type"
+    );
+
+
+  const resultado =
+    [];
+
+
+  for (
+    let i = 1;
+    i < linhas.length;
+    i++
+  ) {
+
+    const row =
+      parseCSVLine(
+        linhas[i]
+      );
+
+
+    if (
+      row[stopIndex] !==
+      STOP_ID
+    ) {
+
+      continue;
+
+    }
+
+
+    /*
+      pickup_type = 1
+      significa sem embarque.
+    */
+
+    if (
+      pickupIndex >= 0 &&
+      row[pickupIndex] === "1"
+    ) {
+
+      continue;
+
+    }
+
+
+    const hora =
+
+      row[departureIndex]
+
+      ||
+
+      row[arrivalIndex];
+
+
+    if (
+      !hora
+    ) {
+
+      continue;
+
+    }
+
+
+    resultado.push({
+
+      trip_id:
+        row[tripIndex],
+
+      departure_time:
+        hora
+
+    });
+
+  }
+
+
+  return resultado;
+
+}
+
+
+/* ==================================================
+   TRIPS
+================================================== */
+
+function parseTrips(
+  texto,
+  tripIds
+) {
+
+  const linhas =
+    linhasCSV(
+      texto
+    );
+
+
+  const header =
+    parseCSVLine(
+      linhas[0]
+    );
+
+
+  const tripIndex =
+    header.indexOf(
+      "trip_id"
+    );
+
+
+  const serviceIndex =
+    header.indexOf(
+      "service_id"
+    );
+
+
+  const headsignIndex =
+    header.indexOf(
+      "trip_headsign"
+    );
+
+
+  const shortNameIndex =
+    header.indexOf(
+      "trip_short_name"
+    );
+
+
+  const routeIndex =
+    header.indexOf(
+      "route_id"
+    );
+
+
+  const resultado =
+    new Map();
+
+
+  for (
+    let i = 1;
+    i < linhas.length;
+    i++
+  ) {
+
+    const row =
+      parseCSVLine(
+        linhas[i]
+      );
+
+
+    const tripId =
+      row[tripIndex];
+
+
+    if (
+      !tripIds.has(
+        tripId
+      )
+    ) {
+
+      continue;
+
+    }
+
+
+    resultado.set(
+      tripId,
+      {
+
+        trip_id:
+          tripId,
+
+        service_id:
+          row[serviceIndex],
+
+        destino:
+          headsignIndex >= 0
+            ? row[headsignIndex]
+            : "",
+
+        numero:
+          shortNameIndex >= 0
+            ? row[shortNameIndex]
+            : "",
+
+        route_id:
+          routeIndex >= 0
+            ? row[routeIndex]
+            : ""
+
+      }
+    );
+
+  }
+
+
+  return resultado;
+
+}
+
+
+/* ==================================================
+   CALENDAR
+================================================== */
+
+function parseCalendar(
+  texto
+) {
+
+  const linhas =
+    linhasCSV(
+      texto
+    );
+
+
+  const header =
+    parseCSVLine(
+      linhas[0]
+    );
+
+
+  const indexes = {
+
+    service:
+      header.indexOf(
+        "service_id"
+      ),
+
+    monday:
+      header.indexOf(
+        "monday"
+      ),
+
+    tuesday:
+      header.indexOf(
+        "tuesday"
+      ),
+
+    wednesday:
+      header.indexOf(
+        "wednesday"
+      ),
+
+    thursday:
+      header.indexOf(
+        "thursday"
+      ),
+
+    friday:
+      header.indexOf(
+        "friday"
+      ),
+
+    saturday:
+      header.indexOf(
+        "saturday"
+      ),
+
+    sunday:
+      header.indexOf(
+        "sunday"
+      ),
+
+    start:
+      header.indexOf(
+        "start_date"
+      ),
+
+    end:
+      header.indexOf(
+        "end_date"
+      )
+
+  };
+
+
+  const resultado =
+    new Map();
+
+
+  for (
+    let i = 1;
+    i < linhas.length;
+    i++
+  ) {
+
+    const row =
+      parseCSVLine(
+        linhas[i]
+      );
+
+
+    resultado.set(
+      row[indexes.service],
+      {
+
+        monday:
+          row[indexes.monday],
+
+        tuesday:
+          row[indexes.tuesday],
+
+        wednesday:
+          row[indexes.wednesday],
+
+        thursday:
+          row[indexes.thursday],
+
+        friday:
+          row[indexes.friday],
+
+        saturday:
+          row[indexes.saturday],
+
+        sunday:
+          row[indexes.sunday],
+
+        start_date:
+          row[indexes.start],
+
+        end_date:
+          row[indexes.end]
+
+      }
+    );
+
+  }
+
+
+  return resultado;
+
+}
+
+
+/* ==================================================
+   CALENDAR DATES
+================================================== */
+
+function parseCalendarDates(
+  texto
+) {
+
+  const resultado =
+    new Map();
+
+
+  if (
+    !texto
+  ) {
+
+    return resultado;
+
+  }
+
+
+  const linhas =
+    linhasCSV(
+      texto
+    );
+
+
+  if (
+    linhas.length === 0
+  ) {
+
+    return resultado;
+
+  }
+
+
+  const header =
+    parseCSVLine(
+      linhas[0]
+    );
+
+
+  const serviceIndex =
+    header.indexOf(
+      "service_id"
+    );
+
+
+  const dateIndex =
+    header.indexOf(
+      "date"
+    );
+
+
+  const typeIndex =
+    header.indexOf(
+      "exception_type"
+    );
+
+
+  for (
+    let i = 1;
+    i < linhas.length;
+    i++
+  ) {
+
+    const row =
+      parseCSVLine(
+        linhas[i]
+      );
+
+
+    resultado.set(
+
+      `${row[serviceIndex]}|${row[dateIndex]}`,
+
+      row[typeIndex]
+
+    );
+
+  }
+
+
+  return resultado;
+
+}
+
+
+/* ==================================================
+   DATA / HORA DE LISBOA
+================================================== */
+
+function agoraLisboa() {
+
+  const formatter =
+    new Intl.DateTimeFormat(
+      "en-GB",
+      {
+
+        timeZone:
+          TIME_ZONE,
+
+        year:
+          "numeric",
+
+        month:
+          "2-digit",
+
+        day:
+          "2-digit",
+
+        hour:
+          "2-digit",
+
+        minute:
+          "2-digit",
+
+        hourCycle:
+          "h23"
+
+      }
+    );
+
+
+  const parts =
+    formatter
+      .formatToParts(
+        new Date()
+      );
+
+
+  const obj =
+    {};
+
+
+  for (
+    const part of parts
+  ) {
+
+    if (
+      part.type !==
+      "literal"
+    ) {
+
+      obj[part.type] =
+        part.value;
+
+    }
+
+  }
+
+
+  return {
+
+    year:
+      Number(
+        obj.year
+      ),
+
+    month:
+      Number(
+        obj.month
+      ),
+
+    day:
+      Number(
+        obj.day
+      ),
+
+    hour:
+      Number(
+        obj.hour
+      ),
+
+    minute:
+      Number(
+        obj.minute
+      )
+
+  };
+
+}
+
+
+function pad2(
+  valor
+) {
+
+  return String(valor)
+    .padStart(
+      2,
+      "0"
+    );
+
+}
+
+
+function infoData(
+  base,
+  delta
+) {
+
+  const date =
+    new Date(
+      Date.UTC(
+
+        base.year,
+
+        base.month - 1,
+
+        base.day + delta
+
+      )
+    );
+
+
+  const year =
+    date.getUTCFullYear();
+
+
+  const month =
+    date.getUTCMonth() + 1;
+
+
+  const day =
+    date.getUTCDate();
+
+
+  const weekdays = [
+
+    "sunday",
+
+    "monday",
+
+    "tuesday",
+
+    "wednesday",
+
+    "thursday",
+
+    "friday",
+
+    "saturday"
+
+  ];
+
+
+  return {
+
+    delta,
+
+    weekday:
+      weekdays[
+        date.getUTCDay()
+      ],
+
+    gtfs:
+      `${year}${pad2(month)}${pad2(day)}`
+
+  };
+
+}
+
+
+/* ==================================================
+   SERVIÇO ATIVO
+================================================== */
+
+function servicoAtivo(
+  serviceId,
+  data,
+  calendar,
+  exceptions
+) {
+
+  let ativo =
+    false;
+
+
+  const regra =
+    calendar.get(
+      serviceId
+    );
+
+
+  if (
+    regra &&
+    data.gtfs >= regra.start_date &&
+    data.gtfs <= regra.end_date &&
+    regra[data.weekday] === "1"
+  ) {
+
+    ativo =
+      true;
+
+  }
+
+
+  const exception =
+    exceptions.get(
+      `${serviceId}|${data.gtfs}`
+    );
+
+
+  /*
+    1 = serviço adicionado
+    2 = serviço removido
+  */
+
+  if (
+    exception === "1"
+  ) {
+
+    ativo =
+      true;
+
+  }
+
+
+  if (
+    exception === "2"
+  ) {
+
+    ativo =
+      false;
+
+  }
+
+
+  return ativo;
+
+}
+
+
+/* ==================================================
+   HORA GTFS
+
+   Aceita também:
+   24:10:00
+   25:30:00
+   etc.
+================================================== */
+
+function minutosGTFS(
+  hora
+) {
+
+  const match =
+    String(hora)
+      .match(
+        /^(\d+):(\d{2})(?::(\d{2}))?$/
+      );
+
+
+  if (
+    !match
+  ) {
+
+    return null;
+
+  }
+
+
+  return (
+    Number(match[1]) *
+      60
+    +
+    Number(match[2])
+  );
+
+}
+
+
+function formatarMinutos(
+  total
+) {
+
+  const normalizado =
+    (
+      total %
+      1440
+      +
+      1440
+    )
+    %
+    1440;
+
+
+  const horas =
+    Math.floor(
+      normalizado /
+      60
+    );
+
+
+  const minutos =
+    normalizado %
+    60;
+
+
+  return (
+    pad2(horas)
+    +
+    ":"
+    +
+    pad2(minutos)
+  );
+
+}
+
+
+/* ==================================================
+   CARREGAR GTFS
+================================================== */
+
+async function carregarGTFS() {
+
+  const cache =
+    globalThis[
+      CACHE_KEY
+    ];
+
+
+  if (
+    cache &&
+    Date.now() -
+      cache.guardadoEm <
+      CACHE_MAX_AGE
+  ) {
+
+    return cache.dados;
+
+  }
+
+
+  const resposta =
+    await fetch(
+      GTFS_URL,
+      {
+
+        headers: {
+
+          "User-Agent":
+            "Mozilla/5.0",
+
+          "Accept":
+            "application/zip,*/*"
+
+        },
+
+        cache:
+          "no-store"
+
+      }
+    );
+
+
+  if (
+    !resposta.ok
+  ) {
+
+    throw new Error(
+      `GTFS CP respondeu HTTP ${resposta.status}`
+    );
+
+  }
+
+
+  const buffer =
+    Buffer.from(
+      await resposta.arrayBuffer()
+    );
+
+
+  /*
+    Um ZIP começa por PK.
+  */
+
+  if (
+    buffer.length < 2 ||
+    buffer[0] !== 0x50 ||
+    buffer[1] !== 0x4b
+  ) {
+
+    throw new Error(
+      "A CP não devolveu um ficheiro GTFS ZIP válido."
+    );
+
+  }
+
+
+  const zip =
+    new AdmZip(
+      buffer
+    );
+
+
+  const stopTimes =
+    parseStopTimes(
+
+      lerFicheiro(
+        zip,
+        "stop_times.txt"
+      )
+
+    );
+
+
+  const tripIds =
+    new Set(
+
+      stopTimes.map(
+        x =>
+          x.trip_id
+      )
+
+    );
+
+
+  const trips =
+    parseTrips(
+
+      lerFicheiro(
+        zip,
+        "trips.txt"
+      ),
+
+      tripIds
+
+    );
+
+
+  const calendar =
+    parseCalendar(
+
+      lerFicheiro(
+        zip,
+        "calendar.txt"
+      )
+
+    );
+
+
+  const calendarDates =
+    parseCalendarDates(
+
+      lerFicheiro(
+        zip,
+        "calendar_dates.txt",
+        true
+      )
+
+    );
+
+
+  const dados = {
+
+    stopTimes,
+
+    trips,
+
+    calendar,
+
+    calendarDates
+
+  };
+
+
+  globalThis[
+    CACHE_KEY
+  ] = {
+
+    guardadoEm:
+      Date.now(),
+
+    dados
+
+  };
+
+
+  return dados;
+
+}
+
+
+/* ==================================================
+   PARTIDAS BASE
+
+   Esta função também é usada pelo
+   partidas-todas.js.
+================================================== */
+
+export async function obterPartidasBase() {
+
+  const gtfs =
+    await carregarGTFS();
+
+
+  const agora =
+    agoraLisboa();
+
+
+  const minutoAtual =
+
+    agora.hour *
+      60
+
+    +
+
+    agora.minute;
+
+
+  /*
+    Ontem:
+    apanha serviços depois das 24:00
+
+    Hoje:
+    serviço normal
+
+    Amanhã:
+    próximas partidas depois da meia-noite
+  */
+
+  const datas = [
+
+    infoData(
+      agora,
+      -1
+    ),
+
+    infoData(
+      agora,
+      0
+    ),
+
+    infoData(
+      agora,
+      1
+    )
+
+  ];
+
+
+  const resultado =
+    [];
+
+
+  const unicos =
+    new Set();
+
+
+  for (
+    const data of datas
+  ) {
+
+
+    for (
+      const stopTime of
+      gtfs.stopTimes
+  ) {
+
+
+      const trip =
+        gtfs.trips.get(
+          stopTime.trip_id
+        );
+
+
+      if (
+        !trip
+      ) {
+
+        continue;
+
+      }
+
+
+      if (
+        !servicoAtivo(
+
+          trip.service_id,
+
+          data,
+
+          gtfs.calendar,
+
+          gtfs.calendarDates
+
+        )
+      ) {
+
+        continue;
+
+      }
+
+
+      const minutos =
+        minutosGTFS(
+          stopTime.departure_time
+        );
+
+
+      if (
+        minutos === null
+      ) {
+
+        continue;
+
+      }
+
+
+      /*
+        Linha temporal em minutos,
+        relativa ao dia de hoje.
+      */
+
+      const absoluto =
+
+        data.delta *
+          1440
+
+        +
+
+        minutos;
+
+
+      /*
+        Só futuras partidas,
+        nas próximas 24 horas.
+      */
+
+      if (
+        absoluto <
+          minutoAtual - 1
+      ) {
+
+        continue;
+
+      }
+
+
+      if (
+        absoluto >
+          minutoAtual + 1440
+      ) {
+
+        continue;
+
+      }
+
+
+      const chave =
+
+        `${data.gtfs}|${trip.trip_id}|${minutos}`;
+
+
+      if (
+        unicos.has(
+          chave
+        )
+      ) {
+
+        continue;
+
+      }
+
+
+      unicos.add(
+        chave
+      );
+
+
+      resultado.push({
+
+        hora:
+          formatarMinutos(
+            minutos
+          ),
+
+        destinoOriginal:
+          trip.destino,
+
+        comboio:
+          trip.numero
+          ||
+          trip.trip_id,
+
+        tripId:
+          trip.trip_id,
+
+        routeId:
+          trip.route_id,
+
+        _ordem:
+          absoluto
+
+      });
+
+    }
+
+  }
+
+
+  resultado.sort(
+
+    (a, b) =>
+      a._ordem -
+      b._ordem
+
+  );
+
+
+  return resultado;
+
+}
+
+
+/* ==================================================
+   DESTINOS VELEC
+
+   Apenas sentido Lisboa.
+================================================== */
+
+function destinoVelec(
   destinoOriginal
 ) {
 
@@ -78,8 +1413,6 @@ function normalizarDestino(
       destinoOriginal
     );
 
-
-  /* LISBOA ORIENTE */
 
   if (
     destino.includes(
@@ -92,8 +1425,6 @@ function normalizarDestino(
   }
 
 
-  /* ALVERCA */
-
   if (
     destino.includes(
       "ALVERCA"
@@ -104,8 +1435,6 @@ function normalizarDestino(
 
   }
 
-
-  /* SANTA APOLÓNIA */
 
   if (
     destino.includes(
@@ -124,377 +1453,13 @@ function normalizarDestino(
 
 
 /* ==================================================
-   NORMALIZAR HORA
-================================================== */
-
-function normalizarHora(
-  hora
-) {
-
-  if (!hora) {
-
-    return null;
-
-  }
-
-
-  const texto =
-    String(hora)
-      .trim();
-
-
-  /*
-    Se vier simplesmente:
-    22:29
-  */
-
-  const simples =
-    texto.match(
-      /\b(\d{1,2}):(\d{2})\b/
-    );
-
-
-  if (
-    simples
-  ) {
-
-    return (
-      simples[1]
-        .padStart(2, "0")
-      +
-      ":"
-      +
-      simples[2]
-    );
-
-  }
-
-
-  return null;
-
-}
-
-
-/* ==================================================
-   CACHE EM MEMÓRIA
-
-   Se a CP falhar momentaneamente,
-   mantém a última resposta válida.
-================================================== */
-
-const CACHE_KEY =
-  "__velec_cp_partidas_v1";
-
-
-const CACHE_MAX_AGE =
-  30 * 60 * 1000;
-
-
-function guardarCache(
-  partidas
-) {
-
-  globalThis[
-    CACHE_KEY
-  ] = {
-
-    guardadoEm:
-      Date.now(),
-
-    partidas
-
-  };
-
-}
-
-
-function lerCache() {
-
-  const cache =
-    globalThis[
-      CACHE_KEY
-    ];
-
-
-  if (
-    !cache
-  ) {
-
-    return null;
-
-  }
-
-
-  if (
-    Date.now() -
-    cache.guardadoEm >
-    CACHE_MAX_AGE
-  ) {
-
-    return null;
-
-  }
-
-
-  return cache;
-
-}
-
-
-/* ==================================================
-   FETCH COM TIMEOUT
-================================================== */
-
-async function obterCP() {
-
-  const controller =
-    new AbortController();
-
-
-  const timeout =
-    setTimeout(
-      () =>
-        controller.abort(),
-      8000
-    );
-
-
-  try {
-
-    const resposta =
-      await fetch(
-        CP_URL,
-        {
-
-          method:
-            "GET",
-
-          headers:
-            HEADERS,
-
-          cache:
-            "no-store",
-
-          redirect:
-            "follow",
-
-          signal:
-            controller.signal
-
-        }
-      );
-
-
-    if (
-      !resposta.ok
-    ) {
-
-      throw new Error(
-        `CP respondeu HTTP ${resposta.status}`
-      );
-
-    }
-
-
-    const dados =
-      await resposta.json();
-
-
-    if (
-      !Array.isArray(
-        dados
-      )
-    ) {
-
-      throw new Error(
-        "A CP respondeu num formato inesperado."
-      );
-
-    }
-
-
-    return dados;
-
-  }
-
-  finally {
-
-    clearTimeout(
-      timeout
-    );
-
-  }
-
-}
-
-
-/* ==================================================
-   CONVERTER RESPOSTA CP
-================================================== */
-
-function converterPartidas(
-  dados
-) {
-
-  const partidas =
-    [];
-
-
-  const encontrados =
-    new Set();
-
-
-  for (
-    const comboio of dados
-  ) {
-
-
-    const destinoOriginal =
-
-      comboio
-        ?.trainDestination
-        ?.designation
-
-      ||
-
-      "";
-
-
-    const destino =
-      normalizarDestino(
-        destinoOriginal
-      );
-
-
-    /*
-      Para este VELEC só queremos:
-      Oriente
-      Alverca
-      Santa Apolónia
-    */
-
-    if (
-      !destino
-    ) {
-
-      continue;
-
-    }
-
-
-    const hora =
-      normalizarHora(
-        comboio.departureTime
-      );
-
-
-    if (
-      !hora
-    ) {
-
-      continue;
-
-    }
-
-
-    const numero =
-      comboio.trainNumber
-      ?? "";
-
-
-    /*
-      Evitar duplicados.
-    */
-
-    const chave =
-      `${hora}|${numero}|${destino}`;
-
-
-    if (
-      encontrados.has(
-        chave
-      )
-    ) {
-
-      continue;
-
-    }
-
-
-    encontrados.add(
-      chave
-    );
-
-
-    partidas.push({
-
-      hora,
-
-      destino,
-
-      destinoOriginal,
-
-      comboio:
-        String(numero),
-
-      servico:
-        comboio
-          ?.trainService
-          ?.designation
-        || "",
-
-      origem:
-        comboio
-          ?.trainOrigin
-          ?.designation
-        || "",
-
-      via:
-        comboio.platform
-        ?? "",
-
-      atraso:
-        comboio.delay
-        ?? 0
-
-    });
-
-  }
-
-
-  /*
-    A CP normalmente já envia
-    os comboios por ordem cronológica.
-
-    Mesmo assim, garantimos a ordenação.
-  */
-
-  partidas.sort(
-    (a, b) => {
-
-      return a.hora
-        .localeCompare(
-          b.hora
-        );
-
-    }
-  );
-
-
-  return partidas;
-
-}
-
-
-/* ==================================================
-   HANDLER VERCEL
+   API /api/partidas
 ================================================== */
 
 export default async function handler(
   req,
   res
 ) {
-
 
   res.setHeader(
     "Access-Control-Allow-Origin",
@@ -503,61 +1468,74 @@ export default async function handler(
 
 
   res.setHeader(
-    "Access-Control-Allow-Methods",
-    "GET,OPTIONS"
-  );
-
-
-  res.setHeader(
-    "Access-Control-Allow-Headers",
-    "Content-Type"
-  );
-
-
-  res.setHeader(
     "Cache-Control",
-    "public, s-maxage=15, stale-while-revalidate=120"
+    "public, s-maxage=30, stale-while-revalidate=300"
   );
-
-
-  if (
-    req.method ===
-    "OPTIONS"
-  ) {
-
-    return res
-      .status(200)
-      .end();
-
-  }
 
 
   try {
 
-    const dados =
-      await obterCP();
+    const base =
+      await obterPartidasBase();
 
 
     const partidas =
-      converterPartidas(
-        dados
-      );
+
+      base
+
+        .map(
+          item => {
 
 
-    if (
-      partidas.length === 0
-    ) {
-
-      throw new Error(
-        "A CP respondeu, mas não foram encontradas partidas para Oriente, Alverca ou Santa Apolónia."
-      );
-
-    }
+            const destino =
+              destinoVelec(
+                item.destinoOriginal
+              );
 
 
-    guardarCache(
-      partidas
-    );
+            if (
+              !destino
+            ) {
+
+              return null;
+
+            }
+
+
+            return {
+
+              hora:
+                item.hora,
+
+              destino,
+
+              destinoOriginal:
+                item.destinoOriginal,
+
+              comboio:
+                item.comboio,
+
+              /*
+                No VELEC estamos a usar
+                sempre a linha 3.
+              */
+
+              via:
+                "3"
+
+            };
+
+          }
+        )
+
+        .filter(
+          Boolean
+        )
+
+        .slice(
+          0,
+          12
+        );
 
 
     return res
@@ -567,27 +1545,20 @@ export default async function handler(
         estacao:
           "AGUALVA-CACÉM",
 
-        stationId:
-          STATION_ID,
+        stopId:
+          STOP_ID,
 
         fonte:
-          "CP",
+          "CP GTFS",
 
         atualizadoEm:
           new Date()
             .toISOString(),
 
-        stale:
-          false,
-
         total:
           partidas.length,
 
-        partidas:
-          partidas.slice(
-            0,
-            12
-          )
+        partidas
 
       });
 
@@ -597,63 +1568,9 @@ export default async function handler(
     erro
   ) {
 
-
     console.error(
-      "Erro CP:",
       erro
     );
-
-
-    /*
-      Tentar manter a última
-      informação válida.
-    */
-
-    const cache =
-      lerCache();
-
-
-    if (
-      cache &&
-      cache.partidas.length > 0
-    ) {
-
-      return res
-        .status(200)
-        .json({
-
-          estacao:
-            "AGUALVA-CACÉM",
-
-          stationId:
-            STATION_ID,
-
-          fonte:
-            "CP",
-
-          stale:
-            true,
-
-          atualizadoEm:
-            new Date(
-              cache.guardadoEm
-            ).toISOString(),
-
-          aviso:
-            erro.message,
-
-          total:
-            cache.partidas.length,
-
-          partidas:
-            cache.partidas.slice(
-              0,
-              12
-            )
-
-        });
-
-    }
 
 
     return res
