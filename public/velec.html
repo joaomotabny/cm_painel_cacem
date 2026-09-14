@@ -139,6 +139,7 @@ body {
 
 .left-display {
   position: relative;
+
   overflow: hidden;
 
   border: 7px solid #070a0b;
@@ -157,8 +158,6 @@ body {
     inset 0 0 8px rgba(255,255,255,.14);
 }
 
-
-/* Reflexo no vidro */
 
 .left-display::after {
   content: "";
@@ -264,15 +263,8 @@ body {
   position: absolute;
 
   left: 7%;
+  right: 3%;
 
-  /*
-    Mais espaço até ao limite direito.
-  */
-  right: 2%;
-
-  /*
-    Ligeiramente mais baixo.
-  */
   top: 63%;
 
   overflow: hidden;
@@ -285,25 +277,17 @@ body {
   display: flex;
   align-items: center;
 
-  /*
-    Muito ligeiramente menor
-    que a hora, mas mantém
-    completamente a proporção.
-  */
   --dot:
-    clamp(1.9px, .51vw, 7.6px);
+    clamp(2px, .54vw, 8px);
 
   --dot-gap:
-    clamp(.55px, .075vw, 1.7px);
+    clamp(.6px, .08vw, 1.8px);
 
   gap:
-    clamp(1px, .18vw, 4px);
+    clamp(2px, .22vw, 5px);
 
   width: 100%;
 
-  /*
-    Sem compressão horizontal.
-  */
   transform: none;
 }
 
@@ -355,7 +339,7 @@ body {
 }
 
 
-/* Dot apagado */
+/* DOT APAGADO */
 
 .dot {
   width: var(--dot);
@@ -373,7 +357,7 @@ body {
 }
 
 
-/* Dot aceso */
+/* DOT ACESO */
 
 .dot.on {
   background:
@@ -406,6 +390,7 @@ body {
   aspect-ratio: 1 / 1;
 
   display: flex;
+
   align-items: center;
   justify-content: center;
 
@@ -509,8 +494,6 @@ body {
 }
 
 
-/* Vinheta CRT */
-
 .crt::before {
   content: "";
 
@@ -530,8 +513,6 @@ body {
     );
 }
 
-
-/* Scanlines CRT */
 
 .crt::after {
   content: "";
@@ -586,6 +567,7 @@ body {
   height: 10%;
 
   white-space: nowrap;
+
   overflow: hidden;
 
   font-family:
@@ -665,4 +647,1154 @@ body {
 
 
 .next-destination {
-  overflow: hidden
+  overflow: hidden;
+  text-align: left;
+}
+
+
+.next-time {
+  text-align: right;
+}
+
+
+/* ==================================================
+   MOBILE / IPHONE
+================================================== */
+
+@media (max-width: 700px) {
+
+  .panel {
+    width: 100vw;
+
+    aspect-ratio:
+      2.88 / 1;
+
+    border-radius: 0;
+
+    padding:
+      2.4% 2% 2.5%;
+  }
+
+
+  .screens {
+    grid-template-columns:
+      64% 34%;
+
+    gap: 2%;
+  }
+
+
+  .left-display {
+    border-width: 3px;
+  }
+
+
+  .crt-frame {
+    padding: 3%;
+  }
+
+
+  /* HORA — FICA EXATAMENTE COMO ESTAVA */
+
+  .hora-grupo {
+
+    --dot:
+      clamp(1.8px, .52vw, 3px);
+
+    --dot-gap:
+      clamp(.5px, .08vw, 1px);
+
+  }
+
+
+  /*
+    DESTINO
+
+    ÚNICA ALTERAÇÃO DE TAMANHO:
+    ~5/6% menor que a hora,
+    mas SEM deformação horizontal.
+  */
+
+  .destino-grupo {
+
+    --dot:
+      clamp(1.7px, .49vw, 2.85px);
+
+    --dot-gap:
+      clamp(.47px, .075vw, .95px);
+
+    gap:
+      clamp(1px, .14vw, 1.9px);
+
+    transform: none;
+
+    width: 100%;
+  }
+
+
+  .destino-label {
+    top: 46%;
+  }
+
+
+  /*
+    ÚNICA ALTERAÇÃO DE POSIÇÃO:
+    um pouco mais baixo e
+    mais espaço até à direita.
+  */
+
+  .destino {
+    left: 7%;
+    right: 2%;
+
+    top: 63%;
+  }
+
+
+  .stop {
+    font-size:
+      clamp(7px, 1.75vw, 14px);
+  }
+
+
+  .next-label {
+    font-size:
+      clamp(5px, .95vw, 8px);
+  }
+
+
+  .next-destination,
+  .next-time {
+    font-size:
+      clamp(10px, 2.15vw, 17px);
+  }
+
+
+  .next-train {
+    column-gap: 3%;
+  }
+
+}
+
+</style>
+</head>
+
+
+<body>
+
+<div class="panel">
+
+  <div class="mount left"></div>
+  <div class="mount center"></div>
+  <div class="mount right"></div>
+
+
+  <div class="screens">
+
+
+    <!-- PAINEL ESQUERDO -->
+
+    <section class="left-display">
+
+
+      <div class="hora-label">
+        HORA
+      </div>
+
+
+      <div class="hora">
+
+        <div
+          class="hora-grupo"
+          id="horaHoras"
+        ></div>
+
+
+        <span class="h-separator">
+          h
+        </span>
+
+
+        <div
+          class="hora-grupo"
+          id="horaMinutos"
+        ></div>
+
+      </div>
+
+
+      <div class="destino-label">
+        DESTINO
+      </div>
+
+
+      <div class="destino">
+
+        <div
+          class="destino-grupo"
+          id="destinoAtual"
+        ></div>
+
+      </div>
+
+
+      <div class="via">
+        3
+      </div>
+
+
+    </section>
+
+
+
+    <!-- CRT -->
+
+    <section class="crt-frame">
+
+      <div class="crt">
+
+
+        <div class="stops">
+
+
+          <div
+            class="stop-column"
+            id="coluna1"
+          ></div>
+
+
+          <div
+            class="stop-column"
+            id="coluna2"
+          ></div>
+
+
+        </div>
+
+
+        <div class="next-train">
+
+
+          <div class="next-label">
+            COMB.SEGUINTE
+          </div>
+
+
+          <div
+            class="next-destination"
+            id="proximoDestino"
+          >
+            ----
+          </div>
+
+
+          <div
+            class="next-time"
+            id="proximaHora"
+          >
+            --:--
+          </div>
+
+
+        </div>
+
+
+      </div>
+
+    </section>
+
+
+  </div>
+
+</div>
+
+
+
+<script>
+
+/* ==================================================
+   CONFIG
+================================================== */
+
+const API_URL =
+  "/api/partidas";
+
+
+const REFRESH_INTERVAL =
+  30000;
+
+
+const CACHE_KEY =
+  "velec-partidas-v2";
+
+
+const CACHE_MAX_AGE =
+  5 * 60 * 1000;
+
+
+let temDadosVisiveis =
+  false;
+
+
+/* ==================================================
+   PARAGENS
+================================================== */
+
+const PARAGENS = {
+
+  "LISBOA-ORIENTE": [
+
+    "MASSAMA",
+    "MONTE ABRAÃO",
+    "QUELUZ BELAS",
+    "AMADORA",
+    "REBOLEIRA",
+    "S.CR-DAMAIA",
+    "BENFICA",
+    "SETE RIOS",
+    "ENTRECAMPOS",
+    "ROMA-AREEIRO",
+    "BRAÇO PRATA"
+
+  ],
+
+
+  "ALVERCA": [
+
+    "MASSAMA",
+    "MONTE ABRAÃO",
+    "QUELUZ BELAS",
+    "AMADORA",
+    "REBOLEIRA",
+    "S.CR-DAMAIA",
+    "BENFICA",
+    "SETE RIOS",
+    "ENTRECAMPOS",
+    "ROMA-AREEIRO",
+    "BRAÇO PRATA",
+    "LISBOA-ORIENTE",
+    "MOSCAVIDE",
+    "SACAVEM",
+    "BOBADELA",
+    "S.IRIA",
+    "PÓVOA"
+
+  ],
+
+
+  "LISBOA-S.A": [
+
+    "SETE RIOS",
+    "ENTRECAMPOS"
+
+  ]
+
+};
+
+
+/* ==================================================
+   MATRIZ 5x7
+================================================== */
+
+const FONT = {
+
+"A":["01110","10001","10001","11111","10001","10001","10001"],
+"B":["11110","10001","10001","11110","10001","10001","11110"],
+"C":["01111","10000","10000","10000","10000","10000","01111"],
+"D":["11110","10001","10001","10001","10001","10001","11110"],
+"E":["11111","10000","10000","11110","10000","10000","11111"],
+"F":["11111","10000","10000","11110","10000","10000","10000"],
+"G":["01111","10000","10000","10111","10001","10001","01111"],
+"H":["10001","10001","10001","11111","10001","10001","10001"],
+"I":["11111","00100","00100","00100","00100","00100","11111"],
+"J":["00111","00010","00010","00010","10010","10010","01100"],
+"K":["10001","10010","10100","11000","10100","10010","10001"],
+"L":["10000","10000","10000","10000","10000","10000","11111"],
+"M":["10001","11011","10101","10101","10001","10001","10001"],
+"N":["10001","11001","10101","10011","10001","10001","10001"],
+"O":["01110","10001","10001","10001","10001","10001","01110"],
+"P":["11110","10001","10001","11110","10000","10000","10000"],
+"Q":["01110","10001","10001","10001","10101","10010","01101"],
+"R":["11110","10001","10001","11110","10100","10010","10001"],
+"S":["01111","10000","10000","01110","00001","00001","11110"],
+"T":["11111","00100","00100","00100","00100","00100","00100"],
+"U":["10001","10001","10001","10001","10001","10001","01110"],
+"V":["10001","10001","10001","10001","10001","01010","00100"],
+"W":["10001","10001","10001","10101","10101","10101","01010"],
+"X":["10001","10001","01010","00100","01010","10001","10001"],
+"Y":["10001","10001","01010","00100","00100","00100","00100"],
+"Z":["11111","00001","00010","00100","01000","10000","11111"],
+
+"0":["01110","10001","10011","10101","11001","10001","01110"],
+"1":["00100","01100","00100","00100","00100","00100","01110"],
+"2":["01110","10001","00001","00010","00100","01000","11111"],
+"3":["11110","00001","00001","01110","00001","00001","11110"],
+"4":["00010","00110","01010","10010","11111","00010","00010"],
+"5":["11111","10000","10000","11110","00001","00001","11110"],
+"6":["01110","10000","10000","11110","10001","10001","01110"],
+"7":["11111","00001","00010","00100","01000","01000","01000"],
+"8":["01110","10001","10001","01110","10001","10001","01110"],
+"9":["01110","10001","10001","01111","00001","00001","01110"],
+
+"-":["00000","00000","00000","11111","00000","00000","00000"],
+
+" ":["00000","00000","00000","00000","00000","00000","00000"]
+
+};
+
+
+/* ==================================================
+   DESENHAR FLIPDOT
+================================================== */
+
+function desenharDotText(
+  elemento,
+  texto
+) {
+
+  const fragmento =
+    document.createDocumentFragment();
+
+
+  elemento.innerHTML =
+    "";
+
+
+  texto =
+    String(texto)
+      .toUpperCase();
+
+
+  for (
+    const caracter of texto
+  ) {
+
+    const pattern =
+      FONT[caracter] ||
+      FONT[" "];
+
+
+    const character =
+      document.createElement(
+        "div"
+      );
+
+
+    character.className =
+      "dot-character";
+
+
+    for (
+      let linha = 0;
+      linha < 7;
+      linha++
+    ) {
+
+      for (
+        let coluna = 0;
+        coluna < 5;
+        coluna++
+      ) {
+
+        const dot =
+          document.createElement(
+            "div"
+          );
+
+
+        dot.className =
+          pattern[linha][coluna] === "1"
+            ? "dot on"
+            : "dot";
+
+
+        character.appendChild(
+          dot
+        );
+
+      }
+
+    }
+
+
+    fragmento.appendChild(
+      character
+    );
+
+  }
+
+
+  elemento.appendChild(
+    fragmento
+  );
+
+}
+
+
+/* ==================================================
+   NORMALIZAR DESTINO
+================================================== */
+
+function normalizarDestino(
+  destino
+) {
+
+  if (!destino) {
+    return "";
+  }
+
+
+  const texto =
+    String(destino)
+      .toUpperCase()
+      .normalize("NFD")
+      .replace(
+        /[\u0300-\u036f]/g,
+        ""
+      )
+      .trim();
+
+
+  if (
+    texto.includes("ORIENTE")
+  ) {
+
+    return "LISBOA-ORIENTE";
+
+  }
+
+
+  if (
+    texto.includes("ALVERCA")
+  ) {
+
+    return "ALVERCA";
+
+  }
+
+
+  if (
+    texto.includes("SANTA APOLONIA") ||
+    texto.includes("S.APOLONIA") ||
+    texto.includes("S. APOLONIA") ||
+    texto.includes("LISBOA-S.A")
+  ) {
+
+    return "LISBOA-S.A";
+
+  }
+
+
+  return "";
+
+}
+
+
+/* ==================================================
+   HORA
+================================================== */
+
+function mostrarHora(
+  hora
+) {
+
+  const horas =
+    document.getElementById(
+      "horaHoras"
+    );
+
+
+  const minutos =
+    document.getElementById(
+      "horaMinutos"
+    );
+
+
+  if (!hora) {
+
+    desenharDotText(
+      horas,
+      "--"
+    );
+
+
+    desenharDotText(
+      minutos,
+      "--"
+    );
+
+
+    return;
+
+  }
+
+
+  const partes =
+    String(hora)
+      .trim()
+      .split(":");
+
+
+  desenharDotText(
+    horas,
+    partes[0] || "--"
+  );
+
+
+  desenharDotText(
+    minutos,
+    partes[1] || "--"
+  );
+
+}
+
+
+/* ==================================================
+   CRT - MÁXIMO 10 CARACTERES
+================================================== */
+
+function limitarCRT(
+  texto
+) {
+
+  return String(texto)
+    .toUpperCase()
+    .slice(
+      0,
+      10
+    );
+
+}
+
+
+/* ==================================================
+   COMBOIO SEGUINTE - 11 CARACTERES
+================================================== */
+
+function limitarProximoDestino(
+  texto
+) {
+
+  return String(texto)
+    .toUpperCase()
+    .slice(
+      0,
+      11
+    );
+
+}
+
+
+/* ==================================================
+   PARAGENS
+================================================== */
+
+function mostrarParagens(
+  destino
+) {
+
+  const lista =
+    PARAGENS[destino] || [];
+
+
+  const coluna1 =
+    document.getElementById(
+      "coluna1"
+    );
+
+
+  const coluna2 =
+    document.getElementById(
+      "coluna2"
+    );
+
+
+  coluna1.innerHTML =
+    "";
+
+
+  coluna2.innerHTML =
+    "";
+
+
+  const corte =
+    Math.ceil(
+      lista.length / 2
+    );
+
+
+  const esquerda =
+    lista.slice(
+      0,
+      corte
+    );
+
+
+  const direita =
+    lista.slice(
+      corte
+    );
+
+
+  esquerda.forEach(
+    paragem => {
+
+      const linha =
+        document.createElement(
+          "div"
+        );
+
+
+      linha.className =
+        "stop";
+
+
+      linha.textContent =
+        limitarCRT(
+          paragem
+        );
+
+
+      coluna1.appendChild(
+        linha
+      );
+
+    }
+  );
+
+
+  direita.forEach(
+    paragem => {
+
+      const linha =
+        document.createElement(
+          "div"
+        );
+
+
+      linha.className =
+        "stop";
+
+
+      linha.textContent =
+        limitarCRT(
+          paragem
+        );
+
+
+      coluna2.appendChild(
+        linha
+      );
+
+    }
+  );
+
+}
+
+
+/* ==================================================
+   ATUALIZAR PAINEL
+================================================== */
+
+function atualizarPainel(
+  lista
+) {
+
+  const comboios =
+    lista
+
+      .map(
+        comboio => {
+
+          const destino =
+            normalizarDestino(
+              comboio.destino ||
+              comboio.destination ||
+              comboio.destinoOriginal
+            );
+
+
+          return {
+
+            ...comboio,
+
+            destinoPainel:
+              destino
+
+          };
+
+        }
+      )
+
+      .filter(
+        comboio =>
+          comboio.destinoPainel
+      );
+
+
+  if (
+    comboios.length === 0
+  ) {
+
+    if (
+      !temDadosVisiveis
+    ) {
+
+      mostrarHora(
+        null
+      );
+
+
+      desenharDotText(
+
+        document.getElementById(
+          "destinoAtual"
+        ),
+
+        "SEM PARTIDAS"
+
+      );
+
+    }
+
+
+    return;
+
+  }
+
+
+  /* COMBOIO ATUAL */
+
+  const atual =
+    comboios[0];
+
+
+  mostrarHora(
+    atual.hora
+  );
+
+
+  desenharDotText(
+
+    document.getElementById(
+      "destinoAtual"
+    ),
+
+    atual.destinoPainel
+
+  );
+
+
+  mostrarParagens(
+    atual.destinoPainel
+  );
+
+
+  /* COMBOIO SEGUINTE */
+
+  const seguinte =
+    comboios[1];
+
+
+  if (
+    seguinte
+  ) {
+
+    document
+      .getElementById(
+        "proximoDestino"
+      )
+      .textContent =
+        limitarProximoDestino(
+          seguinte.destinoPainel
+        );
+
+
+    document
+      .getElementById(
+        "proximaHora"
+      )
+      .textContent =
+        seguinte.hora ||
+        "--:--";
+
+  }
+
+
+  else {
+
+    document
+      .getElementById(
+        "proximoDestino"
+      )
+      .textContent =
+        "----";
+
+
+    document
+      .getElementById(
+        "proximaHora"
+      )
+      .textContent =
+        "--:--";
+
+  }
+
+
+  temDadosVisiveis =
+    true;
+
+}
+
+
+/* ==================================================
+   CACHE LOCAL
+================================================== */
+
+function carregarCacheLocal() {
+
+  try {
+
+    const bruto =
+      localStorage.getItem(
+        CACHE_KEY
+      );
+
+
+    if (!bruto) {
+      return;
+    }
+
+
+    const cache =
+      JSON.parse(
+        bruto
+      );
+
+
+    if (
+      !cache ||
+      !Array.isArray(
+        cache.lista
+      ) ||
+      !cache.guardadoEm
+    ) {
+
+      return;
+
+    }
+
+
+    const idade =
+      Date.now() -
+      cache.guardadoEm;
+
+
+    if (
+      idade >
+      CACHE_MAX_AGE
+    ) {
+
+      return;
+
+    }
+
+
+    atualizarPainel(
+      cache.lista
+    );
+
+  }
+
+
+  catch (
+    erro
+  ) {
+
+    console.log(
+      "Cache ignorado"
+    );
+
+  }
+
+}
+
+
+function guardarCacheLocal(
+  lista
+) {
+
+  try {
+
+    localStorage.setItem(
+
+      CACHE_KEY,
+
+      JSON.stringify({
+
+        guardadoEm:
+          Date.now(),
+
+        lista:
+          lista
+
+      })
+
+    );
+
+  }
+
+  catch (
+    erro
+  ) {
+
+  }
+
+}
+
+
+/* ==================================================
+   API
+================================================== */
+
+async function carregarPartidas() {
+
+  try {
+
+    const resposta =
+      await fetch(
+        API_URL
+      );
+
+
+    if (
+      !resposta.ok
+    ) {
+
+      throw new Error(
+        "HTTP " +
+        resposta.status
+      );
+
+    }
+
+
+    const dados =
+      await resposta.json();
+
+
+    const lista =
+      Array.isArray(
+        dados
+      )
+
+      ? dados
+
+      : (
+
+        Array.isArray(
+          dados.partidas
+        )
+
+        ? dados.partidas
+
+        : []
+
+      );
+
+
+    if (
+      lista.length > 0
+    ) {
+
+      guardarCacheLocal(
+        lista
+      );
+
+    }
+
+
+    atualizarPainel(
+      lista
+    );
+
+  }
+
+
+  catch (
+    erro
+  ) {
+
+    console.error(
+      "Erro API:",
+      erro
+    );
+
+
+    if (
+      !temDadosVisiveis
+    ) {
+
+      mostrarHora(
+        null
+      );
+
+
+      desenharDotText(
+
+        document.getElementById(
+          "destinoAtual"
+        ),
+
+        "SEM LIGACAO"
+
+      );
+
+    }
+
+  }
+
+}
+
+
+/* ==================================================
+   ARRANQUE
+================================================== */
+
+carregarCacheLocal();
+
+
+if (
+  !temDadosVisiveis
+) {
+
+  mostrarHora(
+    null
+  );
+
+
+  desenharDotText(
+
+    document.getElementById(
+      "destinoAtual"
+    ),
+
+    "----------"
+
+  );
+
+}
+
+
+carregarPartidas();
+
+
+setInterval(
+  carregarPartidas,
+  REFRESH_INTERVAL
+);
+
+</script>
+
+</body>
+</html>
