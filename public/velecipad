@@ -1,0 +1,1814 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+>
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="theme-color" content="#050505">
+
+<title>Painel VELEC iPad</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link
+  href="https://fonts.googleapis.com/css2?family=VT323&display=swap"
+  rel="stylesheet"
+>
+
+<style>
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #050505;
+}
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: Arial, sans-serif;
+}
+
+
+/* ==================================================
+   PAINEL
+================================================== */
+
+.panel {
+  position: relative;
+
+  width: min(98vw, 1500px);
+  aspect-ratio: 3.08 / 1;
+
+  background:
+    linear-gradient(
+      145deg,
+      #17222c,
+      #0b1117 55%,
+      #18232c
+    );
+
+  border: 2px solid #293640;
+  border-radius: 7px;
+
+  box-shadow:
+    0 30px 90px rgba(0,0,0,.92),
+    inset 0 0 30px rgba(255,255,255,.025);
+
+  padding: 2.7% 4.2% 2.9%;
+}
+
+
+/* ==================================================
+   SUPORTES
+================================================== */
+
+.mount {
+  position: absolute;
+
+  top: -17%;
+
+  width: 4.8%;
+  height: 18%;
+
+  background:
+    linear-gradient(
+      90deg,
+      #080a0c,
+      #323b42,
+      #080a0c
+    );
+
+  border-radius: 8px 8px 0 0;
+}
+
+.mount.left {
+  left: 23%;
+}
+
+.mount.center {
+  left: 48%;
+
+  background:
+    linear-gradient(
+      90deg,
+      #777,
+      #d4d0c5,
+      #888
+    );
+}
+
+.mount.right {
+  right: 18%;
+}
+
+
+/* ==================================================
+   ECRÃS
+================================================== */
+
+.screens {
+  width: 100%;
+  height: 100%;
+
+  display: grid;
+
+  grid-template-columns:
+    65% 31%;
+
+  gap: 4%;
+}
+
+
+/* ==================================================
+   PAINEL ESQUERDO
+================================================== */
+
+.left-display {
+  position: relative;
+
+  overflow: hidden;
+
+  border: 7px solid #070a0b;
+  border-radius: 5px;
+
+  background:
+    linear-gradient(
+      180deg,
+      #344c4b 0%,
+      #233633 35%,
+      #101b19 100%
+    );
+
+  box-shadow:
+    inset 0 0 35px rgba(0,0,0,.88),
+    inset 0 0 8px rgba(255,255,255,.14);
+}
+
+.left-display::after {
+  content: "";
+
+  position: absolute;
+  inset: 0;
+
+  z-index: 20;
+  pointer-events: none;
+
+  background:
+    linear-gradient(
+      108deg,
+      transparent 33%,
+      rgba(255,255,255,.025) 40%,
+      rgba(255,255,255,.09) 48%,
+      transparent 59%
+    );
+}
+
+
+/* ==================================================
+   LABELS
+================================================== */
+
+.hora-label,
+.destino-label {
+  position: absolute;
+
+  left: 7%;
+
+  color: #deddb6;
+
+  font-weight: 700;
+  letter-spacing: .01em;
+
+  font-size:
+    clamp(18px, 2.8vw, 50px);
+
+  z-index: 5;
+}
+
+.hora-label {
+  top: 7%;
+}
+
+.destino-label {
+  top: 47%;
+}
+
+
+/* ==================================================
+   HORA
+================================================== */
+
+.hora {
+  position: absolute;
+
+  left: 7%;
+  top: 23%;
+
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+
+  z-index: 5;
+}
+
+
+.hora-grupo {
+  display: flex;
+  align-items: center;
+
+  gap: 4px;
+
+  /*
+    FALLBACK FIXO.
+
+    O iPad não fica dependente de
+    clamp() para desenhar os pontos.
+  */
+
+  --dot: 5px;
+  --dot-gap: 1px;
+}
+
+
+.h-separator {
+  color: #d8d5b3;
+
+  font-family: Arial, sans-serif;
+  font-weight: 400;
+
+  font-size:
+    clamp(20px, 2.7vw, 45px);
+}
+
+
+/* ==================================================
+   DESTINO
+================================================== */
+
+.destino {
+  position: absolute;
+
+  left: 7%;
+  right: 2%;
+
+  top: 63%;
+
+  overflow: hidden;
+
+  z-index: 5;
+}
+
+
+.destino-grupo {
+  display: flex;
+  align-items: center;
+
+  /*
+    FIXO para Safari/iPad
+  */
+
+  --dot: 4.2px;
+  --dot-gap: .85px;
+
+  gap: 2.5px;
+
+  width: 100%;
+
+  transform: none;
+}
+
+
+/* ==================================================
+   MATRIZ 5x7
+================================================== */
+
+.dot-character {
+  flex: 0 0 auto;
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(5, var(--dot));
+
+  grid-template-rows:
+    repeat(7, var(--dot));
+
+  gap: var(--dot-gap);
+
+  padding:
+    calc(var(--dot-gap) * 1.25);
+
+  border:
+    1px solid rgba(0,0,0,.9);
+
+  border-radius:
+    calc(var(--dot) * .4);
+
+  background:
+    linear-gradient(
+      180deg,
+      #161c17,
+      #070a07
+    );
+
+  box-shadow:
+    inset 0 0 calc(var(--dot) * .8)
+    rgba(0,0,0,.95),
+
+    0 calc(var(--dot) * .2)
+    calc(var(--dot) * .4)
+    rgba(0,0,0,.7);
+}
+
+
+.dot {
+  width: var(--dot);
+  height: var(--dot);
+
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      circle at 40% 35%,
+      #252b25 0%,
+      #141914 48%,
+      #060806 100%
+    );
+}
+
+
+.dot.on {
+  background:
+    radial-gradient(
+      circle at 38% 32%,
+      #fff864 0%,
+      #f4df18 33%,
+      #bd9f00 70%,
+      #685700 100%
+    );
+
+  box-shadow:
+    0 0 calc(var(--dot) * .75)
+    rgba(255,225,20,.45);
+}
+
+
+/* ==================================================
+   LINHA 3
+================================================== */
+
+.via {
+  position: absolute;
+
+  right: 5%;
+  top: 9%;
+
+  width: 20%;
+  aspect-ratio: 1 / 1;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border:
+    clamp(3px,.5vw,8px)
+    solid #d9f343;
+
+  border-radius: 7%;
+
+  color: #d9f343;
+
+  font-family: Arial, sans-serif;
+  font-weight: 500;
+
+  font-size:
+    clamp(55px,9.5vw,160px);
+
+  line-height: 1;
+
+  text-shadow:
+    0 0 12px
+    rgba(200,255,50,.35);
+
+  box-shadow:
+    inset 0 0 15px
+    rgba(190,255,50,.07),
+
+    0 0 6px
+    rgba(190,255,50,.15);
+
+  z-index: 5;
+}
+
+
+/* ==================================================
+   CRT EXTERIOR
+================================================== */
+
+.crt-frame {
+  position: relative;
+
+  background: #040505;
+
+  border-radius: 6px;
+
+  padding: 4%;
+
+  box-shadow:
+    inset 0 0 20px #000;
+}
+
+
+/* ==================================================
+   CRT
+================================================== */
+
+.crt {
+  position: relative;
+
+  width: 100%;
+  height: 100%;
+
+  overflow: hidden;
+
+  border-radius: 10%;
+
+  padding: 6% 7% 5%;
+
+  background:
+    radial-gradient(
+      ellipse at center,
+      #17341c 0%,
+      #0d2412 52%,
+      #030904 100%
+    );
+
+  color: #c9ef35;
+
+  font-family:
+    "VT323",
+    monospace;
+
+  font-weight: 400;
+
+  letter-spacing: .015em;
+
+  text-shadow:
+    0 0 3px
+    rgba(200,239,53,.34);
+
+  box-shadow:
+    inset 0 0 30px rgba(0,0,0,.95),
+    inset 0 0 65px rgba(0,0,0,.65);
+}
+
+
+.crt::before {
+  content: "";
+
+  position: absolute;
+  inset: 0;
+
+  pointer-events: none;
+
+  z-index: 8;
+
+  background:
+    radial-gradient(
+      ellipse at center,
+      transparent 48%,
+      rgba(0,0,0,.12) 70%,
+      rgba(0,0,0,.45) 100%
+    );
+}
+
+
+.crt::after {
+  content: "";
+
+  position: absolute;
+  inset: 0;
+
+  z-index: 10;
+
+  pointer-events: none;
+
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      rgba(255,255,255,.025) 0,
+      rgba(255,255,255,.025) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+
+  opacity: .45;
+}
+
+
+/* ==================================================
+   PARAGENS
+================================================== */
+
+.stops {
+  position: relative;
+
+  z-index: 2;
+
+  display: grid;
+
+  grid-template-columns:
+    1fr 1fr;
+
+  column-gap: 5%;
+
+  height: 76%;
+}
+
+
+.stop-column {
+  display: flex;
+  flex-direction: column;
+}
+
+
+.stop {
+  height: 10%;
+
+  white-space: nowrap;
+  overflow: hidden;
+
+  font-family:
+    "VT323",
+    monospace;
+
+  font-weight: 400;
+
+  font-size:
+    clamp(19px,2.15vw,43px);
+
+  line-height: .90;
+
+  letter-spacing: .01em;
+
+  text-shadow:
+    0 0 4px
+    rgba(200,239,53,.34);
+}
+
+
+/*
+  ALVERCA — muitas paragens
+*/
+
+.stops.muitas .stop {
+  font-size:
+    clamp(16px,1.75vw,34px);
+
+  line-height: .88;
+}
+
+
+/* ==================================================
+   COMBOIO SEGUINTE
+================================================== */
+
+.next-train {
+  position: absolute;
+
+  z-index: 3;
+
+  left: 7%;
+  right: 7%;
+  bottom: 6%;
+
+  display: grid;
+
+  grid-template-columns:
+    auto minmax(0,1fr) auto;
+
+  align-items: baseline;
+
+  column-gap: 4%;
+}
+
+
+.next-label {
+  font-family:
+    "VT323",
+    monospace;
+
+  font-weight: 400;
+
+  font-size:
+    clamp(7px,.65vw,13px);
+
+  line-height: 1;
+
+  white-space: nowrap;
+
+  opacity: .85;
+}
+
+
+.next-destination,
+.next-time {
+  font-family:
+    "VT323",
+    monospace;
+
+  font-weight: 400;
+
+  font-size:
+    clamp(20px,2.05vw,40px);
+
+  line-height: .9;
+
+  white-space: nowrap;
+}
+
+
+.next-destination {
+  overflow: hidden;
+  text-align: left;
+}
+
+
+.next-time {
+  text-align: right;
+}
+
+
+/* ==================================================
+   IPAD PORTRAIT
+================================================== */
+
+@media
+(min-width: 701px)
+and
+(max-width: 1400px)
+and
+(orientation: portrait) {
+
+  .panel {
+    width: 100vw;
+    max-width: none;
+
+    aspect-ratio: 2.88 / 1;
+
+    border-radius: 0;
+
+    padding: 2.4% 2% 2.5%;
+  }
+
+
+  .screens {
+    grid-template-columns:
+      64% 34%;
+
+    gap: 2%;
+  }
+
+
+  .left-display {
+    border-width: 4px;
+  }
+
+
+  .crt-frame {
+    padding: 3%;
+  }
+
+
+  /*
+    HORA — valores fixos
+  */
+
+  .hora-grupo {
+    --dot: 5px;
+    --dot-gap: 1px;
+
+    gap: 4px;
+  }
+
+
+  /*
+    DESTINO — ligeiramente menor
+    para LISBOA-ORIENTE caber.
+  */
+
+  .destino-grupo {
+    --dot: 4.2px;
+    --dot-gap: .85px;
+
+    gap: 2.5px;
+  }
+
+
+  .destino {
+    left: 7%;
+    right: 2%;
+    top: 63%;
+  }
+
+
+  .stop {
+    font-size:
+      clamp(13px,2.25vw,21px);
+  }
+
+
+  .stops.muitas .stop {
+    font-size:
+      clamp(11px,1.95vw,18px);
+  }
+
+
+  .next-label {
+    font-size:
+      clamp(5px,.85vw,8px);
+  }
+
+
+  .next-destination,
+  .next-time {
+    font-size:
+      clamp(13px,2.15vw,21px);
+  }
+
+}
+
+
+/* ==================================================
+   IPAD LANDSCAPE
+================================================== */
+
+@media
+(min-width: 701px)
+and
+(max-width: 1400px)
+and
+(orientation: landscape) {
+
+  .panel {
+    width: 98vw;
+    max-width: none;
+
+    aspect-ratio: 3.08 / 1;
+  }
+
+
+  /*
+    Como temos muito mais largura,
+    podemos aumentar bastante os dots.
+  */
+
+  .hora-grupo {
+    --dot: 6px;
+    --dot-gap: 1.2px;
+
+    gap: 5px;
+  }
+
+
+  .destino-grupo {
+    --dot: 5.3px;
+    --dot-gap: 1.05px;
+
+    gap: 3px;
+  }
+
+
+  .stop {
+    font-size:
+      clamp(16px,2.1vw,28px);
+  }
+
+
+  .stops.muitas .stop {
+    font-size:
+      clamp(14px,1.8vw,24px);
+  }
+
+}
+
+</style>
+</head>
+
+
+<body>
+
+<div class="panel">
+
+  <div class="mount left"></div>
+  <div class="mount center"></div>
+  <div class="mount right"></div>
+
+
+  <div class="screens">
+
+
+    <section class="left-display">
+
+      <div class="hora-label">
+        HORA
+      </div>
+
+
+      <div class="hora">
+
+        <div
+          class="hora-grupo"
+          id="horaHoras"
+        ></div>
+
+        <span class="h-separator">
+          h
+        </span>
+
+        <div
+          class="hora-grupo"
+          id="horaMinutos"
+        ></div>
+
+      </div>
+
+
+      <div class="destino-label">
+        DESTINO
+      </div>
+
+
+      <div class="destino">
+
+        <div
+          class="destino-grupo"
+          id="destinoAtual"
+        ></div>
+
+      </div>
+
+
+      <div class="via">
+        3
+      </div>
+
+    </section>
+
+
+
+    <section class="crt-frame">
+
+      <div class="crt">
+
+
+        <div
+          class="stops"
+          id="stops"
+        >
+
+          <div
+            class="stop-column"
+            id="coluna1"
+          ></div>
+
+          <div
+            class="stop-column"
+            id="coluna2"
+          ></div>
+
+        </div>
+
+
+        <div class="next-train">
+
+          <div class="next-label">
+            COMB.SEGUINTE
+          </div>
+
+          <div
+            class="next-destination"
+            id="proximoDestino"
+          >
+            ----
+          </div>
+
+          <div
+            class="next-time"
+            id="proximaHora"
+          >
+            --:--
+          </div>
+
+        </div>
+
+
+      </div>
+
+    </section>
+
+
+  </div>
+
+</div>
+
+
+<script>
+
+/* ==================================================
+   CONFIG
+================================================== */
+
+const API_URL =
+  "/api/partidas";
+
+
+const REFRESH_INTERVAL =
+  30000;
+
+
+const CACHE_KEY =
+  "velec-ipad-partidas-v1";
+
+
+const CACHE_MAX_AGE =
+  5 * 60 * 1000;
+
+
+let temDadosVisiveis =
+  false;
+
+
+/* ==================================================
+   PARAGENS
+================================================== */
+
+const PARAGENS = {
+
+  "LISBOA-ORIENTE": [
+
+    "MASSAMA",
+    "MONTE ABRAÃO",
+    "QUELUZ BELAS",
+    "AMADORA",
+    "REBOLEIRA",
+    "S.CR-DAMAIA",
+    "BENFICA",
+    "SETE RIOS",
+    "ENTRECAMPOS",
+    "ROMA-AREEIRO",
+    "BRAÇO PRATA"
+
+  ],
+
+
+  "ALVERCA": [
+
+    "MASSAMA",
+    "MONTE ABRAÃO",
+    "QUELUZ BELAS",
+    "AMADORA",
+    "REBOLEIRA",
+    "S.CR-DAMAIA",
+    "BENFICA",
+    "SETE RIOS",
+    "ENTRECAMPOS",
+    "ROMA-AREEIRO",
+    "BRAÇO PRATA",
+    "LISBOA-ORIENTE",
+    "MOSCAVIDE",
+    "SACAVEM",
+    "BOBADELA",
+    "S.IRIA",
+    "PÓVOA"
+
+  ],
+
+
+  "LISBOA-S.A": [
+    "SETE RIOS",
+    "ENTRECAMPOS"
+  ]
+
+};
+
+
+/* ==================================================
+   MATRIZ 5x7
+================================================== */
+
+const FONT = {
+
+"A":["01110","10001","10001","11111","10001","10001","10001"],
+"B":["11110","10001","10001","11110","10001","10001","11110"],
+"C":["01111","10000","10000","10000","10000","10000","01111"],
+"D":["11110","10001","10001","10001","10001","10001","11110"],
+"E":["11111","10000","10000","11110","10000","10000","11111"],
+"F":["11111","10000","10000","11110","10000","10000","10000"],
+"G":["01111","10000","10000","10111","10001","10001","01111"],
+"H":["10001","10001","10001","11111","10001","10001","10001"],
+"I":["11111","00100","00100","00100","00100","00100","11111"],
+"J":["00111","00010","00010","00010","10010","10010","01100"],
+"K":["10001","10010","10100","11000","10100","10010","10001"],
+"L":["10000","10000","10000","10000","10000","10000","11111"],
+"M":["10001","11011","10101","10101","10001","10001","10001"],
+"N":["10001","11001","10101","10011","10001","10001","10001"],
+"O":["01110","10001","10001","10001","10001","10001","01110"],
+"P":["11110","10001","10001","11110","10000","10000","10000"],
+"Q":["01110","10001","10001","10001","10101","10010","01101"],
+"R":["11110","10001","10001","11110","10100","10010","10001"],
+"S":["01111","10000","10000","01110","00001","00001","11110"],
+"T":["11111","00100","00100","00100","00100","00100","00100"],
+"U":["10001","10001","10001","10001","10001","10001","01110"],
+"V":["10001","10001","10001","10001","10001","01010","00100"],
+"W":["10001","10001","10001","10101","10101","10101","01010"],
+"X":["10001","10001","01010","00100","01010","10001","10001"],
+"Y":["10001","10001","01010","00100","00100","00100","00100"],
+"Z":["11111","00001","00010","00100","01000","10000","11111"],
+
+"0":["01110","10001","10011","10101","11001","10001","01110"],
+"1":["00100","01100","00100","00100","00100","00100","01110"],
+"2":["01110","10001","00001","00010","00100","01000","11111"],
+"3":["11110","00001","00001","01110","00001","00001","11110"],
+"4":["00010","00110","01010","10010","11111","00010","00010"],
+"5":["11111","10000","10000","11110","00001","00001","11110"],
+"6":["01110","10000","10000","11110","10001","10001","01110"],
+"7":["11111","00001","00010","00100","01000","01000","01000"],
+"8":["01110","10001","10001","01110","10001","10001","01110"],
+"9":["01110","10001","10001","01111","00001","00001","01110"],
+
+"-":["00000","00000","00000","11111","00000","00000","00000"],
+
+" ":["00000","00000","00000","00000","00000","00000","00000"]
+
+};
+
+
+/* ==================================================
+   DESENHAR DOT MATRIX
+================================================== */
+
+function desenharDotText(
+  elemento,
+  texto
+) {
+
+  const fragmento =
+    document.createDocumentFragment();
+
+
+  elemento.innerHTML =
+    "";
+
+
+  texto =
+    String(texto)
+      .toUpperCase();
+
+
+  for (
+    const caracter of texto
+  ) {
+
+    const pattern =
+      FONT[caracter] ||
+      FONT[" "];
+
+
+    const character =
+      document.createElement(
+        "div"
+      );
+
+
+    character.className =
+      "dot-character";
+
+
+    for (
+      let linha = 0;
+      linha < 7;
+      linha++
+    ) {
+
+      for (
+        let coluna = 0;
+        coluna < 5;
+        coluna++
+      ) {
+
+        const dot =
+          document.createElement(
+            "div"
+          );
+
+
+        dot.className =
+          pattern[linha][coluna] === "1"
+            ? "dot on"
+            : "dot";
+
+
+        character.appendChild(
+          dot
+        );
+
+      }
+
+    }
+
+
+    fragmento.appendChild(
+      character
+    );
+
+  }
+
+
+  elemento.appendChild(
+    fragmento
+  );
+
+}
+
+
+/* ==================================================
+   DESTINO
+================================================== */
+
+function normalizarDestino(
+  destino
+) {
+
+  if (!destino) {
+    return "";
+  }
+
+
+  const texto =
+    String(destino)
+      .toUpperCase()
+      .normalize("NFD")
+      .replace(
+        /[\u0300-\u036f]/g,
+        ""
+      )
+      .trim();
+
+
+  if (
+    texto.includes("ORIENTE")
+  ) {
+    return "LISBOA-ORIENTE";
+  }
+
+
+  if (
+    texto.includes("ALVERCA")
+  ) {
+    return "ALVERCA";
+  }
+
+
+  if (
+    texto.includes("SANTA APOLONIA") ||
+    texto.includes("S.APOLONIA") ||
+    texto.includes("S. APOLONIA") ||
+    texto.includes("LISBOA-S.A")
+  ) {
+    return "LISBOA-S.A";
+  }
+
+
+  return "";
+
+}
+
+
+/* ==================================================
+   HORA
+================================================== */
+
+function mostrarHora(
+  hora
+) {
+
+  const horas =
+    document.getElementById(
+      "horaHoras"
+    );
+
+
+  const minutos =
+    document.getElementById(
+      "horaMinutos"
+    );
+
+
+  if (!hora) {
+
+    desenharDotText(
+      horas,
+      "--"
+    );
+
+
+    desenharDotText(
+      minutos,
+      "--"
+    );
+
+
+    return;
+
+  }
+
+
+  const partes =
+    String(hora)
+      .trim()
+      .split(":");
+
+
+  desenharDotText(
+    horas,
+    partes[0] || "--"
+  );
+
+
+  desenharDotText(
+    minutos,
+    partes[1] || "--"
+  );
+
+}
+
+
+/* ==================================================
+   CRT
+================================================== */
+
+function limitarCRT(
+  texto
+) {
+
+  return String(texto)
+    .toUpperCase()
+    .slice(
+      0,
+      10
+    );
+
+}
+
+
+function limitarProximoDestino(
+  texto
+) {
+
+  return String(texto)
+    .toUpperCase()
+    .slice(
+      0,
+      11
+    );
+
+}
+
+
+/* ==================================================
+   PARAGENS
+================================================== */
+
+function mostrarParagens(
+  destino
+) {
+
+  const lista =
+    PARAGENS[destino] || [];
+
+
+  const coluna1 =
+    document.getElementById(
+      "coluna1"
+    );
+
+
+  const coluna2 =
+    document.getElementById(
+      "coluna2"
+    );
+
+
+  const stops =
+    document.getElementById(
+      "stops"
+    );
+
+
+  stops.classList.toggle(
+    "muitas",
+    lista.length > 12
+  );
+
+
+  coluna1.innerHTML =
+    "";
+
+
+  coluna2.innerHTML =
+    "";
+
+
+  const corte =
+    Math.ceil(
+      lista.length / 2
+    );
+
+
+  const esquerda =
+    lista.slice(
+      0,
+      corte
+    );
+
+
+  const direita =
+    lista.slice(
+      corte
+    );
+
+
+  esquerda.forEach(
+    paragem => {
+
+      const linha =
+        document.createElement(
+          "div"
+        );
+
+
+      linha.className =
+        "stop";
+
+
+      linha.textContent =
+        limitarCRT(
+          paragem
+        );
+
+
+      coluna1.appendChild(
+        linha
+      );
+
+    }
+  );
+
+
+  direita.forEach(
+    paragem => {
+
+      const linha =
+        document.createElement(
+          "div"
+        );
+
+
+      linha.className =
+        "stop";
+
+
+      linha.textContent =
+        limitarCRT(
+          paragem
+        );
+
+
+      coluna2.appendChild(
+        linha
+      );
+
+    }
+  );
+
+}
+
+
+/* ==================================================
+   ATUALIZAR
+================================================== */
+
+function atualizarPainel(
+  lista
+) {
+
+  const comboios =
+    lista
+
+      .map(
+        comboio => {
+
+          const destino =
+            normalizarDestino(
+              comboio.destino ||
+              comboio.destination ||
+              comboio.destinoOriginal
+            );
+
+
+          return {
+
+            ...comboio,
+
+            destinoPainel:
+              destino
+
+          };
+
+        }
+      )
+
+      .filter(
+        comboio =>
+          comboio.destinoPainel
+      );
+
+
+  if (
+    comboios.length === 0
+  ) {
+
+    if (
+      !temDadosVisiveis
+    ) {
+
+      mostrarHora(
+        null
+      );
+
+
+      desenharDotText(
+
+        document.getElementById(
+          "destinoAtual"
+        ),
+
+        "SEM PARTIDAS"
+
+      );
+
+    }
+
+
+    return;
+
+  }
+
+
+  const atual =
+    comboios[0];
+
+
+  mostrarHora(
+    atual.hora
+  );
+
+
+  desenharDotText(
+
+    document.getElementById(
+      "destinoAtual"
+    ),
+
+    atual.destinoPainel
+
+  );
+
+
+  mostrarParagens(
+    atual.destinoPainel
+  );
+
+
+  const seguinte =
+    comboios[1];
+
+
+  if (
+    seguinte
+  ) {
+
+    document
+      .getElementById(
+        "proximoDestino"
+      )
+      .textContent =
+        limitarProximoDestino(
+          seguinte.destinoPainel
+        );
+
+
+    document
+      .getElementById(
+        "proximaHora"
+      )
+      .textContent =
+        seguinte.hora ||
+        "--:--";
+
+  }
+
+
+  else {
+
+    document
+      .getElementById(
+        "proximoDestino"
+      )
+      .textContent =
+        "----";
+
+
+    document
+      .getElementById(
+        "proximaHora"
+      )
+      .textContent =
+        "--:--";
+
+  }
+
+
+  temDadosVisiveis =
+    true;
+
+}
+
+
+/* ==================================================
+   CACHE
+================================================== */
+
+function carregarCacheLocal() {
+
+  try {
+
+    const bruto =
+      localStorage.getItem(
+        CACHE_KEY
+      );
+
+
+    if (!bruto) {
+      return;
+    }
+
+
+    const cache =
+      JSON.parse(
+        bruto
+      );
+
+
+    if (
+      !cache ||
+      !Array.isArray(
+        cache.lista
+      ) ||
+      !cache.guardadoEm
+    ) {
+
+      return;
+
+    }
+
+
+    const idade =
+      Date.now() -
+      cache.guardadoEm;
+
+
+    if (
+      idade >
+      CACHE_MAX_AGE
+    ) {
+
+      return;
+
+    }
+
+
+    atualizarPainel(
+      cache.lista
+    );
+
+  }
+
+  catch (
+    erro
+  ) {
+
+    console.log(
+      "Cache ignorado"
+    );
+
+  }
+
+}
+
+
+function guardarCacheLocal(
+  lista
+) {
+
+  try {
+
+    localStorage.setItem(
+
+      CACHE_KEY,
+
+      JSON.stringify({
+
+        guardadoEm:
+          Date.now(),
+
+        lista:
+          lista
+
+      })
+
+    );
+
+  }
+
+  catch (
+    erro
+  ) {}
+
+}
+
+
+/* ==================================================
+   API
+================================================== */
+
+async function carregarPartidas() {
+
+  try {
+
+    const resposta =
+      await fetch(
+        API_URL
+      );
+
+
+    if (
+      !resposta.ok
+    ) {
+
+      throw new Error(
+        "HTTP " +
+        resposta.status
+      );
+
+    }
+
+
+    const dados =
+      await resposta.json();
+
+
+    const lista =
+      Array.isArray(
+        dados
+      )
+
+      ? dados
+
+      : (
+
+        Array.isArray(
+          dados.partidas
+        )
+
+        ? dados.partidas
+
+        : []
+
+      );
+
+
+    if (
+      lista.length > 0
+    ) {
+
+      guardarCacheLocal(
+        lista
+      );
+
+    }
+
+
+    atualizarPainel(
+      lista
+    );
+
+  }
+
+  catch (
+    erro
+  ) {
+
+    console.error(
+      "Erro API:",
+      erro
+    );
+
+
+    if (
+      !temDadosVisiveis
+    ) {
+
+      mostrarHora(
+        null
+      );
+
+
+      desenharDotText(
+
+        document.getElementById(
+          "destinoAtual"
+        ),
+
+        "SEM LIGACAO"
+
+      );
+
+    }
+
+  }
+
+}
+
+
+/* ==================================================
+   ARRANQUE
+================================================== */
+
+carregarCacheLocal();
+
+
+if (
+  !temDadosVisiveis
+) {
+
+  mostrarHora(
+    null
+  );
+
+
+  desenharDotText(
+
+    document.getElementById(
+      "destinoAtual"
+    ),
+
+    "----------"
+
+  );
+
+}
+
+
+carregarPartidas();
+
+
+setInterval(
+  carregarPartidas,
+  REFRESH_INTERVAL
+);
+
+</script>
+
+</body>
+</html>
