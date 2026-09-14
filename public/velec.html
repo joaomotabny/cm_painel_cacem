@@ -2,6 +2,7 @@
 <html lang="pt">
 <head>
   <meta charset="UTF-8">
+
   <meta
     name="viewport"
     content="width=device-width, initial-scale=1.0, viewport-fit=cover"
@@ -375,7 +376,6 @@
       font-size: clamp(9px, .8vw, 17px);
 
       white-space: nowrap;
-
       letter-spacing: .02em;
     }
 
@@ -384,7 +384,6 @@
       font-size: clamp(19px, 2vw, 39px);
 
       white-space: nowrap;
-
       line-height: 1;
     }
 
@@ -532,7 +531,7 @@
 <script>
 
 const API_URL =
-  "/api/partidas";
+  "https://cmpainelcacem.vercel.app/api/partidas";
 
 const REFRESH_INTERVAL =
   30000;
@@ -562,7 +561,6 @@ const PARAGENS = {
 
   ],
 
-
   "ALVERCA": [
 
     "MASSAMA",
@@ -585,7 +583,6 @@ const PARAGENS = {
 
   ],
 
-
   "LISBOA-S.A": [
 
     "SETE RIOS",
@@ -598,7 +595,58 @@ const PARAGENS = {
 
 /*
 ==================================================
-MÁXIMO DE 10 CARACTERES NO CRT
+NORMALIZAR DESTINO
+==================================================
+*/
+
+function normalizarDestino(destino) {
+
+  if (!destino) {
+    return "";
+  }
+
+  const texto =
+    String(destino)
+      .toUpperCase()
+      .normalize("NFD")
+      .replace(
+        /[\u0300-\u036f]/g,
+        ""
+      )
+      .trim();
+
+
+  if (
+    texto.includes("ORIENTE")
+  ) {
+    return "LISBOA-ORIENTE";
+  }
+
+
+  if (
+    texto.includes("ALVERCA")
+  ) {
+    return "ALVERCA";
+  }
+
+
+  if (
+    texto.includes("SANTA APOLONIA") ||
+    texto.includes("S.APOLONIA") ||
+    texto.includes("S. APOLONIA") ||
+    texto.includes("LISBOA-S.A")
+  ) {
+    return "LISBOA-S.A";
+  }
+
+
+  return "";
+}
+
+
+/*
+==================================================
+LIMITE DE 10 CARACTERES NO CRT
 ==================================================
 */
 
@@ -619,15 +667,25 @@ HORA
 
 function mostrarHora(hora) {
 
+  const horas =
+    document.getElementById(
+      "horaHoras"
+    );
+
+
+  const minutos =
+    document.getElementById(
+      "horaMinutos"
+    );
+
+
   if (!hora) {
 
-    document
-      .getElementById("horaHoras")
-      .textContent = "--";
+    horas.textContent =
+      "--";
 
-    document
-      .getElementById("horaMinutos")
-      .textContent = "--";
+    minutos.textContent =
+      "--";
 
     return;
   }
@@ -639,16 +697,12 @@ function mostrarHora(hora) {
       .split(":");
 
 
-  document
-    .getElementById("horaHoras")
-    .textContent =
-      partes[0] || "--";
+  horas.textContent =
+    partes[0] || "--";
 
 
-  document
-    .getElementById("horaMinutos")
-    .textContent =
-      partes[1] || "--";
+  minutos.textContent =
+    partes[1] || "--";
 
 }
 
@@ -681,16 +735,6 @@ function mostrarParagens(destino) {
   coluna2.innerHTML = "";
 
 
-  /*
-  Duas colunas.
-
-  Oriente:
-  6 esquerda + 5 direita.
-
-  Alverca:
-  9 esquerda + 8 direita.
-  */
-
   const corte =
     Math.ceil(
       lista.length / 2
@@ -718,13 +762,16 @@ function mostrarParagens(destino) {
           "div"
         );
 
+
       linha.className =
         "stop";
+
 
       linha.textContent =
         limitarCRT(
           paragem
         );
+
 
       coluna1.appendChild(
         linha
@@ -742,13 +789,16 @@ function mostrarParagens(destino) {
           "div"
         );
 
+
       linha.className =
         "stop";
+
 
       linha.textContent =
         limitarCRT(
           paragem
         );
+
 
       coluna2.appendChild(
         linha
@@ -762,36 +812,42 @@ function mostrarParagens(destino) {
 
 /*
 ==================================================
-PAINEL
+ATUALIZAR PAINEL
 ==================================================
 */
 
-function atualizarPainel(partidas) {
-
-  /*
-  A API já devolve apenas:
-  LISBOA-ORIENTE
-  ALVERCA
-  LISBOA-S.A
-  */
+function atualizarPainel(lista) {
 
   const comboios =
-    partidas.filter(
-      comboio =>
+    lista
 
-        comboio.destino ===
-          "LISBOA-ORIENTE"
+      .map(
+        comboio => {
 
-        ||
+          const destino =
+            normalizarDestino(
+              comboio.destino ||
+              comboio.destination ||
+              comboio.destinoOriginal
+            );
 
-        comboio.destino ===
-          "ALVERCA"
 
-        ||
+          return {
 
-        comboio.destino ===
-          "LISBOA-S.A"
-    );
+            ...comboio,
+
+            destinoPainel:
+              destino
+
+          };
+
+        }
+      )
+
+      .filter(
+        comboio =>
+          comboio.destinoPainel
+      );
 
 
   if (
@@ -799,6 +855,7 @@ function atualizarPainel(partidas) {
   ) {
 
     mostrarHora(null);
+
 
     document
       .getElementById(
@@ -812,14 +869,16 @@ function atualizarPainel(partidas) {
       .getElementById(
         "coluna1"
       )
-      .innerHTML = "";
+      .innerHTML =
+        "";
 
 
     document
       .getElementById(
         "coluna2"
       )
-      .innerHTML = "";
+      .innerHTML =
+        "";
 
 
     document
@@ -843,9 +902,9 @@ function atualizarPainel(partidas) {
 
 
   /*
-  ==================================================
+  ================================================
   COMBOIO ATUAL
-  ==================================================
+  ================================================
   */
 
   const atual =
@@ -862,18 +921,18 @@ function atualizarPainel(partidas) {
       "destinoAtual"
     )
     .textContent =
-      atual.destino;
+      atual.destinoPainel;
 
 
   mostrarParagens(
-    atual.destino
+    atual.destinoPainel
   );
 
 
   /*
-  ==================================================
+  ================================================
   COMBOIO SEGUINTE
-  ==================================================
+  ================================================
   */
 
   const seguinte =
@@ -887,7 +946,7 @@ function atualizarPainel(partidas) {
         "proximoDestino"
       )
       .textContent =
-        seguinte.destino;
+        seguinte.destinoPainel;
 
 
     document
@@ -895,7 +954,7 @@ function atualizarPainel(partidas) {
         "proximaHora"
       )
       .textContent =
-        seguinte.hora;
+        seguinte.hora || "--:--";
 
   }
 
@@ -923,7 +982,7 @@ function atualizarPainel(partidas) {
 
 /*
 ==================================================
-CARREGAR SAÍDAS DE AGUALVA-CACÉM
+CARREGAR PARTIDAS
 ==================================================
 */
 
@@ -933,17 +992,36 @@ async function carregarPartidas() {
 
     const resposta =
       await fetch(
+
         API_URL +
         "?t=" +
         Date.now(),
+
         {
+          method:
+            "GET",
+
           cache:
-            "no-store"
+            "no-store",
+
+          headers: {
+            "Accept":
+              "application/json"
+          }
         }
+
       );
 
 
-    if (!resposta.ok) {
+    console.log(
+      "STATUS API:",
+      resposta.status
+    );
+
+
+    if (
+      !resposta.ok
+    ) {
 
       throw new Error(
         "HTTP " +
@@ -958,38 +1036,78 @@ async function carregarPartidas() {
 
 
     console.log(
-      "API AGUALVA-CACÉM:",
+      "DADOS API:",
       dados
     );
 
 
-    /*
-    A API responde:
+    let lista = [];
 
-    {
-      estacao: "AGUALVA-CACÉM",
-      partidas: [...]
-    }
+
+    /*
+    Aceita vários formatos,
+    para não depender de uma
+    estrutura única.
     */
 
-    const partidas =
+    if (
+      Array.isArray(
+        dados
+      )
+    ) {
+
+      lista =
+        dados;
+
+    }
+
+    else if (
       Array.isArray(
         dados.partidas
       )
-        ? dados.partidas
-        : [];
+    ) {
+
+      lista =
+        dados.partidas;
+
+    }
+
+    else if (
+      Array.isArray(
+        dados.data
+      )
+    ) {
+
+      lista =
+        dados.data;
+
+    }
+
+    else if (
+      Array.isArray(
+        dados.results
+      )
+    ) {
+
+      lista =
+        dados.results;
+
+    }
 
 
     atualizarPainel(
-      partidas
+      lista
     );
 
   }
 
-  catch (erro) {
+
+  catch (
+    erro
+  ) {
 
     console.error(
-      "Erro API:",
+      "ERRO API:",
       erro
     );
 
@@ -1003,6 +1121,38 @@ async function carregarPartidas() {
       )
       .textContent =
         "SEM LIGACAO";
+
+
+    document
+      .getElementById(
+        "coluna1"
+      )
+      .innerHTML =
+        "";
+
+
+    document
+      .getElementById(
+        "coluna2"
+      )
+      .innerHTML =
+        "";
+
+
+    document
+      .getElementById(
+        "proximoDestino"
+      )
+      .textContent =
+        "----";
+
+
+    document
+      .getElementById(
+        "proximaHora"
+      )
+      .textContent =
+        "--:--";
 
   }
 
