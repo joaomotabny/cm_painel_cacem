@@ -1,294 +1,1131 @@
-export default async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+const STATION_CODE = '9461002';
 
-  res.setHeader(
-    'Cache-Control',
-    'public, s-maxage=20, stale-while-revalidate=120'
-  );
+const SOURCE_BASE =
+  'https://servicos.infraestruturasdeportugal.pt/estacoes';
 
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
+const MEMORY_CACHE_KEY =
+  '__cacem_partidas_todas_cache_v2';
 
-  // Agualva-Cacém
-  const STATION_CODE = '9461002';
+const MEMORY_CACHE_MAX_AGE =
+  30 * 60 * 1000;
 
-  try {
 
-    const url =
-      `https://servicos.infraestruturasdeportugal.pt/estacoes?estacaoId=${STATION_CODE}`;
+/* ==================================================
+   TEXTO
+================================================== */
 
-    const response = await fetch(url, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0',
-        'Accept': 'text/html'
+function semAcentos(texto = '') {
+
+  return String(texto)
+    .toUpperCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim();
+
+}
+
+
+function decodeHtml(texto = '') {
+
+  const mapa = {
+
+    '&nbsp;': ' ',
+
+    '&amp;': '&',
+
+    '&quot;': '"',
+
+    '&#39;': "'",
+
+    '&apos;': "'",
+
+    '&aacute;': 'á',
+
+    '&agrave;': 'à',
+
+    '&acirc;': 'â',
+
+    '&atilde;': 'ã',
+
+    '&eacute;': 'é',
+
+    '&ecirc;': 'ê',
+
+    '&iacute;': 'í',
+
+    '&oacute;': 'ó',
+
+    '&ocirc;': 'ô',
+
+    '&otilde;': 'õ',
+
+    '&uacute;': 'ú',
+
+    '&ccedil;': 'ç',
+
+    '&Aacute;': 'Á',
+
+    '&Eacute;': 'É',
+
+    '&Iacute;': 'Í',
+
+    '&Oacute;': 'Ó',
+
+    '&Uacute;': 'Ú',
+
+    '&Ccedil;': 'Ç'
+
+  };
+
+
+  let saida =
+    String(texto);
+
+
+  Object.entries(mapa)
+    .forEach(
+      ([entidade, valor]) => {
+
+        saida =
+          saida
+            .split(entidade)
+            .join(valor);
+
       }
-    });
-
-    if (!response.ok) {
-      throw new Error(`IP respondeu com ${response.status}`);
-    }
-
-    const html = await response.text();
-
-    const linhas = [];
-
-    const rowRegex =
-      /<tr[^>]*>([\s\S]*?)<\/tr>/gi;
-
-    let rowMatch;
-
-    while (
-      (rowMatch = rowRegex.exec(html)) !== null
-    ) {
-
-      const row = rowMatch[1];
-
-      const cells = [];
-
-      const cellRegex =
-        /<t[dh][^>]*>([\s\S]*?)<\/t[dh]>/gi;
-
-      let cellMatch;
-
-      while (
-        (cellMatch = cellRegex.exec(row)) !== null
-      ) {
-
-        const texto = cellMatch[1]
-          .replace(/<[^>]+>/g, ' ')
-          .replace(/&nbsp;/g, ' ')
-          .replace(/&amp;/g, '&')
-          .replace(/\s+/g, ' ')
-          .trim();
-
-        cells.push(texto);
-      }
-
-      if (cells.length < 5) {
-        continue;
-      }
-
-      const hora = cells[0];
-      const comboio = cells[1];
-      const servico = cells[2];
-      const origem = cells[3];
-
-      const destinoOriginal = cells[4];
-
-      const destinoNormalizado =
-        destinoOriginal
-          .toUpperCase()
-          .normalize('NFD')
-          .replace(/[\u0300-\u036f]/g, '')
-          .trim();
-
-      const operador =
-        cells[5] || '';
-
-      const observacoes =
-        cells[6] || '';
-
-      let destinoPainel = null;
-      let via = null;
+    );
 
 
-      /* ============================================
-         SINTRA
-      ============================================ */
+  saida =
+    saida
 
-      if (
-        destinoNormalizado === 'SINTRA'
-      ) {
-        destinoPainel = 'SINTRA';
-        via = '2';
-      }
+      .replace(
+        /&#(\d+);/g,
 
+        (_, n) =>
+          String.fromCharCode(
+            Number(n)
+          )
+      )
 
-      /* ============================================
-         MELEÇAS
-      ============================================ */
+      .replace(
+        /&#x([0-9a-f]+);/gi,
 
-      else if (
-        destinoNormalizado.includes('MELECAS')
-      ) {
-        destinoPainel = 'MELEÇAS';
-        via = '1';
-      }
-
-
-      /* ============================================
-         LISBOA ORIENTE
-      ============================================ */
-
-      else if (
-        destinoNormalizado.includes('ORIENTE')
-      ) {
-        destinoPainel = 'LIS-ORIENTE';
-        via = '3';
-      }
-
-
-      /* ============================================
-         ALVERCA
-      ============================================ */
-
-      else if (
-        destinoNormalizado === 'ALVERCA'
-      ) {
-        destinoPainel = 'ALVERCA';
-        via = '3';
-      }
-
-
-      /* ============================================
-         LISBOA ROSSIO
-      ============================================ */
-
-      else if (
-        destinoNormalizado.includes('ROSSIO')
-      ) {
-        destinoPainel = 'LIS-ROSSIO';
-        via = '4';
-      }
-
-
-      /* ============================================
-         LISBOA SANTA APOLÓNIA
-      ============================================ */
-
-      else if (
-        destinoNormalizado.includes('SANTA APOLONIA') ||
-        destinoNormalizado.includes('S.APOLONIA') ||
-        destinoNormalizado.includes('S. APOLONIA')
-      ) {
-        destinoPainel = 'LIS-S.APOL';
-        via = '3';
-      }
-
-
-      /* ============================================
-         CALDAS DA RAINHA
-      ============================================ */
-
-      else if (
-        destinoNormalizado.includes('CALDAS')
-      ) {
-        destinoPainel = 'CALDAS RAINHA';
-        via = '1';
-      }
-
-
-      /*
-        Ignora qualquer destino que não
-        pertença ao painel.
-      */
-
-      if (
-        !destinoPainel
-      ) {
-        continue;
-      }
-
-
-      /*
-        Só aceita horas válidas.
-      */
-
-      if (
-        !/^\d{1,2}:\d{2}$/.test(hora)
-      ) {
-        continue;
-      }
-
-
-      linhas.push({
-        hora,
-        comboio,
-        servico,
-        origem,
-
-        destino:
-          destinoPainel,
-
-        destinoOriginal,
-
-        via,
-
-        operador,
-
-        observacoes
-      });
-
-    }
-
-
-    /* ============================================
-       REMOVER DUPLICADOS
-    ============================================ */
-
-    const unicos =
-      linhas.filter(
-        (partida, index, array) =>
-
-          index ===
-          array.findIndex(
-            x =>
-              x.hora === partida.hora &&
-              x.comboio === partida.comboio &&
-              x.destino === partida.destino
+        (_, n) =>
+          String.fromCharCode(
+            parseInt(n, 16)
           )
       );
 
 
-    /* ============================================
-       ORDENAR POR HORA
-    ============================================ */
+  return saida;
 
-    unicos.sort(
-      (a, b) =>
-        a.hora.localeCompare(b.hora)
+}
+
+
+function limparCelula(
+  html = ''
+) {
+
+  return decodeHtml(
+
+    String(html)
+
+      .replace(
+        /<br\s*\/?\s*>/gi,
+        ' '
+      )
+
+      .replace(
+        /<[^>]+>/g,
+        ' '
+      )
+
+  )
+
+    .replace(
+      /\s+/g,
+      ' '
+    )
+
+    .trim();
+
+}
+
+
+/* ==================================================
+   HTML ESCAPADO
+================================================== */
+
+function desescaparMarkup(
+  html = ''
+) {
+
+  return String(html)
+
+    .replace(
+      /\\u003c/gi,
+      '<'
+    )
+
+    .replace(
+      /\\u003e/gi,
+      '>'
+    )
+
+    .replace(
+      /\\u0026/gi,
+      '&'
+    )
+
+    .replace(
+      /\\\//g,
+      '/'
+    )
+
+    .replace(
+      /&lt;/gi,
+      '<'
+    )
+
+    .replace(
+      /&gt;/gi,
+      '>'
+    );
+
+}
+
+
+/* ==================================================
+   EXTRAIR LINHAS
+================================================== */
+
+function extrairLinhas(
+  html = ''
+) {
+
+  const versoes = [
+
+    String(html),
+
+    desescaparMarkup(
+      html
+    )
+
+  ];
+
+
+  const linhas =
+    [];
+
+
+  const chaves =
+    new Set();
+
+
+  for (
+    const documento of versoes
+  ) {
+
+
+    const rowRegex =
+      /<tr\b[^>]*>([\s\S]*?)<\/tr>/gi;
+
+
+    let rowMatch;
+
+
+    while (
+      (
+        rowMatch =
+          rowRegex.exec(
+            documento
+          )
+      ) !== null
+    ) {
+
+
+      const row =
+        rowMatch[1];
+
+
+      const cells =
+        [];
+
+
+      const cellRegex =
+        /<t[dh]\b[^>]*>([\s\S]*?)<\/t[dh]>/gi;
+
+
+      let cellMatch;
+
+
+      while (
+        (
+          cellMatch =
+            cellRegex.exec(row)
+        ) !== null
+      ) {
+
+
+        cells.push(
+
+          limparCelula(
+            cellMatch[1]
+          )
+
+        );
+
+
+      }
+
+
+      const indiceHora =
+        cells.findIndex(
+          c =>
+            /\b\d{1,2}:\d{2}\b/
+              .test(c)
+        );
+
+
+      if (
+        indiceHora < 0 ||
+        cells.length <
+          indiceHora + 5
+      ) {
+
+        continue;
+
+      }
+
+
+      const horaMatch =
+        cells[indiceHora]
+          .match(
+            /\b(\d{1,2}:\d{2})\b/
+          );
+
+
+      if (!horaMatch) {
+
+        continue;
+
+      }
+
+
+      const hora =
+        horaMatch[1]
+          .padStart(
+            5,
+            '0'
+          );
+
+
+      const comboio =
+        cells[indiceHora + 1] ||
+        '';
+
+
+      const servico =
+        cells[indiceHora + 2] ||
+        '';
+
+
+      const origem =
+        cells[indiceHora + 3] ||
+        '';
+
+
+      const destinoOriginal =
+        cells[indiceHora + 4] ||
+        '';
+
+
+      const operador =
+        cells[indiceHora + 5] ||
+        '';
+
+
+      const observacoes =
+        cells
+
+          .slice(
+            indiceHora + 6
+          )
+
+          .join(' ')
+
+          .trim();
+
+
+      if (
+        !/^\d{2}:\d{2}$/
+          .test(hora)
+        ||
+        !destinoOriginal
+      ) {
+
+        continue;
+
+      }
+
+
+      const chave =
+        `${hora}|${comboio}|${destinoOriginal}`;
+
+
+      if (
+        chaves.has(
+          chave
+        )
+      ) {
+
+        continue;
+
+      }
+
+
+      chaves.add(
+        chave
+      );
+
+
+      linhas.push({
+
+        hora,
+
+        comboio,
+
+        servico,
+
+        origem,
+
+        destinoOriginal,
+
+        operador,
+
+        observacoes
+
+      });
+
+
+    }
+
+  }
+
+
+  return linhas;
+
+}
+
+
+/* ==================================================
+   DESTINOS + VIAS
+================================================== */
+
+function mapearDestino(
+  destinoOriginal
+) {
+
+  const normal =
+    semAcentos(
+      destinoOriginal
     );
 
 
-    return res.status(200).json({
+  if (
+    normal.includes(
+      'ROSSIO'
+    )
+  ) {
 
-      estacao:
-        'AGUALVA-CACÉM',
 
-      codigo:
-        STATION_CODE,
+    return {
 
-      atualizadoEm:
-        new Date().toISOString(),
+      destino:
+        'LIS-ROSSIO',
 
-      total:
-        unicos.length,
+      via:
+        '4'
 
-      partidas:
-        unicos.slice(0, 12)
+    };
 
-    });
+
+  }
+
+
+  if (
+    normal.includes(
+      'ORIENTE'
+    )
+  ) {
+
+
+    return {
+
+      destino:
+        'LIS-ORIENTE',
+
+      via:
+        '3'
+
+    };
+
 
   }
 
-  catch (error) {
 
-    console.error(error);
+  /*
+    Apanha:
+    LISBOA-APOLÓNIA
+    LISBOA SANTA APOLÓNIA
+    etc.
+  */
 
-    return res.status(500).json({
+  if (
+    normal.includes(
+      'APOLONIA'
+    )
+  ) {
 
-      error:
-        'Não foi possível obter as partidas.',
 
-      detalhe:
-        error.message,
+    return {
 
-      partidas: []
+      destino:
+        'LIS-S.APOL',
 
-    });
+      via:
+        '3'
+
+    };
+
 
   }
+
+
+  if (
+    normal.includes(
+      'MELECAS'
+    )
+  ) {
+
+
+    return {
+
+      destino:
+        'MELEÇAS',
+
+      via:
+        '1'
+
+    };
+
+
+  }
+
+
+  if (
+    normal ===
+      'SINTRA'
+    ||
+    normal.endsWith(
+      '-SINTRA'
+    )
+  ) {
+
+
+    return {
+
+      destino:
+        'SINTRA',
+
+      via:
+        '2'
+
+    };
+
+
+  }
+
+
+  if (
+    normal ===
+      'ALVERCA'
+    ||
+    normal.endsWith(
+      '-ALVERCA'
+    )
+  ) {
+
+
+    return {
+
+      destino:
+        'ALVERCA',
+
+      via:
+        '3'
+
+    };
+
+
+  }
+
+
+  if (
+    normal.includes(
+      'CALDAS'
+    )
+  ) {
+
+
+    return {
+
+      destino:
+        'CALDAS RAINHA',
+
+      via:
+        '1'
+
+    };
+
+
+  }
+
+
+  /*
+    IMPORTANTE:
+
+    Este endpoint chama-se
+    "partidas-todas".
+
+    Se algum dia aparecer um destino
+    especial, não o apagamos.
+
+    Aparece com via "-".
+  */
+
+  return {
+
+    destino:
+      String(
+        destinoOriginal
+      )
+        .toUpperCase()
+        .trim(),
+
+    via:
+      '-'
+
+  };
+
+}
+
+
+/* ==================================================
+   CACHE
+================================================== */
+
+function lerCache() {
+
+  const cache =
+    globalThis[
+      MEMORY_CACHE_KEY
+    ];
+
+
+  if (!cache) {
+
+    return null;
+
+  }
+
+
+  if (
+    Date.now() -
+    cache.guardadoEm >
+    MEMORY_CACHE_MAX_AGE
+  ) {
+
+    return null;
+
+  }
+
+
+  return cache;
+
+}
+
+
+function guardarCache(
+  partidas
+) {
+
+  globalThis[
+    MEMORY_CACHE_KEY
+  ] = {
+
+    guardadoEm:
+      Date.now(),
+
+    partidas
+
+  };
+
+}
+
+
+/* ==================================================
+   FETCH
+================================================== */
+
+async function fetchComTimeout(
+
+  url,
+
+  headers,
+
+  timeoutMs = 6500
+
+) {
+
+
+  const controller =
+    new AbortController();
+
+
+  const timer =
+    setTimeout(
+
+      () =>
+        controller.abort(),
+
+      timeoutMs
+
+    );
+
+
+  try {
+
+
+    return await fetch(
+      url,
+      {
+
+        method:
+          'GET',
+
+        headers,
+
+        cache:
+          'no-store',
+
+        redirect:
+          'follow',
+
+        signal:
+          controller.signal
+
+      }
+    );
+
+
+  }
+
+  finally {
+
+
+    clearTimeout(
+      timer
+    );
+
+
+  }
+
+}
+
+
+/* ==================================================
+   OBTER IP
+================================================== */
+
+async function obterLinhasIP() {
+
+
+  const headersList = [
+
+
+    {
+
+      'User-Agent':
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0 Safari/537.36',
+
+      'Accept':
+        'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+
+      'Accept-Language':
+        'pt-PT,pt;q=0.9,en;q=0.7',
+
+      'Cache-Control':
+        'no-cache',
+
+      'Pragma':
+        'no-cache'
+
+    },
+
+
+    {
+
+      'User-Agent':
+        'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 Version/18.0 Mobile/15E148 Safari/604.1',
+
+      'Accept':
+        'text/html,application/xhtml+xml,*/*;q=0.8',
+
+      'Accept-Language':
+        'pt-PT,pt;q=0.9',
+
+      'Cache-Control':
+        'no-cache'
+
+    }
+
+
+  ];
+
+
+  let ultimoErro =
+    'A IP não devolveu uma tabela de comboios.';
+
+
+  for (
+    let tentativa = 0;
+    tentativa <
+      headersList.length;
+    tentativa++
+  ) {
+
+
+    const url =
+
+      `${SOURCE_BASE}?estacaoId=${STATION_CODE}&_=${Date.now()}-${tentativa}`;
+
+
+    try {
+
+
+      const response =
+        await fetchComTimeout(
+
+          url,
+
+          headersList[
+            tentativa
+          ]
+
+        );
+
+
+      const html =
+        await response.text();
+
+
+      if (
+        !response.ok
+      ) {
+
+
+        ultimoErro =
+          `IP respondeu HTTP ${response.status}`;
+
+
+        continue;
+
+
+      }
+
+
+      const linhas =
+        extrairLinhas(
+          html
+        );
+
+
+      if (
+        linhas.length > 0
+      ) {
+
+
+        return linhas;
+
+
+      }
+
+
+      ultimoErro =
+
+        `Resposta recebida (${html.length} bytes), mas sem linhas de comboios.`;
+
+
+    }
+
+    catch (
+      error
+    ) {
+
+
+      ultimoErro =
+
+        error?.name ===
+        'AbortError'
+
+        ? 'Tempo limite ao contactar a IP.'
+
+        : (
+          error?.message ||
+          String(error)
+        );
+
+
+    }
+
+  }
+
+
+  throw new Error(
+    ultimoErro
+  );
+
+}
+
+
+/* ==================================================
+   HANDLER
+================================================== */
+
+export default async function handler(
+  req,
+  res
+) {
+
+
+  res.setHeader(
+    'Access-Control-Allow-Origin',
+    '*'
+  );
+
+
+  res.setHeader(
+    'Access-Control-Allow-Methods',
+    'GET,OPTIONS'
+  );
+
+
+  res.setHeader(
+    'Access-Control-Allow-Headers',
+    'Content-Type'
+  );
+
+
+  res.setHeader(
+    'Cache-Control',
+    'public, s-maxage=15, stale-while-revalidate=300'
+  );
+
+
+  if (
+    req.method ===
+    'OPTIONS'
+  ) {
+
+
+    return res
+      .status(200)
+      .end();
+
+
+  }
+
+
+  try {
+
+
+    const linhas =
+      await obterLinhasIP();
+
+
+    const partidas =
+
+      linhas
+
+        .map(
+          item => {
+
+
+            const mapeado =
+              mapearDestino(
+                item.destinoOriginal
+              );
+
+
+            return {
+
+              ...item,
+
+              destino:
+                mapeado.destino,
+
+              via:
+                mapeado.via
+
+            };
+
+
+          }
+        )
+
+        .slice(
+          0,
+          20
+        );
+
+
+    if (
+      partidas.length === 0
+    ) {
+
+
+      throw new Error(
+
+        'A IP respondeu, mas não foi possível extrair partidas.'
+
+      );
+
+
+    }
+
+
+    guardarCache(
+      partidas
+    );
+
+
+    return res
+      .status(200)
+      .json({
+
+
+        estacao:
+          'AGUALVA-CACÉM',
+
+
+        codigo:
+          STATION_CODE,
+
+
+        atualizadoEm:
+          new Date()
+            .toISOString(),
+
+
+        stale:
+          false,
+
+
+        total:
+          partidas.length,
+
+
+        partidas
+
+
+      });
+
+
+  }
+
+  catch (
+    error
+  ) {
+
+
+    const cache =
+      lerCache();
+
+
+    if (
+      cache
+    ) {
+
+
+      return res
+        .status(200)
+        .json({
+
+
+          estacao:
+            'AGUALVA-CACÉM',
+
+
+          codigo:
+            STATION_CODE,
+
+
+          atualizadoEm:
+            new Date(
+              cache.guardadoEm
+            )
+              .toISOString(),
+
+
+          stale:
+            true,
+
+
+          aviso:
+            error.message,
+
+
+          total:
+            cache.partidas.length,
+
+
+          partidas:
+            cache.partidas
+
+
+        });
+
+
+    }
+
+
+    console.error(
+      'Erro partidas-todas:',
+      error
+    );
+
+
+    return res
+      .status(503)
+      .json({
+
+
+        error:
+          'Não foi possível obter as partidas.',
+
+
+        detalhe:
+          error.message,
+
+
+        partidas:
+          []
+
+
+      });
+
+
+  }
+
 }
