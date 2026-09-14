@@ -19,6 +19,7 @@
   >
 
   <style>
+
     * {
       box-sizing: border-box;
       margin: 0;
@@ -29,8 +30,8 @@
     body {
       width: 100%;
       height: 100%;
-      background: #050505;
       overflow: hidden;
+      background: #050505;
     }
 
     body {
@@ -39,6 +40,11 @@
       justify-content: center;
       font-family: Arial, sans-serif;
     }
+
+
+    /* ==================================================
+       PAINEL
+       ================================================== */
 
     .panel {
       position: relative;
@@ -64,9 +70,16 @@
       padding: 4.8% 5.5% 5.5%;
     }
 
+
+    /* ==================================================
+       SUPORTES
+       ================================================== */
+
     .mount {
       position: absolute;
+
       top: -14%;
+
       width: 5%;
       height: 15%;
 
@@ -101,20 +114,35 @@
       right: 18%;
     }
 
+
+    /* ==================================================
+       ECRÃS
+       ================================================== */
+
     .screens {
       width: 100%;
       height: 100%;
 
       display: grid;
-      grid-template-columns: 64% 32%;
+
+      grid-template-columns:
+        64% 32%;
+
       gap: 4%;
     }
 
+
+    /* ==================================================
+       PAINEL ESQUERDO
+       ================================================== */
+
     .left-display {
       position: relative;
+
       overflow: hidden;
 
       border: 8px solid #070a0b;
+
       border-radius: 5px;
 
       background:
@@ -130,6 +158,7 @@
         inset 0 0 8px rgba(255,255,255,.15);
     }
 
+
     .left-display::after {
       content: "";
 
@@ -137,6 +166,8 @@
       inset: 0;
 
       pointer-events: none;
+
+      z-index: 20;
 
       background:
         linear-gradient(
@@ -147,15 +178,24 @@
         );
     }
 
+
+    /* ==================================================
+       LABELS
+       ================================================== */
+
     .hora-label,
     .destino-label {
       position: absolute;
+
       left: 7%;
 
       color: #dfdeb3;
 
-      font-size: clamp(18px, 3vw, 54px);
+      font-size:
+        clamp(18px, 3vw, 54px);
+
       font-weight: 700;
+
       letter-spacing: .02em;
     }
 
@@ -167,60 +207,194 @@
       top: 48%;
     }
 
+
+    /* ==================================================
+       HORA FLIPDOT
+       ================================================== */
+
     .hora {
       position: absolute;
 
       left: 7%;
       top: 23%;
 
-      color: #f3df16;
+      height: 22%;
 
-      font-family: "VT323", monospace;
+      display: flex;
 
-      font-size: clamp(34px, 6vw, 100px);
-      line-height: 1;
+      align-items: center;
 
-      letter-spacing: .05em;
-
-      text-shadow:
-        0 0 5px rgba(255,230,0,.35);
+      gap: 1.5%;
     }
+
+
+    .flip-group {
+      display: flex;
+
+      align-items: center;
+
+      gap: .06em;
+    }
+
+
+    /*
+       Cada carácter é um módulo independente.
+    */
+
+    .flip-char {
+      position: relative;
+
+      display: inline-flex;
+
+      justify-content: center;
+      align-items: center;
+
+      width: .72em;
+      height: 1em;
+
+      overflow: hidden;
+
+      border:
+        1px solid rgba(0,0,0,.85);
+
+      border-radius:
+        .06em;
+
+      background:
+        radial-gradient(
+          circle,
+          rgba(55,62,50,.65) 0 14%,
+          transparent 16%
+        );
+
+      background-size:
+        .14em .14em;
+
+      background-color:
+        #111711;
+
+      box-shadow:
+        inset 0 0 .08em #000,
+        0 .03em .05em rgba(0,0,0,.8);
+
+      font-family:
+        "VT323",
+        monospace;
+
+      font-size:
+        clamp(43px, 6vw, 100px);
+
+      line-height: 1;
+    }
+
+
+    /*
+       O carácter iluminado também é feito de pontos.
+    */
+
+    .flip-char .lit {
+      position: relative;
+
+      z-index: 2;
+
+      color: transparent;
+
+      background:
+        radial-gradient(
+          circle,
+          #ffea19 0 35%,
+          #d6bf00 38% 52%,
+          transparent 55%
+        );
+
+      background-size:
+        .13em .13em;
+
+      -webkit-background-clip: text;
+      background-clip: text;
+
+      filter:
+        drop-shadow(
+          0 0 2px rgba(255,225,0,.35)
+        );
+    }
+
 
     .hora .h {
       color: #dbd8b6;
 
-      font-family: Arial, sans-serif;
+      font-size:
+        clamp(21px, 2.8vw, 47px);
 
-      font-size: .48em;
+      margin:
+        0 .12em;
 
-      vertical-align: 20%;
+      font-family:
+        Arial,
+        sans-serif;
 
-      margin: 0 .08em;
+      font-weight:
+        400;
     }
+
+
+    /* ==================================================
+       DESTINO FLIPDOT
+       ================================================== */
 
     .destino {
       position: absolute;
 
       left: 7%;
-      bottom: 10%;
+      right: 25%;
 
-      width: 72%;
+      bottom: 9%;
 
-      white-space: nowrap;
+      display: flex;
+
+      align-items: center;
+
+      height: 23%;
+
       overflow: hidden;
-
-      color: #f3df16;
-
-      font-family: "VT323", monospace;
-
-      font-size: clamp(32px, 4.7vw, 78px);
-      line-height: 1;
-
-      letter-spacing: .015em;
-
-      text-shadow:
-        0 0 4px rgba(255,230,0,.3);
     }
+
+
+    .destino .flip-group {
+      width: 100%;
+
+      gap: .025em;
+    }
+
+
+    .destino .flip-char {
+      flex:
+        1 1 0;
+
+      min-width:
+        0;
+
+      max-width:
+        .76em;
+
+      font-size:
+        clamp(27px, 4.2vw, 71px);
+    }
+
+
+    /*
+       Para espaços também mostramos
+       um módulo apagado.
+    */
+
+    .flip-char.space .lit {
+      visibility: hidden;
+    }
+
+
+    /* ==================================================
+       VIA
+       ================================================== */
 
     .via {
       position: absolute;
@@ -229,47 +403,67 @@
       top: 12%;
 
       width: 20%;
-      aspect-ratio: 1 / 1;
+
+      aspect-ratio:
+        1 / 1;
 
       border:
         clamp(3px, .5vw, 8px)
         solid #d9f343;
 
-      border-radius: 8%;
+      border-radius:
+        8%;
 
       display: flex;
+
       justify-content: center;
       align-items: center;
 
       color: #d9f343;
 
-      font-family: Arial, sans-serif;
-      font-weight: 500;
+      font-family:
+        Arial,
+        sans-serif;
 
-      font-size: clamp(55px, 10vw, 170px);
+      font-weight:
+        500;
 
-      line-height: 1;
+      font-size:
+        clamp(55px, 10vw, 170px);
+
+      line-height:
+        1;
 
       text-shadow:
-        0 0 12px rgba(200,255,50,.35);
+        0 0 12px
+        rgba(200,255,50,.35);
 
       box-shadow:
         inset 0 0 15px rgba(190,255,50,.07),
         0 0 6px rgba(190,255,50,.15);
     }
 
+
+    /* ==================================================
+       CRT DIREITO
+       ================================================== */
+
     .crt-frame {
       position: relative;
 
-      background: #050606;
+      background:
+        #050606;
 
-      border-radius: 6px;
+      border-radius:
+        6px;
 
-      padding: 5%;
+      padding:
+        5%;
 
       box-shadow:
         inset 0 0 18px #000;
     }
+
 
     .crt {
       position: relative;
@@ -279,11 +473,11 @@
 
       overflow: hidden;
 
-      border-radius: 10%;
+      border-radius:
+        10%;
 
       padding:
-        7% 8%
-        5%;
+        7% 8% 5%;
 
       background:
         radial-gradient(
@@ -293,14 +487,39 @@
           #030904 100%
         );
 
-      color: #c9ef35;
+      color:
+        #c9ef35;
 
-      font-family: "VT323", monospace;
+      font-family:
+        "VT323",
+        monospace;
 
       box-shadow:
         inset 0 0 30px rgba(0,0,0,.95),
         inset 0 0 60px rgba(0,0,0,.6);
     }
+
+
+    .crt::before {
+      content: "";
+
+      position: absolute;
+
+      inset: 0;
+
+      pointer-events: none;
+
+      z-index: 5;
+
+      background:
+        radial-gradient(
+          ellipse at center,
+          transparent 50%,
+          rgba(0,0,0,.18) 78%,
+          rgba(0,0,0,.5) 100%
+        );
+    }
+
 
     .crt::after {
       content: "";
@@ -309,6 +528,8 @@
       inset: 0;
 
       pointer-events: none;
+
+      z-index: 6;
 
       background:
         repeating-linear-gradient(
@@ -319,8 +540,14 @@
           transparent 3px
         );
 
-      opacity: .45;
+      opacity:
+        .45;
     }
+
+
+    /* ==================================================
+       PARAGENS
+       ================================================== */
 
     .stops {
       position: relative;
@@ -328,30 +555,51 @@
       z-index: 2;
 
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      column-gap: 8%;
 
-      height: 75%;
+      grid-template-columns:
+        1fr 1fr;
+
+      column-gap:
+        8%;
+
+      height:
+        75%;
     }
+
 
     .stop-column {
       display: flex;
+
       flex-direction: column;
+
       gap: 0;
     }
+
 
     .stop {
       height: 10%;
 
-      white-space: nowrap;
-      overflow: hidden;
+      white-space:
+        nowrap;
 
-      font-size: clamp(14px, 1.55vw, 31px);
-      line-height: 1;
+      overflow:
+        hidden;
+
+      font-size:
+        clamp(14px, 1.55vw, 31px);
+
+      line-height:
+        1;
 
       text-shadow:
-        0 0 4px rgba(200,239,53,.28);
+        0 0 4px
+        rgba(200,239,53,.28);
     }
+
+
+    /* ==================================================
+       COMBOIO SEGUINTE
+       ================================================== */
 
     .next-train {
       position: absolute;
@@ -367,82 +615,149 @@
       grid-template-columns:
         auto 1fr auto;
 
-      align-items: baseline;
+      align-items:
+        baseline;
 
-      column-gap: 5%;
+      column-gap:
+        5%;
     }
+
 
     .next-label {
-      font-size: clamp(9px, .8vw, 17px);
+      font-size:
+        clamp(9px, .8vw, 17px);
 
-      white-space: nowrap;
-      letter-spacing: .02em;
+      white-space:
+        nowrap;
+
+      letter-spacing:
+        .02em;
     }
+
 
     .next-destination,
     .next-time {
-      font-size: clamp(19px, 2vw, 39px);
+      font-size:
+        clamp(19px, 2vw, 39px);
 
-      white-space: nowrap;
-      line-height: 1;
+      white-space:
+        nowrap;
+
+      line-height:
+        1;
     }
 
+
     .next-destination {
-      text-align: left;
+      text-align:
+        left;
     }
 
     .next-time {
-      text-align: right;
+      text-align:
+        right;
     }
 
+
+    /* ==================================================
+       MOBILE
+       ================================================== */
+
     @media (max-width: 700px) {
+
       .panel {
         width: 100vw;
 
-        border-radius: 0;
+        border-radius:
+          0;
 
-        padding-left: 2%;
-        padding-right: 2%;
+        padding-left:
+          2%;
+
+        padding-right:
+          2%;
       }
+
 
       .screens {
-        grid-template-columns: 64% 34%;
-        gap: 2%;
+        grid-template-columns:
+          64% 34%;
+
+        gap:
+          2%;
       }
+
 
       .left-display {
-        border-width: 3px;
+        border-width:
+          3px;
       }
+
 
       .crt-frame {
-        padding: 3%;
+        padding:
+          3%;
       }
+
 
       .stop {
-        font-size: clamp(7px, 2.1vw, 15px);
+        font-size:
+          clamp(7px, 2.1vw, 15px);
       }
 
+
       .next-label {
-        font-size: clamp(5px, 1.1vw, 9px);
+        font-size:
+          clamp(5px, 1.1vw, 9px);
       }
+
 
       .next-destination,
       .next-time {
-        font-size: clamp(9px, 2.5vw, 18px);
+        font-size:
+          clamp(9px, 2.5vw, 18px);
+      }
+
+
+      .destino .flip-char {
+        font-size:
+          clamp(14px, 4vw, 28px);
+      }
+
+
+      .hora .flip-char {
+        font-size:
+          clamp(23px, 6vw, 42px);
+      }
+
+
+      .hora .h {
+        font-size:
+          clamp(12px, 3vw, 22px);
       }
     }
+
   </style>
 </head>
+
 
 <body>
 
 <div class="panel">
 
   <div class="mount left"></div>
+
   <div class="mount center"></div>
+
   <div class="mount right"></div>
 
+
   <div class="screens">
+
+
+    <!-- ==================================================
+         PAINEL ESQUERDO
+         ================================================== -->
 
     <section class="left-display">
 
@@ -450,34 +765,52 @@
         HORA
       </div>
 
+
       <div class="hora">
 
-        <span id="horaHoras">--</span>
+        <div
+          class="flip-group"
+          id="horaHoras"
+        ></div>
 
         <span class="h">
           h
         </span>
 
-        <span id="horaMinutos">--</span>
+        <div
+          class="flip-group"
+          id="horaMinutos"
+        ></div>
 
       </div>
+
 
       <div class="destino-label">
         DESTINO
       </div>
 
-      <div
-        class="destino"
-        id="destinoAtual"
-      >
-        ----------
+
+      <div class="destino">
+
+        <div
+          class="flip-group"
+          id="destinoAtual"
+        ></div>
+
       </div>
+
 
       <div class="via">
         3
       </div>
 
     </section>
+
+
+
+    <!-- ==================================================
+         CRT
+         ================================================== -->
 
     <section class="crt-frame">
 
@@ -497,11 +830,13 @@
 
         </div>
 
+
         <div class="next-train">
 
           <div class="next-label">
             COMB.SEGUINTE
           </div>
+
 
           <div
             class="next-destination"
@@ -509,6 +844,7 @@
           >
             ----
           </div>
+
 
           <div
             class="next-time"
@@ -530,648 +866,775 @@
 
 <script>
 
-const API_URL =
-  "https://cmpainelcacem.vercel.app/api/partidas";
-
-const REFRESH_INTERVAL =
-  30000;
+  const API_URL =
+    "https://cmpainelcacem.vercel.app/api/partidas";
 
 
-/*
-==================================================
-PARAGENS
-==================================================
-*/
-
-const PARAGENS = {
-
-  "LISBOA-ORIENTE": [
-
-    "MASSAMA",
-    "MONTE ABRAÃO",
-    "QUELUZ BELAS",
-    "AMADORA",
-    "REBOLEIRA",
-    "S.CR-DAMAIA",
-    "BENFICA",
-    "SETE RIOS",
-    "ENTRECAMPOS",
-    "ROMA-AREEIRO",
-    "BRAÇO PRATA"
-
-  ],
-
-  "ALVERCA": [
-
-    "MASSAMA",
-    "MONTE ABRAÃO",
-    "QUELUZ BELAS",
-    "AMADORA",
-    "REBOLEIRA",
-    "S.CR-DAMAIA",
-    "BENFICA",
-    "SETE RIOS",
-    "ENTRECAMPOS",
-    "ROMA-AREEIRO",
-    "BRAÇO PRATA",
-    "LISBOA-ORIENTE",
-    "MOSCAVIDE",
-    "SACAVEM",
-    "BOBADELA",
-    "S.IRIA",
-    "PÓVOA"
-
-  ],
-
-  "LISBOA-S.A": [
-
-    "SETE RIOS",
-    "ENTRECAMPOS"
-
-  ]
-
-};
+  const REFRESH_INTERVAL =
+    30000;
 
 
-/*
-==================================================
-NORMALIZAR DESTINO
-==================================================
-*/
 
-function normalizarDestino(destino) {
+  /* ==================================================
+     PARAGENS
+     ================================================== */
 
-  if (!destino) {
+  const PARAGENS = {
+
+    "LISBOA-ORIENTE": [
+
+      "MASSAMA",
+      "MONTE ABRAÃO",
+      "QUELUZ BELAS",
+      "AMADORA",
+      "REBOLEIRA",
+      "S.CR-DAMAIA",
+
+      "BENFICA",
+      "SETE RIOS",
+      "ENTRECAMPOS",
+      "ROMA-AREEIRO",
+      "BRAÇO PRATA"
+
+    ],
+
+
+    "ALVERCA": [
+
+      "MASSAMA",
+      "MONTE ABRAÃO",
+      "QUELUZ BELAS",
+      "AMADORA",
+      "REBOLEIRA",
+      "S.CR-DAMAIA",
+
+      "BENFICA",
+      "SETE RIOS",
+      "ENTRECAMPOS",
+      "ROMA-AREEIRO",
+      "BRAÇO PRATA",
+
+      "LISBOA-ORIENTE",
+      "MOSCAVIDE",
+      "SACAVEM",
+      "BOBADELA",
+      "S.IRIA",
+      "PÓVOA"
+
+    ],
+
+
+    "LISBOA-S.A": [
+
+      "SETE RIOS",
+      "ENTRECAMPOS"
+
+    ]
+
+  };
+
+
+
+  /* ==================================================
+     NORMALIZAR DESTINO
+     ================================================== */
+
+  function normalizarDestino(
+    destino
+  ) {
+
+    if (!destino) {
+      return "";
+    }
+
+
+    const texto =
+      String(destino)
+        .toUpperCase()
+        .normalize("NFD")
+        .replace(
+          /[\u0300-\u036f]/g,
+          ""
+        )
+        .trim();
+
+
+    if (
+      texto.includes(
+        "ORIENTE"
+      )
+    ) {
+
+      return "LISBOA-ORIENTE";
+
+    }
+
+
+    if (
+      texto.includes(
+        "ALVERCA"
+      )
+    ) {
+
+      return "ALVERCA";
+
+    }
+
+
+    if (
+      texto.includes(
+        "SANTA APOLONIA"
+      )
+
+      ||
+
+      texto.includes(
+        "S.APOLONIA"
+      )
+
+      ||
+
+      texto.includes(
+        "S. APOLONIA"
+      )
+
+      ||
+
+      texto.includes(
+        "LISBOA-S.A"
+      )
+    ) {
+
+      return "LISBOA-S.A";
+
+    }
+
+
     return "";
+
   }
 
-  const texto =
-    String(destino)
+
+
+  /* ==================================================
+     FLIPDOT
+     ================================================== */
+
+  function desenharFlipdot(
+    elemento,
+    texto
+  ) {
+
+    elemento.innerHTML =
+      "";
+
+
+    texto =
+      String(texto)
+        .toUpperCase();
+
+
+    for (
+      const caracter of texto
+    ) {
+
+      const modulo =
+        document.createElement(
+          "span"
+        );
+
+
+      modulo.className =
+        "flip-char";
+
+
+      if (
+        caracter === " "
+      ) {
+
+        modulo.classList.add(
+          "space"
+        );
+
+      }
+
+
+      const aceso =
+        document.createElement(
+          "span"
+        );
+
+
+      aceso.className =
+        "lit";
+
+
+      aceso.textContent =
+        caracter === " "
+          ? " "
+          : caracter;
+
+
+      modulo.appendChild(
+        aceso
+      );
+
+
+      elemento.appendChild(
+        modulo
+      );
+
+    }
+
+  }
+
+
+
+  /* ==================================================
+     HORA
+     ================================================== */
+
+  function mostrarHora(
+    hora
+  ) {
+
+    const horas =
+      document.getElementById(
+        "horaHoras"
+      );
+
+
+    const minutos =
+      document.getElementById(
+        "horaMinutos"
+      );
+
+
+    if (!hora) {
+
+      desenharFlipdot(
+        horas,
+        "--"
+      );
+
+
+      desenharFlipdot(
+        minutos,
+        "--"
+      );
+
+
+      return;
+
+    }
+
+
+    const partes =
+      String(hora)
+        .trim()
+        .split(":");
+
+
+    desenharFlipdot(
+      horas,
+      partes[0] || "--"
+    );
+
+
+    desenharFlipdot(
+      minutos,
+      partes[1] || "--"
+    );
+
+  }
+
+
+
+  /* ==================================================
+     LIMITE CRT
+     ================================================== */
+
+  function limitarCRT(
+    texto
+  ) {
+
+    return String(texto)
       .toUpperCase()
-      .normalize("NFD")
-      .replace(
-        /[\u0300-\u036f]/g,
-        ""
-      )
-      .trim();
-
-
-  if (
-    texto.includes("ORIENTE")
-  ) {
-    return "LISBOA-ORIENTE";
-  }
-
-
-  if (
-    texto.includes("ALVERCA")
-  ) {
-    return "ALVERCA";
-  }
-
-
-  if (
-    texto.includes("SANTA APOLONIA") ||
-    texto.includes("S.APOLONIA") ||
-    texto.includes("S. APOLONIA") ||
-    texto.includes("LISBOA-S.A")
-  ) {
-    return "LISBOA-S.A";
-  }
-
-
-  return "";
-}
-
-
-/*
-==================================================
-LIMITE DE 10 CARACTERES NO CRT
-==================================================
-*/
-
-function limitarCRT(texto) {
-
-  return String(texto)
-    .toUpperCase()
-    .slice(0, 10);
-
-}
-
-
-/*
-==================================================
-HORA
-==================================================
-*/
-
-function mostrarHora(hora) {
-
-  const horas =
-    document.getElementById(
-      "horaHoras"
-    );
-
-
-  const minutos =
-    document.getElementById(
-      "horaMinutos"
-    );
-
-
-  if (!hora) {
-
-    horas.textContent =
-      "--";
-
-    minutos.textContent =
-      "--";
-
-    return;
-  }
-
-
-  const partes =
-    String(hora)
-      .trim()
-      .split(":");
-
-
-  horas.textContent =
-    partes[0] || "--";
-
-
-  minutos.textContent =
-    partes[1] || "--";
-
-}
-
-
-/*
-==================================================
-PARAGENS
-==================================================
-*/
-
-function mostrarParagens(destino) {
-
-  const lista =
-    PARAGENS[destino] || [];
-
-
-  const coluna1 =
-    document.getElementById(
-      "coluna1"
-    );
-
-
-  const coluna2 =
-    document.getElementById(
-      "coluna2"
-    );
-
-
-  coluna1.innerHTML = "";
-  coluna2.innerHTML = "";
-
-
-  const corte =
-    Math.ceil(
-      lista.length / 2
-    );
-
-
-  const esquerda =
-    lista.slice(
-      0,
-      corte
-    );
-
-
-  const direita =
-    lista.slice(
-      corte
-    );
-
-
-  esquerda.forEach(
-    paragem => {
-
-      const linha =
-        document.createElement(
-          "div"
-        );
-
-
-      linha.className =
-        "stop";
-
-
-      linha.textContent =
-        limitarCRT(
-          paragem
-        );
-
-
-      coluna1.appendChild(
-        linha
+      .slice(
+        0,
+        10
       );
 
-    }
-  );
+  }
 
 
-  direita.forEach(
-    paragem => {
 
-      const linha =
-        document.createElement(
-          "div"
-        );
+  /* ==================================================
+     PARAGENS
+     ================================================== */
 
-
-      linha.className =
-        "stop";
-
-
-      linha.textContent =
-        limitarCRT(
-          paragem
-        );
-
-
-      coluna2.appendChild(
-        linha
-      );
-
-    }
-  );
-
-}
-
-
-/*
-==================================================
-ATUALIZAR PAINEL
-==================================================
-*/
-
-function atualizarPainel(lista) {
-
-  const comboios =
-    lista
-
-      .map(
-        comboio => {
-
-          const destino =
-            normalizarDestino(
-              comboio.destino ||
-              comboio.destination ||
-              comboio.destinoOriginal
-            );
-
-
-          return {
-
-            ...comboio,
-
-            destinoPainel:
-              destino
-
-          };
-
-        }
-      )
-
-      .filter(
-        comboio =>
-          comboio.destinoPainel
-      );
-
-
-  if (
-    comboios.length === 0
+  function mostrarParagens(
+    destino
   ) {
 
-    mostrarHora(null);
+    const lista =
+      PARAGENS[destino] || [];
 
 
-    document
-      .getElementById(
-        "destinoAtual"
-      )
-      .textContent =
-        "SEM PARTIDAS";
-
-
-    document
-      .getElementById(
+    const coluna1 =
+      document.getElementById(
         "coluna1"
-      )
-      .innerHTML =
-        "";
+      );
 
 
-    document
-      .getElementById(
+    const coluna2 =
+      document.getElementById(
         "coluna2"
-      )
-      .innerHTML =
-        "";
+      );
 
 
-    document
-      .getElementById(
-        "proximoDestino"
-      )
-      .textContent =
-        "----";
+    coluna1.innerHTML =
+      "";
 
 
-    document
-      .getElementById(
-        "proximaHora"
-      )
-      .textContent =
-        "--:--";
+    coluna2.innerHTML =
+      "";
 
 
-    return;
+    const corte =
+      Math.ceil(
+        lista.length / 2
+      );
+
+
+    const esquerda =
+      lista.slice(
+        0,
+        corte
+      );
+
+
+    const direita =
+      lista.slice(
+        corte
+      );
+
+
+    esquerda.forEach(
+      paragem => {
+
+        const linha =
+          document.createElement(
+            "div"
+          );
+
+
+        linha.className =
+          "stop";
+
+
+        linha.textContent =
+          limitarCRT(
+            paragem
+          );
+
+
+        coluna1.appendChild(
+          linha
+        );
+
+      }
+    );
+
+
+    direita.forEach(
+      paragem => {
+
+        const linha =
+          document.createElement(
+            "div"
+          );
+
+
+        linha.className =
+          "stop";
+
+
+        linha.textContent =
+          limitarCRT(
+            paragem
+          );
+
+
+        coluna2.appendChild(
+          linha
+        );
+
+      }
+    );
+
   }
 
 
-  /*
-  ================================================
-  COMBOIO ATUAL
-  ================================================
-  */
 
-  const atual =
-    comboios[0];
+  /* ==================================================
+     ATUALIZAR PAINEL
+     ================================================== */
 
+  function atualizarPainel(
+    lista
+  ) {
+
+    const comboios =
+      lista
+
+        .map(
+          comboio => {
+
+            const destino =
+              normalizarDestino(
+
+                comboio.destino
+
+                ||
+
+                comboio.destination
+
+                ||
+
+                comboio.destinoOriginal
+
+              );
+
+
+            return {
+
+              ...comboio,
+
+              destinoPainel:
+                destino
+
+            };
+
+          }
+        )
+
+        .filter(
+          comboio =>
+            comboio.destinoPainel
+        );
+
+
+    if (
+      comboios.length === 0
+    ) {
+
+      mostrarHora(
+        null
+      );
+
+
+      desenharFlipdot(
+
+        document.getElementById(
+          "destinoAtual"
+        ),
+
+        "SEM PARTIDAS"
+
+      );
+
+
+      document
+        .getElementById(
+          "coluna1"
+        )
+        .innerHTML =
+          "";
+
+
+      document
+        .getElementById(
+          "coluna2"
+        )
+        .innerHTML =
+          "";
+
+
+      document
+        .getElementById(
+          "proximoDestino"
+        )
+        .textContent =
+          "----";
+
+
+      document
+        .getElementById(
+          "proximaHora"
+        )
+        .textContent =
+          "--:--";
+
+
+      return;
+
+    }
+
+
+
+    /* ==================================================
+       COMBOIO ATUAL
+       ================================================== */
+
+    const atual =
+      comboios[0];
+
+
+    mostrarHora(
+      atual.hora
+    );
+
+
+    desenharFlipdot(
+
+      document.getElementById(
+        "destinoAtual"
+      ),
+
+      atual.destinoPainel
+
+    );
+
+
+    mostrarParagens(
+      atual.destinoPainel
+    );
+
+
+
+    /* ==================================================
+       COMBOIO SEGUINTE
+       ================================================== */
+
+    const seguinte =
+      comboios[1];
+
+
+    if (
+      seguinte
+    ) {
+
+      document
+        .getElementById(
+          "proximoDestino"
+        )
+        .textContent =
+          seguinte.destinoPainel;
+
+
+      document
+        .getElementById(
+          "proximaHora"
+        )
+        .textContent =
+          seguinte.hora ||
+          "--:--";
+
+    }
+
+    else {
+
+      document
+        .getElementById(
+          "proximoDestino"
+        )
+        .textContent =
+          "----";
+
+
+      document
+        .getElementById(
+          "proximaHora"
+        )
+        .textContent =
+          "--:--";
+
+    }
+
+  }
+
+
+
+  /* ==================================================
+     API
+     ================================================== */
+
+  async function carregarPartidas() {
+
+    try {
+
+      const resposta =
+        await fetch(
+
+          API_URL +
+          "?t=" +
+          Date.now(),
+
+          {
+            method:
+              "GET",
+
+            cache:
+              "no-store",
+
+            headers: {
+
+              "Accept":
+                "application/json"
+
+            }
+          }
+
+        );
+
+
+      if (
+        !resposta.ok
+      ) {
+
+        throw new Error(
+          "HTTP " +
+          resposta.status
+        );
+
+      }
+
+
+      const dados =
+        await resposta.json();
+
+
+      let lista =
+        [];
+
+
+      if (
+        Array.isArray(
+          dados
+        )
+      ) {
+
+        lista =
+          dados;
+
+      }
+
+
+      else if (
+        Array.isArray(
+          dados.partidas
+        )
+      ) {
+
+        lista =
+          dados.partidas;
+
+      }
+
+
+      else if (
+        Array.isArray(
+          dados.data
+        )
+      ) {
+
+        lista =
+          dados.data;
+
+      }
+
+
+      else if (
+        Array.isArray(
+          dados.results
+        )
+      ) {
+
+        lista =
+          dados.results;
+
+      }
+
+
+      atualizarPainel(
+        lista
+      );
+
+    }
+
+
+    catch (
+      erro
+    ) {
+
+      console.error(
+        "ERRO API:",
+        erro
+      );
+
+
+      mostrarHora(
+        null
+      );
+
+
+      desenharFlipdot(
+
+        document.getElementById(
+          "destinoAtual"
+        ),
+
+        "SEM LIGACAO"
+
+      );
+
+    }
+
+  }
+
+
+
+  /* ==================================================
+     ARRANQUE
+     ================================================== */
 
   mostrarHora(
-    atual.hora
+    null
   );
 
 
-  document
-    .getElementById(
+  desenharFlipdot(
+
+    document.getElementById(
       "destinoAtual"
-    )
-    .textContent =
-      atual.destinoPainel;
+    ),
 
+    "----------"
 
-  mostrarParagens(
-    atual.destinoPainel
   );
 
 
-  /*
-  ================================================
-  COMBOIO SEGUINTE
-  ================================================
-  */
+  carregarPartidas();
 
-  const seguinte =
-    comboios[1];
 
+  setInterval(
 
-  if (seguinte) {
+    carregarPartidas,
 
-    document
-      .getElementById(
-        "proximoDestino"
-      )
-      .textContent =
-        seguinte.destinoPainel;
+    REFRESH_INTERVAL
 
-
-    document
-      .getElementById(
-        "proximaHora"
-      )
-      .textContent =
-        seguinte.hora || "--:--";
-
-  }
-
-  else {
-
-    document
-      .getElementById(
-        "proximoDestino"
-      )
-      .textContent =
-        "----";
-
-
-    document
-      .getElementById(
-        "proximaHora"
-      )
-      .textContent =
-        "--:--";
-
-  }
-
-}
-
-
-/*
-==================================================
-CARREGAR PARTIDAS
-==================================================
-*/
-
-async function carregarPartidas() {
-
-  try {
-
-    const resposta =
-      await fetch(
-
-        API_URL +
-        "?t=" +
-        Date.now(),
-
-        {
-          method:
-            "GET",
-
-          cache:
-            "no-store",
-
-          headers: {
-            "Accept":
-              "application/json"
-          }
-        }
-
-      );
-
-
-    console.log(
-      "STATUS API:",
-      resposta.status
-    );
-
-
-    if (
-      !resposta.ok
-    ) {
-
-      throw new Error(
-        "HTTP " +
-        resposta.status
-      );
-
-    }
-
-
-    const dados =
-      await resposta.json();
-
-
-    console.log(
-      "DADOS API:",
-      dados
-    );
-
-
-    let lista = [];
-
-
-    /*
-    Aceita vários formatos,
-    para não depender de uma
-    estrutura única.
-    */
-
-    if (
-      Array.isArray(
-        dados
-      )
-    ) {
-
-      lista =
-        dados;
-
-    }
-
-    else if (
-      Array.isArray(
-        dados.partidas
-      )
-    ) {
-
-      lista =
-        dados.partidas;
-
-    }
-
-    else if (
-      Array.isArray(
-        dados.data
-      )
-    ) {
-
-      lista =
-        dados.data;
-
-    }
-
-    else if (
-      Array.isArray(
-        dados.results
-      )
-    ) {
-
-      lista =
-        dados.results;
-
-    }
-
-
-    atualizarPainel(
-      lista
-    );
-
-  }
-
-
-  catch (
-    erro
-  ) {
-
-    console.error(
-      "ERRO API:",
-      erro
-    );
-
-
-    mostrarHora(null);
-
-
-    document
-      .getElementById(
-        "destinoAtual"
-      )
-      .textContent =
-        "SEM LIGACAO";
-
-
-    document
-      .getElementById(
-        "coluna1"
-      )
-      .innerHTML =
-        "";
-
-
-    document
-      .getElementById(
-        "coluna2"
-      )
-      .innerHTML =
-        "";
-
-
-    document
-      .getElementById(
-        "proximoDestino"
-      )
-      .textContent =
-        "----";
-
-
-    document
-      .getElementById(
-        "proximaHora"
-      )
-      .textContent =
-        "--:--";
-
-  }
-
-}
-
-
-/*
-==================================================
-ARRANQUE
-==================================================
-*/
-
-carregarPartidas();
-
-
-setInterval(
-  carregarPartidas,
-  REFRESH_INTERVAL
-);
+  );
 
 </script>
 
