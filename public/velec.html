@@ -46,7 +46,7 @@ body {
 
 
 /* ==================================================
-   PAINEL COMPLETO
+   PAINEL
 ================================================== */
 
 .panel {
@@ -54,7 +54,10 @@ body {
 
   width: min(98vw, 1500px);
 
-  aspect-ratio: 2.95 / 1;
+  /*
+    MAIS BAIXO / MAIS COMPACTO
+  */
+  aspect-ratio: 3.08 / 1;
 
   background:
     linear-gradient(
@@ -74,8 +77,11 @@ body {
     0 30px 90px rgba(0,0,0,.92),
     inset 0 0 30px rgba(255,255,255,.025);
 
+  /*
+    Menos espaço acima e abaixo
+  */
   padding:
-    3.5% 4.5% 4%;
+    2.7% 4.2% 2.9%;
 }
 
 
@@ -86,10 +92,10 @@ body {
 .mount {
   position: absolute;
 
-  top: -16%;
+  top: -17%;
 
   width: 4.8%;
-  height: 17%;
+  height: 18%;
 
   background:
     linear-gradient(
@@ -225,19 +231,19 @@ body {
 }
 
 .destino-label {
-  top: 48%;
+  top: 47%;
 }
 
 
 /* ==================================================
-   HORA FLIPDOT
+   HORA
 ================================================== */
 
 .hora {
   position: absolute;
 
   left: 7%;
-  top: 24%;
+  top: 23%;
 
   display: flex;
 
@@ -284,7 +290,10 @@ body {
 
 
 /* ==================================================
-   DESTINO FLIPDOT
+   DESTINO
+
+   MESMO TAMANHO DA HORA
+   SEM SCALE X
 ================================================== */
 
 .destino {
@@ -293,9 +302,12 @@ body {
   left: 7%;
   right: 3%;
 
-  top: 65%;
+  /*
+    Mais perto de DESTINO
+  */
+  top: 63%;
 
-  overflow: visible;
+  overflow: hidden;
 
   z-index:
     5;
@@ -308,9 +320,8 @@ body {
   align-items: center;
 
   /*
-    MESMO TAMANHO VERTICAL DA HORA
+    MESMA ESCALA DA HORA
   */
-
   --dot:
     clamp(2px, .54vw, 8px);
 
@@ -318,21 +329,16 @@ body {
     clamp(.6px, .08vw, 1.8px);
 
   gap:
-    clamp(1px, .12vw, 3px);
-
-  /*
-    Apenas comprimimos horizontalmente
-    para LISBOA-ORIENTE caber.
-  */
-
-  transform:
-    scaleX(.72);
-
-  transform-origin:
-    left center;
+    clamp(2px, .22vw, 5px);
 
   width:
-    138%;
+    100%;
+
+  /*
+    SEM COMPRESSÃO
+  */
+  transform:
+    none;
 }
 
 
@@ -434,7 +440,7 @@ body {
   position: absolute;
 
   right: 5%;
-  top: 10%;
+  top: 9%;
 
   width:
     20%;
@@ -570,7 +576,7 @@ body {
 }
 
 
-/* VINHETA */
+/* VINHETA CRT */
 
 .crt::before {
   content: "";
@@ -775,7 +781,7 @@ body {
 
 
 /* ==================================================
-   IPHONE / MOBILE
+   MOBILE
 ================================================== */
 
 @media (max-width: 700px) {
@@ -784,14 +790,17 @@ body {
     width:
       100vw;
 
+    /*
+      CORTADO UM POUCO MAIS
+    */
     aspect-ratio:
-      2.70 / 1;
+      2.88 / 1;
 
     border-radius:
       0;
 
     padding:
-      3% 2% 3%;
+      2.4% 2% 2.5%;
   }
 
 
@@ -816,6 +825,10 @@ body {
   }
 
 
+  /*
+    HORA
+  */
+
   .hora-grupo {
     --dot:
       clamp(1.8px, .52vw, 3px);
@@ -826,7 +839,8 @@ body {
 
 
   /*
-    MESMA ALTURA DA HORA
+    DESTINO
+    MESMO TAMANHO DA HORA
   */
 
   .destino-grupo {
@@ -836,23 +850,26 @@ body {
     --dot-gap:
       clamp(.5px, .08vw, 1px);
 
+    gap:
+      clamp(1px, .15vw, 2px);
+
     transform:
-      scaleX(.70);
+      none;
 
     width:
-      143%;
+      100%;
   }
 
 
   .destino-label {
     top:
-      47%;
+      46%;
   }
 
 
   .destino {
     top:
-      63%;
+      61%;
   }
 
 
@@ -891,12 +908,16 @@ body {
 <div class="panel">
 
   <div class="mount left"></div>
+
   <div class="mount center"></div>
+
   <div class="mount right"></div>
 
 
   <div class="screens">
 
+
+    <!-- PAINEL ESQUERDO -->
 
     <section class="left-display">
 
@@ -951,12 +972,15 @@ body {
 
 
 
+    <!-- CRT -->
+
     <section class="crt-frame">
 
       <div class="crt">
 
 
         <div class="stops">
+
 
           <div
             class="stop-column"
@@ -968,6 +992,7 @@ body {
             class="stop-column"
             id="coluna2"
           ></div>
+
 
         </div>
 
@@ -997,6 +1022,7 @@ body {
 
 
         </div>
+
 
       </div>
 
@@ -1259,9 +1285,7 @@ function normalizarDestino(
 
 
   if (
-    texto.includes(
-      "ORIENTE"
-    )
+    texto.includes("ORIENTE")
   ) {
 
     return "LISBOA-ORIENTE";
@@ -1270,9 +1294,7 @@ function normalizarDestino(
 
 
   if (
-    texto.includes(
-      "ALVERCA"
-    )
+    texto.includes("ALVERCA")
   ) {
 
     return "ALVERCA";
@@ -1281,27 +1303,10 @@ function normalizarDestino(
 
 
   if (
-    texto.includes(
-      "SANTA APOLONIA"
-    )
-
-    ||
-
-    texto.includes(
-      "S.APOLONIA"
-    )
-
-    ||
-
-    texto.includes(
-      "S. APOLONIA"
-    )
-
-    ||
-
-    texto.includes(
-      "LISBOA-S.A"
-    )
+    texto.includes("SANTA APOLONIA") ||
+    texto.includes("S.APOLONIA") ||
+    texto.includes("S. APOLONIA") ||
+    texto.includes("LISBOA-S.A")
   ) {
 
     return "LISBOA-S.A";
@@ -1376,7 +1381,7 @@ function mostrarHora(
 
 
 /* ==================================================
-   CRT - 10 CARACTERES
+   CRT 10 CARACTERES
 ================================================== */
 
 function limitarCRT(
@@ -1537,17 +1542,9 @@ function atualizarPainel(
 
           const destino =
             normalizarDestino(
-
-              comboio.destino
-
-              ||
-
-              comboio.destination
-
-              ||
-
+              comboio.destino ||
+              comboio.destination ||
               comboio.destinoOriginal
-
             );
 
 
@@ -1842,8 +1839,7 @@ async function carregarPartidas() {
 
 
     if (
-      lista.length >
-      0
+      lista.length > 0
     ) {
 
       guardarCacheLocal(
