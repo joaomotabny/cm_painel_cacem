@@ -69,6 +69,7 @@ body {
 
 .mount {
   position: absolute;
+
   top: -14%;
 
   width: 5%;
@@ -115,7 +116,10 @@ body {
   height: 100%;
 
   display: grid;
-  grid-template-columns: 64% 32%;
+
+  grid-template-columns:
+    64% 32%;
+
   gap: 4%;
 }
 
@@ -126,6 +130,7 @@ body {
 
 .left-display {
   position: relative;
+
   overflow: hidden;
 
   border: 8px solid #070a0b;
@@ -143,6 +148,7 @@ body {
     inset 0 0 35px rgba(0,0,0,.85),
     inset 0 0 8px rgba(255,255,255,.15);
 }
+
 
 .left-display::after {
   content: "";
@@ -170,11 +176,14 @@ body {
 .hora-label,
 .destino-label {
   position: absolute;
+
   left: 7%;
 
   color: #dfdeb3;
 
-  font-size: clamp(18px, 3vw, 54px);
+  font-size:
+    clamp(18px, 3vw, 54px);
+
   font-weight: 700;
 
   letter-spacing: .02em;
@@ -182,9 +191,11 @@ body {
   z-index: 5;
 }
 
+
 .hora-label {
   top: 8%;
 }
+
 
 .destino-label {
   top: 48%;
@@ -202,29 +213,42 @@ body {
   top: 24%;
 
   display: flex;
+
   align-items: center;
 
-  gap: clamp(6px, .8vw, 16px);
+  gap:
+    clamp(6px, .8vw, 16px);
 
   z-index: 5;
 }
 
+
 .hora-grupo {
   display: flex;
+
   align-items: center;
 
-  gap: clamp(2px, .25vw, 5px);
+  gap:
+    clamp(2px, .25vw, 5px);
 
-  --dot: clamp(2px, .55vw, 8px);
-  --dot-gap: clamp(.6px, .08vw, 1.8px);
+  --dot:
+    clamp(2px, .55vw, 8px);
+
+  --dot-gap:
+    clamp(.6px, .08vw, 1.8px);
 }
+
 
 .h-separator {
   color: #dbd8b6;
 
-  font-size: clamp(20px, 2.8vw, 47px);
+  font-size:
+    clamp(20px, 2.8vw, 47px);
 
-  font-family: Arial, sans-serif;
+  font-family:
+    Arial,
+    sans-serif;
+
   font-weight: 400;
 }
 
@@ -233,28 +257,50 @@ body {
    DESTINO FLIP-DOT
 ================================================== */
 
+/*
+  ALTERAÇÃO:
+
+  Antes terminava nos 24%.
+
+  Agora vai praticamente até
+  ao fim do painel, porque o
+  quadrado da linha 3 está por cima.
+*/
+
 .destino {
   position: absolute;
 
   left: 7%;
-  right: 24%;
-  bottom: 9%;
+  right: 5%;
+
+  bottom: 8%;
 
   overflow: hidden;
 
   z-index: 5;
 }
 
+
 .destino-grupo {
   display: flex;
+
   align-items: center;
 
-  gap: clamp(1px, .12vw, 3px);
+  gap:
+    clamp(1px, .15vw, 3px);
 
   width: 100%;
 
-  --dot: clamp(1.2px, .35vw, 5px);
-  --dot-gap: clamp(.4px, .055vw, 1.2px);
+  /*
+    ALTERAÇÃO:
+    dots maiores
+  */
+
+  --dot:
+    clamp(1.5px, .43vw, 6px);
+
+  --dot-gap:
+    clamp(.4px, .065vw, 1.3px);
 }
 
 
@@ -263,7 +309,8 @@ body {
 ================================================== */
 
 .dot-character {
-  flex: 0 0 auto;
+  flex:
+    0 0 auto;
 
   display: grid;
 
@@ -273,10 +320,13 @@ body {
   grid-template-rows:
     repeat(7, var(--dot));
 
-  gap: var(--dot-gap);
+  gap:
+    var(--dot-gap);
 
   padding:
-    calc(var(--dot-gap) * 1.3);
+    calc(
+      var(--dot-gap) * 1.3
+    );
 
   background:
     linear-gradient(
@@ -286,30 +336,38 @@ body {
     );
 
   border:
-    1px solid rgba(0,0,0,.85);
+    1px solid
+    rgba(0,0,0,.85);
 
   border-radius:
-    calc(var(--dot) * .45);
+    calc(
+      var(--dot) * .45
+    );
 
   box-shadow:
-    inset 0 0
-      calc(var(--dot) * .8)
-      rgba(0,0,0,.9),
+    inset
+    0 0
+    calc(var(--dot) * .8)
+    rgba(0,0,0,.9),
 
     0
-      calc(var(--dot) * .25)
-      calc(var(--dot) * .45)
-      rgba(0,0,0,.65);
+    calc(var(--dot) * .25)
+    calc(var(--dot) * .45)
+    rgba(0,0,0,.65);
 }
 
 
 /* ponto desligado */
 
 .dot {
-  width: var(--dot);
-  height: var(--dot);
+  width:
+    var(--dot);
 
-  border-radius: 50%;
+  height:
+    var(--dot);
+
+  border-radius:
+    50%;
 
   background:
     radial-gradient(
@@ -335,8 +393,8 @@ body {
 
   box-shadow:
     0 0
-      calc(var(--dot) * .7)
-      rgba(255,226,20,.4);
+    calc(var(--dot) * .7)
+    rgba(255,226,20,.4);
 }
 
 
@@ -351,37 +409,52 @@ body {
   top: 12%;
 
   width: 20%;
-  aspect-ratio: 1 / 1;
+
+  aspect-ratio:
+    1 / 1;
 
   border:
     clamp(3px, .5vw, 8px)
     solid #d9f343;
 
-  border-radius: 8%;
+  border-radius:
+    8%;
 
   display: flex;
 
   justify-content: center;
   align-items: center;
 
-  color: #d9f343;
+  color:
+    #d9f343;
 
-  font-family: Arial, sans-serif;
-  font-weight: 500;
+  font-family:
+    Arial,
+    sans-serif;
 
-  font-size: clamp(55px, 10vw, 170px);
+  font-weight:
+    500;
 
-  line-height: 1;
+  font-size:
+    clamp(55px, 10vw, 170px);
+
+  line-height:
+    1;
 
   text-shadow:
     0 0 12px
     rgba(200,255,50,.35);
 
   box-shadow:
-    inset 0 0 15px rgba(190,255,50,.07),
-    0 0 6px rgba(190,255,50,.15);
+    inset
+    0 0 15px
+    rgba(190,255,50,.07),
 
-  z-index: 5;
+    0 0 6px
+    rgba(190,255,50,.15);
+
+  z-index:
+    5;
 }
 
 
@@ -392,15 +465,21 @@ body {
 .crt-frame {
   position: relative;
 
-  background: #050606;
+  background:
+    #050606;
 
-  border-radius: 6px;
+  border-radius:
+    6px;
 
-  padding: 5%;
+  padding:
+    5%;
 
   box-shadow:
-    inset 0 0 18px #000;
+    inset
+    0 0 18px
+    #000;
 }
+
 
 .crt {
   position: relative;
@@ -410,9 +489,11 @@ body {
 
   overflow: hidden;
 
-  border-radius: 10%;
+  border-radius:
+    10%;
 
-  padding: 7% 8% 5%;
+  padding:
+    7% 8% 5%;
 
   background:
     radial-gradient(
@@ -422,18 +503,26 @@ body {
       #030904 100%
     );
 
-  color: #c9ef35;
+  color:
+    #c9ef35;
 
   font-family:
     "Courier New",
     monospace;
 
-  font-weight: bold;
+  font-weight:
+    bold;
 
   box-shadow:
-    inset 0 0 30px rgba(0,0,0,.95),
-    inset 0 0 60px rgba(0,0,0,.6);
+    inset
+    0 0 30px
+    rgba(0,0,0,.95),
+
+    inset
+    0 0 60px
+    rgba(0,0,0,.6);
 }
+
 
 .crt::after {
   content: "";
@@ -441,9 +530,11 @@ body {
   position: absolute;
   inset: 0;
 
-  pointer-events: none;
+  pointer-events:
+    none;
 
-  z-index: 10;
+  z-index:
+    10;
 
   background:
     repeating-linear-gradient(
@@ -454,7 +545,8 @@ body {
       transparent 3px
     );
 
-  opacity: .4;
+  opacity:
+    .4;
 }
 
 
@@ -465,33 +557,45 @@ body {
 .stops {
   position: relative;
 
-  z-index: 2;
+  z-index:
+    2;
 
   display: grid;
 
   grid-template-columns:
     1fr 1fr;
 
-  column-gap: 8%;
+  column-gap:
+    8%;
 
-  height: 75%;
+  height:
+    75%;
 }
+
 
 .stop-column {
   display: flex;
-  flex-direction: column;
+
+  flex-direction:
+    column;
 }
 
-.stop {
-  height: 10%;
 
-  white-space: nowrap;
-  overflow: hidden;
+.stop {
+  height:
+    10%;
+
+  white-space:
+    nowrap;
+
+  overflow:
+    hidden;
 
   font-size:
     clamp(11px, 1.25vw, 24px);
 
-  line-height: 1;
+  line-height:
+    1;
 
   text-shadow:
     0 0 3px
@@ -506,45 +610,71 @@ body {
 .next-train {
   position: absolute;
 
-  z-index: 3;
+  z-index:
+    3;
 
-  left: 8%;
-  right: 8%;
-  bottom: 7%;
+  left:
+    8%;
 
-  display: grid;
+  right:
+    8%;
+
+  bottom:
+    7%;
+
+  display:
+    grid;
 
   grid-template-columns:
-    auto 1fr auto;
+    auto minmax(0, 1fr) auto;
 
-  align-items: baseline;
+  align-items:
+    baseline;
 
-  column-gap: 5%;
+  column-gap:
+    4%;
 }
+
 
 .next-label {
   font-size:
     clamp(7px, .65vw, 13px);
 
-  white-space: nowrap;
+  white-space:
+    nowrap;
 }
 
-.next-destination,
+
+.next-destination {
+  font-size:
+    clamp(15px, 1.6vw, 31px);
+
+  white-space:
+    nowrap;
+
+  overflow:
+    hidden;
+
+  line-height:
+    1;
+
+  text-align:
+    left;
+}
+
+
 .next-time {
   font-size:
     clamp(15px, 1.6vw, 31px);
 
-  white-space: nowrap;
+  white-space:
+    nowrap;
 
-  line-height: 1;
-}
+  line-height:
+    1;
 
-.next-destination {
-  text-align: left;
-}
-
-.next-time {
-  text-align: right;
+  text-align:
+    right;
 }
 
 
@@ -555,54 +685,119 @@ body {
 @media (max-width: 700px) {
 
   .panel {
-    width: 100vw;
+    width:
+      100vw;
 
-    border-radius: 0;
+    border-radius:
+      0;
 
-    padding-left: 2%;
-    padding-right: 2%;
+    padding-left:
+      2%;
+
+    padding-right:
+      2%;
   }
+
 
   .screens {
     grid-template-columns:
       64% 34%;
 
-    gap: 2%;
+    gap:
+      2%;
   }
+
 
   .left-display {
-    border-width: 3px;
+    border-width:
+      3px;
   }
+
 
   .crt-frame {
-    padding: 3%;
+    padding:
+      3%;
   }
+
 
   .hora-grupo {
-    --dot: clamp(1.8px, .52vw, 3px);
-    --dot-gap: clamp(.5px, .08vw, 1px);
+
+    --dot:
+      clamp(
+        1.8px,
+        .52vw,
+        3px
+      );
+
+    --dot-gap:
+      clamp(
+        .5px,
+        .08vw,
+        1px
+      );
+
   }
 
+
+  /*
+    DESTINO MAIOR NO IPHONE
+  */
+
   .destino-grupo {
-    --dot: clamp(1px, .32vw, 2px);
-    --dot-gap: clamp(.35px, .05vw, .7px);
+
+    --dot:
+      clamp(
+        1.25px,
+        .40vw,
+        2.7px
+      );
+
+    --dot-gap:
+      clamp(
+        .35px,
+        .055vw,
+        .8px
+      );
+
   }
+
 
   .stop {
     font-size:
-      clamp(5px, 1.45vw, 11px);
+      clamp(
+        5px,
+        1.45vw,
+        11px
+      );
   }
+
 
   .next-label {
     font-size:
-      clamp(4px, .8vw, 7px);
+      clamp(
+        4px,
+        .8vw,
+        7px
+      );
   }
+
 
   .next-destination,
   .next-time {
     font-size:
-      clamp(7px, 1.7vw, 13px);
+      clamp(
+        7px,
+        1.7vw,
+        13px
+      );
   }
+
+
+  .next-train {
+    column-gap:
+      3%;
+  }
+
 }
 
 </style>
@@ -614,16 +809,24 @@ body {
 <div class="panel">
 
   <div class="mount left"></div>
+
   <div class="mount center"></div>
+
   <div class="mount right"></div>
+
 
   <div class="screens">
 
+
+    <!-- PAINEL ESQUERDO -->
+
     <section class="left-display">
+
 
       <div class="hora-label">
         HORA
       </div>
+
 
       <div class="hora">
 
@@ -632,9 +835,11 @@ body {
           id="horaHoras"
         ></div>
 
+
         <span class="h-separator">
           h
         </span>
+
 
         <div
           class="hora-grupo"
@@ -643,9 +848,11 @@ body {
 
       </div>
 
+
       <div class="destino-label">
         DESTINO
       </div>
+
 
       <div class="destino">
 
@@ -656,16 +863,22 @@ body {
 
       </div>
 
+
       <div class="via">
         3
       </div>
 
+
     </section>
 
+
+
+    <!-- CRT -->
 
     <section class="crt-frame">
 
       <div class="crt">
+
 
         <div class="stops">
 
@@ -674,6 +887,7 @@ body {
             id="coluna1"
           ></div>
 
+
           <div
             class="stop-column"
             id="coluna2"
@@ -681,11 +895,14 @@ body {
 
         </div>
 
+
         <div class="next-train">
+
 
           <div class="next-label">
             COMB.SEGUINTE
           </div>
+
 
           <div
             class="next-destination"
@@ -694,6 +911,7 @@ body {
             ----
           </div>
 
+
           <div
             class="next-time"
             id="proximaHora"
@@ -701,15 +919,18 @@ body {
             --:--
           </div>
 
+
         </div>
 
       </div>
 
     </section>
 
+
   </div>
 
 </div>
+
 
 
 <script>
@@ -721,17 +942,22 @@ body {
 const API_URL =
   "/api/partidas";
 
+
 const REFRESH_INTERVAL =
   30000;
+
 
 const CACHE_KEY =
   "velec-partidas-v2";
 
+
 const CACHE_MAX_AGE =
   5 * 60 * 1000;
 
+
 let temDadosVisiveis =
   false;
+
 
 
 /* ==================================================
@@ -741,6 +967,7 @@ let temDadosVisiveis =
 const PARAGENS = {
 
   "LISBOA-ORIENTE": [
+
     "MASSAMA",
     "MONTE ABRAÃO",
     "QUELUZ BELAS",
@@ -752,9 +979,12 @@ const PARAGENS = {
     "ENTRECAMPOS",
     "ROMA-AREEIRO",
     "BRAÇO PRATA"
+
   ],
 
+
   "ALVERCA": [
+
     "MASSAMA",
     "MONTE ABRAÃO",
     "QUELUZ BELAS",
@@ -772,14 +1002,19 @@ const PARAGENS = {
     "BOBADELA",
     "S.IRIA",
     "PÓVOA"
+
   ],
 
+
   "LISBOA-S.A": [
+
     "SETE RIOS",
     "ENTRECAMPOS"
+
   ]
 
 };
+
 
 
 /* ==================================================
@@ -833,6 +1068,7 @@ const FONT = {
 };
 
 
+
 /* ==================================================
    DESENHAR FLIP-DOT
 ================================================== */
@@ -845,12 +1081,15 @@ function desenharDotText(
   const fragmento =
     document.createDocumentFragment();
 
+
   elemento.innerHTML =
     "";
+
 
   texto =
     String(texto)
       .toUpperCase();
+
 
   for (
     const caracter of texto
@@ -860,13 +1099,16 @@ function desenharDotText(
       FONT[caracter] ||
       FONT[" "];
 
+
     const character =
       document.createElement(
         "div"
       );
 
+
     character.className =
       "dot-character";
+
 
     for (
       let linha = 0;
@@ -885,10 +1127,12 @@ function desenharDotText(
             "div"
           );
 
+
         dot.className =
           pattern[linha][coluna] === "1"
             ? "dot on"
             : "dot";
+
 
         character.appendChild(
           dot
@@ -898,17 +1142,20 @@ function desenharDotText(
 
     }
 
+
     fragmento.appendChild(
       character
     );
 
   }
 
+
   elemento.appendChild(
     fragmento
   );
 
 }
+
 
 
 /* ==================================================
@@ -923,6 +1170,7 @@ function normalizarDestino(
     return "";
   }
 
+
   const texto =
     String(destino)
       .toUpperCase()
@@ -933,30 +1181,62 @@ function normalizarDestino(
       )
       .trim();
 
+
   if (
-    texto.includes("ORIENTE")
+    texto.includes(
+      "ORIENTE"
+    )
   ) {
+
     return "LISBOA-ORIENTE";
+
   }
 
+
   if (
-    texto.includes("ALVERCA")
+    texto.includes(
+      "ALVERCA"
+    )
   ) {
+
     return "ALVERCA";
+
   }
 
+
   if (
-    texto.includes("SANTA APOLONIA") ||
-    texto.includes("S.APOLONIA") ||
-    texto.includes("S. APOLONIA") ||
-    texto.includes("LISBOA-S.A")
+    texto.includes(
+      "SANTA APOLONIA"
+    )
+
+    ||
+
+    texto.includes(
+      "S.APOLONIA"
+    )
+
+    ||
+
+    texto.includes(
+      "S. APOLONIA"
+    )
+
+    ||
+
+    texto.includes(
+      "LISBOA-S.A"
+    )
   ) {
+
     return "LISBOA-S.A";
+
   }
+
 
   return "";
 
 }
+
 
 
 /* ==================================================
@@ -972,10 +1252,12 @@ function mostrarHora(
       "horaHoras"
     );
 
+
   const minutos =
     document.getElementById(
       "horaMinutos"
     );
+
 
   if (!hora) {
 
@@ -984,23 +1266,29 @@ function mostrarHora(
       "--"
     );
 
+
     desenharDotText(
       minutos,
       "--"
     );
 
+
     return;
+
   }
+
 
   const partes =
     String(hora)
       .trim()
       .split(":");
 
+
   desenharDotText(
     horas,
     partes[0] || "--"
   );
+
 
   desenharDotText(
     minutos,
@@ -1010,8 +1298,9 @@ function mostrarHora(
 }
 
 
+
 /* ==================================================
-   CRT
+   CRT: 10 CARACTERES NAS PARAGENS
 ================================================== */
 
 function limitarCRT(
@@ -1020,9 +1309,52 @@ function limitarCRT(
 
   return String(texto)
     .toUpperCase()
-    .slice(0, 10);
+    .slice(
+      0,
+      10
+    );
 
 }
+
+
+
+/* ==================================================
+   COMBOIO SEGUINTE
+
+   Cortamos 3 caracteres ao
+   LISBOA-ORIENTE:
+
+   LISBOA-ORIENTE
+   ↓
+   LISBOA-ORIE
+================================================== */
+
+function limitarProximoDestino(
+  texto
+) {
+
+  const destino =
+    String(texto)
+      .toUpperCase();
+
+
+  if (
+    destino.length >
+    11
+  ) {
+
+    return destino.slice(
+      0,
+      11
+    );
+
+  }
+
+
+  return destino;
+
+}
+
 
 
 /* ==================================================
@@ -1036,26 +1368,32 @@ function mostrarParagens(
   const lista =
     PARAGENS[destino] || [];
 
+
   const coluna1 =
     document.getElementById(
       "coluna1"
     );
+
 
   const coluna2 =
     document.getElementById(
       "coluna2"
     );
 
+
   coluna1.innerHTML =
     "";
 
+
   coluna2.innerHTML =
     "";
+
 
   const corte =
     Math.ceil(
       lista.length / 2
     );
+
 
   const esquerda =
     lista.slice(
@@ -1063,10 +1401,12 @@ function mostrarParagens(
       corte
     );
 
+
   const direita =
     lista.slice(
       corte
     );
+
 
   esquerda.forEach(
     paragem => {
@@ -1076,13 +1416,16 @@ function mostrarParagens(
           "div"
         );
 
+
       linha.className =
         "stop";
+
 
       linha.textContent =
         limitarCRT(
           paragem
         );
+
 
       coluna1.appendChild(
         linha
@@ -1090,6 +1433,7 @@ function mostrarParagens(
 
     }
   );
+
 
   direita.forEach(
     paragem => {
@@ -1099,13 +1443,16 @@ function mostrarParagens(
           "div"
         );
 
+
       linha.className =
         "stop";
+
 
       linha.textContent =
         limitarCRT(
           paragem
         );
+
 
       coluna2.appendChild(
         linha
@@ -1115,6 +1462,7 @@ function mostrarParagens(
   );
 
 }
+
 
 
 /* ==================================================
@@ -1138,10 +1486,14 @@ function atualizarPainel(
               comboio.destinoOriginal
             );
 
+
           return {
+
             ...comboio,
+
             destinoPainel:
               destino
+
           };
 
         }
@@ -1165,18 +1517,29 @@ function atualizarPainel(
         null
       );
 
+
       desenharDotText(
+
         document.getElementById(
           "destinoAtual"
         ),
+
         "SEM PARTIDAS"
+
       );
 
     }
 
+
     return;
+
   }
 
+
+
+  /* ==================================================
+     COMBOIO ATUAL
+  ================================================== */
 
   const atual =
     comboios[0];
@@ -1188,10 +1551,13 @@ function atualizarPainel(
 
 
   desenharDotText(
+
     document.getElementById(
       "destinoAtual"
     ),
+
     atual.destinoPainel
+
   );
 
 
@@ -1199,6 +1565,11 @@ function atualizarPainel(
     atual.destinoPainel
   );
 
+
+
+  /* ==================================================
+     COMBOIO SEGUINTE
+  ================================================== */
 
   const seguinte =
     comboios[1];
@@ -1213,7 +1584,9 @@ function atualizarPainel(
         "proximoDestino"
       )
       .textContent =
-        seguinte.destinoPainel;
+        limitarProximoDestino(
+          seguinte.destinoPainel
+        );
 
 
     document
@@ -1225,6 +1598,7 @@ function atualizarPainel(
         "--:--";
 
   }
+
 
   else {
 
@@ -1250,6 +1624,7 @@ function atualizarPainel(
     true;
 
 }
+
 
 
 /* ==================================================
@@ -1279,10 +1654,14 @@ function carregarCacheLocal() {
 
     if (
       !cache ||
-      !Array.isArray(cache.lista) ||
+      !Array.isArray(
+        cache.lista
+      ) ||
       !cache.guardadoEm
     ) {
+
       return;
+
     }
 
 
@@ -1307,7 +1686,10 @@ function carregarCacheLocal() {
 
   }
 
-  catch (erro) {
+
+  catch (
+    erro
+  ) {
 
     console.log(
       "Cache ignorado"
@@ -1316,6 +1698,7 @@ function carregarCacheLocal() {
   }
 
 }
+
 
 
 function guardarCacheLocal(
@@ -1329,24 +1712,28 @@ function guardarCacheLocal(
       CACHE_KEY,
 
       JSON.stringify({
+
         guardadoEm:
           Date.now(),
 
         lista:
           lista
+
       })
 
     );
 
   }
 
-  catch (erro) {
 
-    /* nada */
+  catch (
+    erro
+  ) {
 
   }
 
 }
+
 
 
 /* ==================================================
@@ -1356,15 +1743,6 @@ function guardarCacheLocal(
 async function carregarPartidas() {
 
   try {
-
-    /*
-      IMPORTANTE:
-
-      Não usamos Date.now() na URL.
-
-      Assim a Vercel pode reutilizar
-      a resposta em cache.
-    */
 
     const resposta =
       await fetch(
@@ -1389,19 +1767,28 @@ async function carregarPartidas() {
 
 
     const lista =
-      Array.isArray(dados)
-        ? dados
-        : (
-            Array.isArray(
-              dados.partidas
-            )
-              ? dados.partidas
-              : []
-          );
+      Array.isArray(
+        dados
+      )
+
+      ? dados
+
+      : (
+
+        Array.isArray(
+          dados.partidas
+        )
+
+        ? dados.partidas
+
+        : []
+
+      );
 
 
     if (
-      lista.length > 0
+      lista.length >
+      0
     ) {
 
       guardarCacheLocal(
@@ -1417,18 +1804,16 @@ async function carregarPartidas() {
 
   }
 
-  catch (erro) {
+
+  catch (
+    erro
+  ) {
 
     console.error(
       "Erro API:",
       erro
     );
 
-
-    /*
-      Se já temos dados do cache,
-      não apagamos o painel.
-    */
 
     if (
       !temDadosVisiveis
@@ -1440,10 +1825,13 @@ async function carregarPartidas() {
 
 
       desenharDotText(
+
         document.getElementById(
           "destinoAtual"
         ),
+
         "SEM LIGACAO"
+
       );
 
     }
@@ -1453,22 +1841,13 @@ async function carregarPartidas() {
 }
 
 
+
 /* ==================================================
    ARRANQUE
 ================================================== */
 
-/*
-  Primeiro tenta mostrar dados
-  guardados instantaneamente.
-*/
-
 carregarCacheLocal();
 
-
-/*
-  Se não houver cache,
-  mostramos placeholders.
-*/
 
 if (
   !temDadosVisiveis
@@ -1480,25 +1859,27 @@ if (
 
 
   desenharDotText(
+
     document.getElementById(
       "destinoAtual"
     ),
+
     "----------"
+
   );
 
 }
 
 
-/*
-  Depois atualiza em background.
-*/
-
 carregarPartidas();
 
 
 setInterval(
+
   carregarPartidas,
+
   REFRESH_INTERVAL
+
 );
 
 </script>
