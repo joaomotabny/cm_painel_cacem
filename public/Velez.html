@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+  >
+
+  <title>Painel VELEC</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=VT323&display=swap"
+    rel="stylesheet"
+  >
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      background: #050505;
+      overflow: hidden;
+    }
+
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: Arial, sans-serif;
+    }
+
+    /*
+    ==================================================
+    PAINEL COMPLETO
+    ==================================================
+    */
+
+    .panel {
+      position: relative;
+
+      width: min(98vw, 1500px);
+      aspect-ratio: 2.65 / 1;
+
+      background:
+        linear-gradient(
+          145deg,
+          #16202a,
+          #0c1117 55%,
+          #18212a
+        );
+
+      border: 2px solid #29343c;
+      border-radius: 8px;
+
+      box-shadow:
+        0 30px 90px rgba(0,0,0,.9),
+        inset 0 0 30px rgba(255,255,255,.025);
+
+      padding: 4.8% 5.5% 5.5%;
+    }
+
+    /*
+    Suspensões
+    */
+
+    .mount {
+      position: absolute;
+      top: -14%;
+      width: 5%;
+      height: 15%;
+
+      background:
+        linear-gradient(
+          90deg,
+          #090b0d,
+          #333b41,
+          #090b0d
+        );
+
+      border-radius: 8px 8px 0 0;
+    }
+
+    .mount.left {
+      left: 23%;
+    }
+
+    .mount.center {
+      left: 48%;
+      background:
+        linear-gradient(
+          90deg,
+          #777,
+          #d0cbc0,
+          #888
+        );
+    }
+
+    .mount.right {
+      right: 18%;
+    }
+
+    /*
+    ==================================================
+    ZONA DOS DOIS ECRÃS
+    ==================================================
+    */
+
+    .screens {
+      width: 100%;
+      height: 100%;
+
+      display: grid;
+
+      grid-template-columns:
+        64% 32%;
+
+      gap: 4%;
+    }
+
+    /*
+    ==================================================
+    PAINEL ESQUERDO
+    ==================================================
+    */
+
+    .left-display {
+      position: relative;
+      overflow: hidden;
+
+      border: 8px solid #070a0b;
+      border-radius: 5px;
+
+      background:
+        linear-gradient(
+          180deg,
+          #334a49 0%,
+          #20312f 30%,
+          #111c1a 100%
+        );
+
+      box-shadow:
+        inset 0 0 35px rgba(0,0,0,.85),
+        inset 0 0 8px rgba(255,255,255,.15);
+    }
+
+    .left-display::after {
+      content: "";
+
+      position: absolute;
+      inset: 0;
+
+      pointer-events: none;
+
+      background:
+        linear-gradient(
+          110deg,
+          transparent 35%,
+          rgba(255,255,255,.08) 48%,
+          transparent 58%
+        );
+    }
+
+    /*
+    HORA
+    */
+
+    .hora-label,
+    .destino-label {
+      position: absolute;
+      left: 7%;
+
+      color: #dfdeb3;
+
+      font-size: clamp(18px, 3vw, 54px);
+      font-weight: 700;
+      letter-spacing: .02em;
+    }
+
+    .hora-label {
+      top: 8%;
+    }
+
+    .destino-label {
+      top: 48%;
+    }
+
+    /*
+    Número da hora
+    */
+
+    .hora {
+      position: absolute;
+
+      left: 7%;
+      top: 23%;
+
+      color: #f3df16;
+
+      font-family: "VT323", monospace;
+
+      font-size: clamp(34px, 6vw, 100px);
+      line-height: 1;
+
+      letter-spacing: .05em;
+
+      text-shadow:
+        0 0 5px rgba(255,230,0,.35);
+    }
+
+    .hora .h {
+      color: #dbd8b6;
+
+      font-family: Arial, sans-serif;
+
+      font-size: .48em;
+
+      vertical-align: 20%;
+
+      margin: 0 .08em;
+    }
+
+    /*
+    Destino
+    */
+
+    .destino {
+      position: absolute;
+
+      left: 7%;
+      bottom: 10%;
+
+      width: 72%;
+
+      white-space: nowrap;
+
+      overflow: hidden;
+
+      color: #f3df16;
+
+      font-family: "VT323", monospace;
+
+      font-size: clamp(32px, 5vw, 85px);
+      line-height: 1;
+
+      letter-spacing: .025em;
+
+      text-shadow:
+        0 0 4px rgba(255,230,0,.3);
+    }
+
+    /*
+    VIA
+    */
+
+    .via {
+      position: absolute;
+
+      right: 5%;
+      top: 12%;
+
+      width: 20%;
+      aspect-ratio: 1 / 1;
+
+      border:
+        clamp(3px, .5vw, 8px)
+        solid #d9f343;
+
+      border-radius: 8%;
+
+      display: flex;
+
+      justify-content: center;
+      align-items: center;
+
+      color: #d9f343;
+
+      font-family: Arial, sans-serif;
+      font-weight: 500;
+
+      font-size: clamp(55px, 10vw, 170px);
+
+      line-height: 1;
+
+      text-shadow:
+        0 0 12px rgba(200,255,50,.35);
+
+      box-shadow:
+        inset 0 0 15px rgba(190,255,50,.07),
+        0 0 6px rgba(190,255,50,.15);
+    }
+
+    /*
+    ==================================================
+    CRT DIREITO
+    ==================================================
+    */
+
+    .crt-frame {
+      position: relative;
+
+      background: #050606;
+
+      border-radius: 6px;
+
+      padding: 5%;
+
+      box-shadow:
+        inset 0 0 18px #000;
+    }
+
+    .crt {
+      position: relative;
+
+      width: 100%;
+      height: 100%;
+
+      overflow: hidden;
+
+      border-radius: 10%;
+
+      padding:
+        7% 8%
+        5%;
+
+      background:
+        radial-gradient(
+          ellipse at center,
+          #17301c 0%,
+          #0c2011 55%,
+          #030904 100%
+        );
+
+      color: #c9ef35;
+
+      font-family: "VT323", monospace;
+
+      box-shadow:
+        inset 0 0 30px rgba(0,0,0,.95),
+        inset 0 0 60px rgba(0,0,0,.6);
+    }
+
+    /*
+    scanlines CRT
+    */
+
+    .crt::after {
+      content: "";
+
+      position: absolute;
+      inset: 0;
+
+      pointer-events: none;
+
+      background:
+        repeating-linear-gradient(
+          to bottom,
+          rgba(255,255,255,.03) 0px,
+          rgba(255,255,255,.03) 1px,
+          transparent 1px,
+          transparent 3px
+        );
+
+      opacity: .45;
+    }
+
+    /*
+    ==================================================
+    PARAGENS
+    ==================================================
+    */
+
+    .stops {
+      position: relative;
+
+      z-index: 2;
+
+      display: grid;
+
+      grid-template-columns:
+        1fr 1fr;
+
+      column-gap: 8%;
+
+      height: 75%;
+    }
+
+    .stop-column {
+      display: flex;
+      flex-direction: column;
+
+      gap: 0;
+    }
+
+    .stop {
+      height: 10%;
+
+      white-space: nowrap;
+
+      overflow: hidden;
+
+      font-size: clamp(14px, 1.55vw, 31px);
+      line-height: 1;
+
+      text-shadow:
+        0 0 4px rgba(200,239,53,.28);
+    }
+
+    /*
+    ==================================================
+    COMBOIO SEGUINTE
+    ==================================================
+    */
+
+    .next-train {
+      position: absolute;
+
+      z-index: 3;
+
+      left: 8%;
+      right: 8%;
+      bottom: 7%;
+
+      display: grid;
+
+      grid-template-columns:
+        auto 1fr auto;
+
+      align-items: baseline;
+
+      column-gap: 5%;
+    }
+
+    .next-label {
+      font-size: clamp(9px, .8vw, 17px);
+
+      white-space: nowrap;
+
+      letter-spacing: .02em;
+    }
+
+    .next-destination,
+    .next-time {
+      font-size: clamp(19px, 2vw, 39px);
+
+      white-space: nowrap;
+
+      line-height: 1;
+    }
+
+    .next-destination {
+      text-align: left;
+    }
+
+    .next-time {
+      text-align: right;
+    }
+
+    /*
+    ==================================================
+    MOBILE
+    ==================================================
+    */
+
+    @media (max-width: 700px) {
+
+      body {
+        align-items: center;
+      }
+
+      .panel {
+        width: 100vw;
+
+        border-radius: 0;
+
+        padding-left: 2%;
+        padding-right: 2%;
+      }
+
+      .screens {
+        grid-template-columns:
+          64% 34%;
+
+        gap: 2%;
+      }
+
+      .left-display {
+        border-width: 3px;
+      }
+
+      .crt-frame {
+        padding: 3%;
+      }
+
+      .stop {
+        font-size: clamp(7px, 2.1vw, 15px);
+      }
+
+      .next-label {
+        font-size: clamp(5px, 1.1vw, 9px);
+      }
+
+      .next-destination,
+      .next-time {
+        font-size: clamp(9px, 2.5vw, 18px);
+      }
+    }
+
+  </style>
+</head>
+
+
+<body>
+
+<div class="panel">
+
+  <div class="mount left"></div>
+  <div class="mount center"></div>
+  <div class="mount right"></div>
+
+
+  <div class="screens">
+
+    <!-- PAINEL ESQUERDO -->
+
+    <section class="left-display">
+
+      <div class="hora-label">
+        HORA
+      </div>
+
+      <div class="hora">
+        <span id="horaHoras">--</span>
+        <span class="h">h</span>
+        <span id="horaMinutos">--</span>
+      </div>
+
+      <div class="destino-label">
+        DESTINO
+      </div>
+
+      <div
+        class="destino"
+        id="destinoAtual"
+      >
+        ----------
+      </div>
+
+      <div class="via">
+        3
+      </div>
+
+    </section>
+
+
+    <!-- CRT DIREITO -->
+
+    <section class="crt-frame">
+
+      <div class="crt">
+
+        <div class="stops">
+
+          <div
+            class="stop-column"
+            id="coluna1"
+          ></div>
+
+          <div
+            class="stop-column"
+            id="coluna2"
+          ></div>
+
+        </div>
+
+
+        <div class="next-train">
+
+          <div class="next-label">
+            COMB.SEGUINTE
+          </div>
+
+          <div
+            class="next-destination"
+            id="proximoDestino"
+          >
+            ----
+          </div>
+
+          <div
+            class="next-time"
+            id="proximaHora"
+          >
+            --:--
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+  </div>
+
+</div>
+
+
+<script>
+
+const API_URL = "/api/partidas";
+
+const REFRESH_INTERVAL = 30000;
+
+
+/*
+==================================================
+PARAGENS
+==================================================
+*/
+
+const PARAGENS = {
+
+  "LISBOA-ORIENTE": [
+
+    "MASSAMA",
+    "MONTE ABRAÃO",
+    "QUELUZ BELAS",
+    "AMADORA",
+    "REBOLEIRA",
+    "S.CR-DAMAIA",
+
+    "BENFICA",
+    "SETE RIOS",
+    "ENTRECAMPOS",
+    "ROMA-AREEIRO",
+    "BRAÇO PRATA"
+
+  ],
+
+
+  "ALVERCA": [
+
+    "MASSAMA",
+    "MONTE ABRAÃO",
+    "QUELUZ BELAS",
+    "AMADORA",
+    "REBOLEIRA",
+    "S.CR-DAMAIA",
+
+    "BENFICA",
+    "SETE RIOS",
+    "ENTRECAMPOS",
+    "ROMA-AREEIRO",
+    "BRAÇO PRATA",
+
+    "LISBOA-ORIENTE",
+    "MOSCAVIDE",
+    "SACAVEM",
+    "BOBADELA",
+    "S.IRIA",
+    "PÓVOA"
+
+  ],
+
+
+  "LISBOA-S.A": [
+
+    "SETE RIOS",
+    "ENTRECAMPOS"
+
+  ]
+
+};
+
+
+/*
+==================================================
+NORMALIZAÇÃO
+==================================================
+*/
+
+function normalizarDestino(destino) {
+
+  if (!destino) {
+    return "";
+  }
+
+
+  const texto =
+    String(destino)
+      .toUpperCase()
+      .normalize("NFD")
+      .replace(
+        /[\u0300-\u036f]/g,
+        ""
+      )
+      .trim();
+
+
+  if (
+    texto.includes("ORIENTE")
+  ) {
+
+    return "LISBOA-ORIENTE";
+
+  }
+
+
+  if (
+    texto.includes("ALVERCA")
+  ) {
+
+    return "ALVERCA";
+
+  }
+
+
+  if (
+
+    texto.includes("SANTA APOLONIA")
+
+    ||
+
+    texto.includes("S.APOLONIA")
+
+    ||
+
+    texto.includes("S. APOLONIA")
+
+    ||
+
+    texto.includes("LISBOA-S.A")
+
+  ) {
+
+    return "LISBOA-S.A";
+
+  }
+
+
+  return "";
+
+}
+
+
+/*
+==================================================
+CRT: LIMITE 10 CARACTERES
+==================================================
+*/
+
+function limitarCRT(texto) {
+
+  return String(texto)
+    .toUpperCase()
+    .slice(0, 10);
+
+}
+
+
+/*
+==================================================
+MOSTRAR PARAGENS
+==================================================
+*/
+
+function mostrarParagens(destino) {
+
+  const lista =
+    PARAGENS[destino] || [];
+
+
+  const coluna1 =
+    document.getElementById(
+      "coluna1"
+    );
+
+
+  const coluna2 =
+    document.getElementById(
+      "coluna2"
+    );
+
+
+  coluna1.innerHTML = "";
+  coluna2.innerHTML = "";
+
+
+  /*
+  Divide aproximadamente a lista
+  em duas colunas.
+  */
+
+  const primeiraColuna =
+    Math.ceil(
+      lista.length / 2
+    );
+
+
+  const esquerda =
+    lista.slice(
+      0,
+      primeiraColuna
+    );
+
+
+  const direita =
+    lista.slice(
+      primeiraColuna
+    );
+
+
+  esquerda.forEach(
+    paragem => {
+
+      const div =
+        document.createElement(
+          "div"
+        );
+
+
+      div.className =
+        "stop";
+
+
+      div.textContent =
+        limitarCRT(
+          paragem
+        );
+
+
+      coluna1.appendChild(
+        div
+      );
+
+    }
+  );
+
+
+  direita.forEach(
+    paragem => {
+
+      const div =
+        document.createElement(
+          "div"
+        );
+
+
+      div.className =
+        "stop";
+
+
+      div.textContent =
+        limitarCRT(
+          paragem
+        );
+
+
+      coluna2.appendChild(
+        div
+      );
+
+    }
+  );
+
+}
+
+
+/*
+==================================================
+HORA
+==================================================
+*/
+
+function mostrarHora(hora) {
+
+  if (!hora) {
+    return;
+  }
+
+
+  const partes =
+    String(hora)
+      .split(":");
+
+
+  document
+    .getElementById(
+      "horaHoras"
+    )
+    .textContent =
+      partes[0] || "--";
+
+
+  document
+    .getElementById(
+      "horaMinutos"
+    )
+    .textContent =
+      partes[1] || "--";
+
+}
+
+
+/*
+==================================================
+RENDER DO PAINEL
+==================================================
+*/
+
+function atualizarPainel(lista) {
+
+  const comboios =
+    lista
+
+      .map(
+        comboio => {
+
+          return {
+
+            ...comboio,
+
+            destinoPainel:
+              normalizarDestino(
+                comboio.destino ||
+                comboio.destination ||
+                comboio.destinoOriginal
+              )
+
+          };
+
+        }
+      )
+
+      .filter(
+        comboio =>
+          comboio.destinoPainel
+      );
+
+
+  if (
+    comboios.length === 0
+  ) {
+
+    return;
+
+  }
+
+
+  /*
+  Primeiro comboio
+  */
+
+  const atual =
+    comboios[0];
+
+
+  mostrarHora(
+    atual.hora
+  );
+
+
+  document
+    .getElementById(
+      "destinoAtual"
+    )
+    .textContent =
+      atual.destinoPainel;
+
+
+  mostrarParagens(
+    atual.destinoPainel
+  );
+
+
+  /*
+  Segundo comboio
+  */
+
+  const seguinte =
+    comboios[1];
+
+
+  if (
+    seguinte
+  ) {
+
+    document
+      .getElementById(
+        "proximoDestino"
+      )
+      .textContent =
+        seguinte.destinoPainel;
+
+
+    document
+      .getElementById(
+        "proximaHora"
+      )
+      .textContent =
+        seguinte.hora || "--:--";
+
+  }
+
+}
+
+
+/*
+==================================================
+API
+==================================================
+*/
+
+async function carregarPartidas() {
+
+  try {
+
+    const resposta =
+      await fetch(
+
+        API_URL +
+        "?t=" +
+        Date.now(),
+
+        {
+          cache:
+            "no-store"
+        }
+
+      );
+
+
+    if (
+      !resposta.ok
+    ) {
+
+      throw new Error(
+        "HTTP " +
+        resposta.status
+      );
+
+    }
+
+
+    const dados =
+      await resposta.json();
+
+
+    const lista =
+      Array.isArray(dados)
+        ? dados
+        : dados.partidas || [];
+
+
+    atualizarPainel(
+      lista
+    );
+
+  }
+
+
+  catch (
+    erro
+  ) {
+
+    console.error(
+      erro
+    );
+
+  }
+
+}
+
+
+/*
+==================================================
+ARRANQUE
+==================================================
+*/
+
+carregarPartidas();
+
+
+setInterval(
+
+  carregarPartidas,
+
+  REFRESH_INTERVAL
+
+);
+
+</script>
+
+
+</body>
+</html>
