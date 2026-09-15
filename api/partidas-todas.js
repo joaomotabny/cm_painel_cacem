@@ -21,9 +21,7 @@ export default async function handler(req, res) {
   );
 
 
-  if (
-    req.method === 'OPTIONS'
-  ) {
+  if (req.method === 'OPTIONS') {
 
     return res
       .status(200)
@@ -32,9 +30,7 @@ export default async function handler(req, res) {
   }
 
 
-  /*
-    Agualva-Cacém
-  */
+  // Agualva-Cacém
 
   const STATION_CODE =
     '9461002';
@@ -63,9 +59,7 @@ export default async function handler(req, res) {
       );
 
 
-    if (
-      !response.ok
-    ) {
+    if (!response.ok) {
 
       throw new Error(
         `IP respondeu com ${response.status}`
@@ -181,6 +175,7 @@ export default async function handler(req, res) {
 
 
       const destinoNormalizado =
+
         destinoOriginal
 
           .toUpperCase()
@@ -207,24 +202,73 @@ export default async function handler(req, res) {
         null;
 
 
+      let via =
+        null;
 
-      /* LISBOA ORIENTE */
+
+
+      /* ============================================
+         SINTRA
+      ============================================ */
 
       if (
-        destinoNormalizado
-          .includes(
-            'ORIENTE'
-          )
+        destinoNormalizado ===
+        'SINTRA'
       ) {
 
         destinoPainel =
-          'LISBOA-ORIENTE';
+          'SINTRA';
+
+        via =
+          '2';
 
       }
 
 
 
-      /* ALVERCA */
+      /* ============================================
+         MELEÇAS
+      ============================================ */
+
+      else if (
+        destinoNormalizado.includes(
+          'MELECAS'
+        )
+      ) {
+
+        destinoPainel =
+          'MELEÇAS';
+
+        via =
+          '1';
+
+      }
+
+
+
+      /* ============================================
+         LISBOA ORIENTE
+      ============================================ */
+
+      else if (
+        destinoNormalizado.includes(
+          'ORIENTE'
+        )
+      ) {
+
+        destinoPainel =
+          'LIS-ORIENTE';
+
+        via =
+          '3';
+
+      }
+
+
+
+      /* ============================================
+         ALVERCA
+      ============================================ */
 
       else if (
         destinoNormalizado ===
@@ -234,45 +278,96 @@ export default async function handler(req, res) {
         destinoPainel =
           'ALVERCA';
 
+        via =
+          '3';
+
       }
 
 
 
-      /* LISBOA SANTA APOLÓNIA */
+      /* ============================================
+         LISBOA ROSSIO
+      ============================================ */
+
+      else if (
+        destinoNormalizado.includes(
+          'ROSSIO'
+        )
+      ) {
+
+        destinoPainel =
+          'LIS-ROSSIO';
+
+        via =
+          '4';
+
+      }
+
+
+
+      /* ============================================
+         LISBOA SANTA APOLÓNIA
+      ============================================ */
 
       else if (
 
-        destinoNormalizado
-          .includes(
-            'SANTA APOLONIA'
-          )
+        destinoNormalizado.includes(
+          'SANTA APOLONIA'
+        )
 
         ||
 
-        destinoNormalizado
-          .includes(
-            'S.APOLONIA'
-          )
+        destinoNormalizado.includes(
+          'S.APOLONIA'
+        )
 
         ||
 
-        destinoNormalizado
-          .includes(
-            'S. APOLONIA'
-          )
+        destinoNormalizado.includes(
+          'S. APOLONIA'
+        )
+
+        ||
+
+        destinoNormalizado.includes(
+          'APOLONIA'
+        )
 
       ) {
 
         destinoPainel =
-          'LISBOA-S.A';
+          'LIS-S.APOL';
+
+        via =
+          '3';
+
+      }
+
+
+
+      /* ============================================
+         CALDAS DA RAINHA
+      ============================================ */
+
+      else if (
+        destinoNormalizado.includes(
+          'CALDAS'
+        )
+      ) {
+
+        destinoPainel =
+          'CALDAS RAINHA';
+
+        via =
+          '1';
 
       }
 
 
 
       /*
-        O VELEC só mostra
-        estes destinos.
+        Ignora destinos que não façam
+        parte do nosso painel.
       */
 
       if (
@@ -285,6 +380,10 @@ export default async function handler(req, res) {
 
 
 
+      /*
+        Só aceita horas válidas.
+      */
+
       if (
         !/^\d{1,2}:\d{2}$/
           .test(
@@ -295,6 +394,7 @@ export default async function handler(req, res) {
         continue;
 
       }
+
 
 
       linhas.push({
@@ -312,8 +412,7 @@ export default async function handler(req, res) {
 
         destinoOriginal,
 
-        via:
-          '3',
+        via,
 
         operador,
 
@@ -325,10 +424,14 @@ export default async function handler(req, res) {
 
 
 
-    /* REMOVER DUPLICADOS */
+    /* ============================================
+       REMOVER DUPLICADOS
+    ============================================ */
 
     const unicos =
+
       linhas.filter(
+
         (
           partida,
           index,
@@ -337,6 +440,7 @@ export default async function handler(req, res) {
 
           index ===
           array.findIndex(
+
             x =>
 
               x.hora ===
@@ -351,18 +455,25 @@ export default async function handler(req, res) {
 
               x.destino ===
                 partida.destino
+
           )
+
       );
 
 
 
-    /* ORDENAR */
+    /* ============================================
+       ORDENAR POR HORA
+    ============================================ */
 
     unicos.sort(
+
       (a, b) =>
+
         a.hora.localeCompare(
           b.hora
         )
+
     );
 
 
@@ -387,7 +498,7 @@ export default async function handler(req, res) {
         partidas:
           unicos.slice(
             0,
-            8
+            20
           )
 
       });
